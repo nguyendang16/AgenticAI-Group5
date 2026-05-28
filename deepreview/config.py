@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
-
 from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -42,6 +41,12 @@ class Settings(BaseSettings):
     agent_max_turns: int = 1000
     agent_resume_attempts: int = 2
     max_markdown_chars_to_model: int = 120000
+
+    # Fast review (~5 min target): short prompt, fewer tool/LLM rounds, no paper search.
+    review_fast_mode: bool = False
+    review_fast_max_turns: int = 22
+    review_fast_max_markdown_chars: int = 48000
+    review_fast_min_annotations: int = 2
 
     # Submit behavior
     submit_default_wait_seconds: int = 8
@@ -112,10 +117,33 @@ class Settings(BaseSettings):
             templates.append(normalized)
         return templates
 
+def apply_review_fast_profile(settings: Settings) -> Settings:
+    if not settings.review_fast_mode:
+        return settings
+    return settings.model_copy(
+        update={
+            'agent_max_turns': min(settings.agent_max_turns, settings.review_fast_max_turns),
+            'agent_resume_attempts': min(settings.agent_resume_attempts, 1),
+            'max_markdown_chars_to_model': min(
+                settings.max_markdown_chars_to_model,
+                settings.review_fast_max_markdown_chars,
+            ),
+            'min_annotations_for_final': min(
+                settings.min_annotations_for_final,
+                settings.review_fast_min_annotations,
+            ),
+            'min_paper_search_calls_for_pdf_annotate': 0,
+            'min_paper_search_calls_for_final': 0,
+            'min_distinct_paper_queries_for_final': 0,
+            'paper_search_enabled': False,
+            'mineru_allow_local_fallback': True,
+        }
+    )
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
-    settings = Settings()
+    settings = apply_review_fast_profile(Settings())
     settings.data_dir.mkdir(parents=True, exist_ok=True)
     (settings.data_dir / 'jobs').mkdir(parents=True, exist_ok=True)
     return settings

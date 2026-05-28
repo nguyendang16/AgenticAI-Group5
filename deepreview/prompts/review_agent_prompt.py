@@ -8,8 +8,75 @@ REVIEW_CHINESE_OUTPUT_CONSTRAINT = (
     '你可以使用英文进行内部思考，但所有面向用户的PDF注释与最终审稿报告必须使用中文（简体中文）。'
 )
 REVIEW_FINAL_REPORT_MIN_ANNOTATION_COUNT = 10
+REVIEW_FAST_REPORT_MIN_ANNOTATION_COUNT = 2
 
 DEFAULT_UI_LANGUAGE = 'en'
+
+
+def resolve_review_min_annotation_count(*, review_fast_mode: bool = False) -> int:
+    if review_fast_mode:
+        return REVIEW_FAST_REPORT_MIN_ANNOTATION_COUNT
+    return REVIEW_FINAL_REPORT_MIN_ANNOTATION_COUNT
+
+
+def _truncate_paper_markdown(markdown: str, *, max_chars: int) -> str:
+    text = (markdown or '').strip()
+    limit = max(4000, int(max_chars))
+    if len(text) <= limit:
+        return text
+    return f'{text[:limit]}\n\n[...truncated for model context...]'
+
+
+def _build_fast_review_annotator_prompt(
+    *,
+    paper_markdown: str,
+    source_file_id: str,
+    source_file_name: str,
+    ui_language: str,
+    max_markdown_chars: int,
+    max_tool_turns: int,
+    min_annotations: int,
+) -> str:
+    resolved_ui_language = normalize_ui_language(ui_language, fallback='en', strict=False)
+    markdown_text = _truncate_paper_markdown(paper_markdown, max_chars=max_markdown_chars)
+    language_rule = (
+        'All user-visible annotations and the final report must be in Simplified Chinese.'
+        if resolved_ui_language == 'zh-CN'
+        else 'All user-visible annotations and the final report must be in English.'
+    )
+
+    return (
+        'You are DeepReviewer 2.0 running in FAST REVIEW mode.\n'
+        'Primary goal: complete a useful but concise review within a ~5 minute wall-clock budget.\n'
+        'Optimize for low tool-call count and low LLM round-trips.\n'
+        '\n'
+        'Current paper binding:\n'
+        f'- file_id: {source_file_id}\n'
+        f'- file_name: {source_file_name}\n'
+        '\n'
+        '[FAST MODE — OVERRIDES ALL STANDARD MULTI-PHASE WORKFLOWS]\n'
+        f'- Hard cap: finish using at most {max_tool_turns} tool-using assistant turns (including final write).\n'
+        '- Use [Paper Markdown] below as the primary evidence source.\n'
+        '- Do NOT run 4-phase status ceremonies; `mcp_status_update` is optional and at most once.\n'
+        '- `pdf_read_lines`: at most 1 call total (only if a precise line cite is required).\n'
+        '- `paper_search` / `read_paper`: do not call (retrieval disabled for speed).\n'
+        f'- `pdf_annotate`: exactly {min_annotations} high-impact comments total (not page-by-page coverage).\n'
+        '- Then call `review_final_markdown_write` once and stop.\n'
+        '- Never deliver the final review as plain chat text.\n'
+        f'- {language_rule}\n'
+        '\n'
+        'Suggested minimal sequence:\n'
+        '1) Skim [Paper Markdown].\n'
+        f'2) Add {min_annotations} `pdf_annotate` items on the most important issues only.\n'
+        '3) `review_final_markdown_write` once with either:\n'
+        '   - one `markdown` string using ## Summary, ## Strengths, ## Weaknesses, ## Key Issues, '
+        '## Actionable Suggestions, ## Scores; or\n'
+        '   - section_id + section_content for each required id: '
+        'summary, strengths, weaknesses, key_issues, actionable_suggestions, scores.\n'
+        '\n'
+        '[Paper Markdown]\n'
+        f'{markdown_text or "(empty)"}\n'
+    )
 SUPPORTED_UI_LANGUAGES = ('en', 'zh-CN')
 _SUPPORTED_UI_LANGUAGE_SET = set(SUPPORTED_UI_LANGUAGES)
 
@@ -69,6 +136,8 @@ def _build_review_annotator_prompt(
     use_meta_review: bool,
     paper_search_runtime_state: dict | None = None,
     ui_language: str = 'en',
+    max_markdown_chars: int = 120000,
+    min_annotation_count: int = REVIEW_FINAL_REPORT_MIN_ANNOTATION_COUNT,
 ) -> str:
     raw_output = (meta_review_raw_output or '').strip()
 
@@ -77,9 +146,7 @@ def _build_review_annotator_prompt(
     )
     structured_text = json.dumps(structured_output, ensure_ascii=False, indent=2)
 
-    markdown_text = (paper_markdown or '').strip()
-    if len(markdown_text) > 120000:
-        markdown_text = f"{markdown_text[:120000]}\n\n[...truncated...]"
+    markdown_text = _truncate_paper_markdown(paper_markdown, max_chars=max_markdown_chars)
 
     final_annotation_expectation = (
         "Your final annotations must be more concrete than the Meta-Review, show deeper paper understanding, and capture the core mechanisms behind each weakness."
@@ -268,10 +335,10 @@ def _build_review_annotator_prompt(
         "  Step 3 section-count requirement: produce at least 10 section/paragraph-level PDF annotations before final reporting.\n"
         "  Step 3 coverage hard condition: full-paragraph coverage is mandatory for substantive paragraphs in Abstract/Introduction/Method/Experiments/Conclusion.\n"
         "  Step 3 introduction hard condition: each substantive introduction paragraph must receive >=1 annotation.\n"
-        f"  Step 3 minimum count condition: total annotations must reach >= {REVIEW_FINAL_REPORT_MIN_ANNOTATION_COUNT} before final submission.\n"
+        f"  Step 3 minimum count condition: total annotations must reach >= {min_annotation_count} before final submission.\n"
         "  Step 4 - Final submission gate: consolidate findings into one complete final report and submit via review_final_markdown_write.\n"
         "  Step 4 reporting rule: only after Step 3 is complete may you use MCP final reporting, and you must satisfy both: "
-        f"hard minimum >= {REVIEW_FINAL_REPORT_MIN_ANNOTATION_COUNT} annotations, plus page-level coverage self-check from pdf_annotate return data "
+        f"hard minimum >= {min_annotation_count} annotations, plus page-level coverage self-check from pdf_annotate return data "
         "(main body each page 1-4, appendix >=1 per 1-2 pages). Do not treat reaching 10 alone as sufficient.\n"
         "  Step 4 pre-submit audit gate: complete novelty audit + objectivity audit + evidence-sufficiency audit, then submit only after all checks pass.\n"
         "  Step 4 required section gate: final report must include Summary, Strengths, Weaknesses, Key Issues, Actionable Suggestions, Storyline Options + Writing Outlines, Priority Revision Plan, Experiment Inventory & Research Experiment Plan, Novelty Verification & Related-Work Matrix, References, and Scores.\n"
@@ -1199,7 +1266,7 @@ def _build_review_annotator_prompt(
         "  Direct copy/paste of manuscript text, meta-review text, prior drafts, or tool outputs is strictly forbidden.\n"
         "  Verbatim manuscript quotes are optional and usually unnecessary; rely on precise location anchors + your own audit reasoning.\n"
         "  Length guidance: prioritize completeness and actionable depth; no hard minimum word/character threshold is required for final-report qualification.\n"
-        f"  Annotation gate (strict): before final submission you must have >= {REVIEW_FINAL_REPORT_MIN_ANNOTATION_COUNT} PDF annotations as a hard minimum; "
+        f"  Annotation gate (strict): before final submission you must have >= {min_annotation_count} PDF annotations as a hard minimum; "
         "this minimum alone is not sufficient. You must also self-check page-level coverage from `pdf_annotate` return data "
         "(main-body pages: 1-4 annotations per page; appendix: >=1 annotation per 1-2 pages).\n"
         "  Prefer clear natural language, explicit transitions, and concrete statements over compressed shorthand.\n"
@@ -1436,7 +1503,22 @@ def build_review_agent_system_prompt(
     use_meta_review: bool = False,
     paper_search_runtime_state: dict | None = None,
     ui_language: str = 'en',
+    review_fast_mode: bool = False,
+    max_markdown_chars: int = 120000,
+    review_fast_max_turns: int = 18,
+    review_fast_min_annotations: int = REVIEW_FAST_REPORT_MIN_ANNOTATION_COUNT,
 ) -> str:
+    if review_fast_mode:
+        return _build_fast_review_annotator_prompt(
+            paper_markdown=paper_markdown,
+            source_file_id=source_file_id,
+            source_file_name=source_file_name,
+            ui_language=ui_language,
+            max_markdown_chars=max_markdown_chars,
+            max_tool_turns=review_fast_max_turns,
+            min_annotations=review_fast_min_annotations,
+        )
+
     return _build_review_annotator_prompt(
         meta_review_raw_output=meta_review_raw_output,
         meta_review_structured_output=(meta_review_structured_output or {}),
@@ -1446,7 +1528,13 @@ def build_review_agent_system_prompt(
         use_meta_review=use_meta_review,
         paper_search_runtime_state=paper_search_runtime_state,
         ui_language=ui_language,
+        max_markdown_chars=max_markdown_chars,
+        min_annotation_count=resolve_review_min_annotation_count(review_fast_mode=False),
     )
 
 
-__all__ = ['build_review_agent_system_prompt', 'normalize_ui_language']
+__all__ = [
+    'build_review_agent_system_prompt',
+    'normalize_ui_language',
+    'resolve_review_min_annotation_count',
+]

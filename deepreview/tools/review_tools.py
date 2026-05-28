@@ -97,6 +97,20 @@ _REQUIRED_FINAL_REPORT_SECTIONS: list[tuple[str, str, tuple[str, ...]]] = [
     ('references', 'References', ('references', 'reference')),
     ('scores', 'Scores', ('scores', 'score', 'final score')),
 ]
+_FAST_REQUIRED_FINAL_REPORT_SECTIONS: list[tuple[str, str, tuple[str, ...]]] = [
+    ('summary', 'Summary', ('summary',)),
+    ('strengths', 'Strengths', ('strengths',)),
+    ('weaknesses', 'Weaknesses', ('weaknesses',)),
+    ('key_issues', 'Key Issues', ('key issues', 'issues')),
+    ('actionable_suggestions', 'Actionable Suggestions', ('actionable suggestions', 'suggestions')),
+    ('scores', 'Scores', ('scores', 'score', 'final score')),
+]
+
+
+def _final_report_section_defs(*, review_fast_mode: bool = False) -> list[tuple[str, str, tuple[str, ...]]]:
+    if review_fast_mode:
+        return _FAST_REQUIRED_FINAL_REPORT_SECTIONS
+    return _REQUIRED_FINAL_REPORT_SECTIONS
 
 
 def _paper_search_state_payload(state: Any) -> dict[str, Any]:
@@ -222,17 +236,20 @@ def _normalize_final_report_section_token(value: Any) -> str:
     return token
 
 
-def _required_final_report_section_order() -> list[str]:
-    return [section_id for section_id, _title, _aliases in _REQUIRED_FINAL_REPORT_SECTIONS]
+def _required_final_report_section_order(*, review_fast_mode: bool = False) -> list[str]:
+    return [section_id for section_id, _title, _aliases in _final_report_section_defs(review_fast_mode=review_fast_mode)]
 
 
-def _required_final_report_section_titles() -> dict[str, str]:
-    return {section_id: title for section_id, title, _aliases in _REQUIRED_FINAL_REPORT_SECTIONS}
+def _required_final_report_section_titles(*, review_fast_mode: bool = False) -> dict[str, str]:
+    return {
+        section_id: title
+        for section_id, title, _aliases in _final_report_section_defs(review_fast_mode=review_fast_mode)
+    }
 
 
-def _required_final_report_alias_map() -> dict[str, str]:
+def _required_final_report_alias_map(*, review_fast_mode: bool = False) -> dict[str, str]:
     alias_map: dict[str, str] = {}
-    for section_id, title, aliases in _REQUIRED_FINAL_REPORT_SECTIONS:
+    for section_id, title, aliases in _final_report_section_defs(review_fast_mode=review_fast_mode):
         for raw_alias in (section_id, title, *aliases):
             normalized_alias = _normalize_final_report_section_token(raw_alias)
             if normalized_alias:
@@ -240,11 +257,15 @@ def _required_final_report_alias_map() -> dict[str, str]:
     return alias_map
 
 
-def _resolve_final_report_section_id(section_key: Any) -> str | None:
+def _resolve_final_report_section_id(
+    section_key: Any,
+    *,
+    review_fast_mode: bool = False,
+) -> str | None:
     normalized = _normalize_final_report_section_token(section_key)
     if not normalized:
         return None
-    alias_map = _required_final_report_alias_map()
+    alias_map = _required_final_report_alias_map(review_fast_mode=review_fast_mode)
     direct = alias_map.get(normalized)
     if direct:
         return direct
@@ -339,14 +360,21 @@ def _build_sections_from_legacy_fields(
     return sections
 
 
-def _extract_required_sections_from_markdown(markdown_text: str) -> dict[str, str]:
+def _extract_required_sections_from_markdown(
+    markdown_text: str,
+    *,
+    review_fast_mode: bool = False,
+) -> dict[str, str]:
     section_buffers: dict[str, list[str]] = {}
     active_section_id: str | None = None
     for raw_line in str(markdown_text or '').splitlines():
         heading_match = _FINAL_REPORT_SECTION_HEADING_PATTERN.match(raw_line)
         if heading_match:
             heading_text = heading_match.group(1)
-            active_section_id = _resolve_final_report_section_id(heading_text)
+            active_section_id = _resolve_final_report_section_id(
+                heading_text,
+                review_fast_mode=review_fast_mode,
+            )
             if active_section_id and active_section_id not in section_buffers:
                 section_buffers[active_section_id] = []
             continue
@@ -361,10 +389,14 @@ def _extract_required_sections_from_markdown(markdown_text: str) -> dict[str, st
     return extracted
 
 
-def _build_final_report_markdown_from_sections(sections: dict[str, str]) -> str:
+def _build_final_report_markdown_from_sections(
+    sections: dict[str, str],
+    *,
+    review_fast_mode: bool = False,
+) -> str:
     blocks: list[str] = []
-    title_map = _required_final_report_section_titles()
-    for section_id in _required_final_report_section_order():
+    title_map = _required_final_report_section_titles(review_fast_mode=review_fast_mode)
+    for section_id in _required_final_report_section_order(review_fast_mode=review_fast_mode):
         content = str(sections.get(section_id) or '').strip()
         if not content:
             continue
@@ -379,9 +411,10 @@ def _apply_retrieval_disabled_report_defaults(
     sections: dict[str, str],
     *,
     retrieval_not_started: bool,
+    review_fast_mode: bool = False,
 ) -> dict[str, str]:
     normalized = {key: str(value or '').strip() for key, value in sections.items()}
-    if not retrieval_not_started:
+    if review_fast_mode or not retrieval_not_started:
         return normalized
 
     novelty_id = 'novelty_verification_related_work_matrix'
@@ -400,13 +433,17 @@ def _apply_retrieval_disabled_report_defaults(
     return normalized
 
 
-def _section_descriptor(section_id: str) -> dict[str, str]:
-    title_map = _required_final_report_section_titles()
+def _section_descriptor(section_id: str, *, review_fast_mode: bool = False) -> dict[str, str]:
+    title_map = _required_final_report_section_titles(review_fast_mode=review_fast_mode)
     return {'id': section_id, 'title': title_map.get(section_id, section_id)}
 
 
-def _section_descriptor_list(section_ids: list[str]) -> list[dict[str, str]]:
-    return [_section_descriptor(section_id) for section_id in section_ids]
+def _section_descriptor_list(
+    section_ids: list[str],
+    *,
+    review_fast_mode: bool = False,
+) -> list[dict[str, str]]:
+    return [_section_descriptor(section_id, review_fast_mode=review_fast_mode) for section_id in section_ids]
 
 
 def _build_final_report_progress_payload(
@@ -425,6 +462,7 @@ def _build_final_report_progress_payload(
     retry_required: bool = True,
     next_steps: list[str] | None = None,
     current_section_id: str | None = None,
+    review_fast_mode: bool = False,
 ) -> dict[str, Any]:
     next_section_id = missing_section_ids[0] if missing_section_ids else None
     payload: dict[str, Any] = {
@@ -434,10 +472,23 @@ def _build_final_report_progress_payload(
         'task_completed': False,
         'source': source,
         'draft_version': max(1, int(draft_version or 1)),
-        'required_sections': _section_descriptor_list(_required_final_report_section_order()),
-        'completed_sections': _section_descriptor_list(completed_section_ids),
-        'missing_sections': _section_descriptor_list(missing_section_ids),
-        'next_required_section': _section_descriptor(next_section_id) if next_section_id else None,
+        'required_sections': _section_descriptor_list(
+            _required_final_report_section_order(review_fast_mode=review_fast_mode),
+            review_fast_mode=review_fast_mode,
+        ),
+        'completed_sections': _section_descriptor_list(
+            completed_section_ids,
+            review_fast_mode=review_fast_mode,
+        ),
+        'missing_sections': _section_descriptor_list(
+            missing_section_ids,
+            review_fast_mode=review_fast_mode,
+        ),
+        'next_required_section': (
+            _section_descriptor(next_section_id, review_fast_mode=review_fast_mode)
+            if next_section_id
+            else None
+        ),
         'retry_required': bool(retry_required),
         'retry_tool': 'review_final_markdown_write',
         'annotation_count': max(0, int(annotation_count or 0)),
@@ -446,7 +497,10 @@ def _build_final_report_progress_payload(
         'required_paper_search_calls': max(0, int(required_paper_search_calls or 0)),
     }
     if current_section_id:
-        payload['current_section'] = _section_descriptor(current_section_id)
+        payload['current_section'] = _section_descriptor(
+            current_section_id,
+            review_fast_mode=review_fast_mode,
+        )
     if isinstance(next_steps, list) and next_steps:
         payload['next_steps'] = [str(item).strip() for item in next_steps if str(item).strip()]
     return payload
@@ -593,6 +647,16 @@ def build_review_tools(runtime: ReviewRuntimeContext) -> list[Any]:
     ) -> dict[str, Any]:
         rt = ctx.context
         rt.record_tool('pdf_read_lines')
+        if rt.settings.review_fast_mode and int(rt.tool_counts.get('pdf_read_lines', 0)) > 1:
+            rt.sync_state_usage(ctx.usage)
+            return {
+                'status': 'error',
+                'reason': 'fast_mode_limit',
+                'message': (
+                    'FAST MODE: `pdf_read_lines` is limited to one call. '
+                    'Use the Paper Markdown section from the system prompt.'
+                ),
+            }
 
         lines = rt.page_index.get(int(page))
         if not lines:
@@ -1014,8 +1078,9 @@ def build_review_tools(runtime: ReviewRuntimeContext) -> list[Any]:
         rt.record_tool('review_final_markdown_write')
         attempt_no = int(rt.tool_counts.get('review_final_markdown_write', 0))
         usage = rt.paper_search_usage
-        section_order = _required_final_report_section_order()
-        enforce_final_gates = bool(rt.settings.enable_final_gates)
+        review_fast_mode = bool(rt.settings.review_fast_mode)
+        section_order = _required_final_report_section_order(review_fast_mode=review_fast_mode)
+        enforce_final_gates = bool(rt.settings.enable_final_gates) and not review_fast_mode
         paper_search_state_payload = _paper_search_state_payload(rt.paper_search_runtime_state)
         retrieval_not_started = _paper_search_not_started(paper_search_state_payload)
         required_paper_calls = (
@@ -1047,7 +1112,10 @@ def build_review_tools(runtime: ReviewRuntimeContext) -> list[Any]:
                 'paper_search_usage': usage.model_dump(),
                 'paper_search_state': paper_search_state_payload,
                 'required_paper_search_calls': required_paper_calls,
-                'completed_sections': _section_descriptor_list(completed_section_ids),
+                'completed_sections': _section_descriptor_list(
+                    completed_section_ids,
+                    review_fast_mode=review_fast_mode,
+                ),
                 'missing_sections': [],
                 'next_required_section': None,
             }
@@ -1080,32 +1148,39 @@ def build_review_tools(runtime: ReviewRuntimeContext) -> list[Any]:
             suggestions=suggestions,
             storylines=storylines,
         )
-        markdown_sections = _extract_required_sections_from_markdown(raw_markdown_input)
+        markdown_sections = _extract_required_sections_from_markdown(
+            raw_markdown_input,
+            review_fast_mode=review_fast_mode,
+        )
         if markdown_sections:
             incoming_sections.update(markdown_sections)
         elif raw_markdown_input and not incoming_sections:
             # Backward compatible fallback for a single raw markdown chunk.
             incoming_sections['summary'] = raw_markdown_input
 
-        requested_section_id = _resolve_final_report_section_id(section_id or section_title)
+        requested_section_id = _resolve_final_report_section_id(
+            section_id or section_title,
+            review_fast_mode=review_fast_mode,
+        )
         if (section_id or section_title) and not requested_section_id:
+            allowed_sections = ', '.join(section_order)
             return _return_final_write_failure(
                 {
                     'status': 'error',
                     'reason': 'section_id_invalid',
                     'message': (
                         'Unknown section_id/section_title. Use one required section id: '
-                        'summary, strengths, weaknesses, key_issues, actionable_suggestions, '
-                        'storyline_options_writing_outlines, priority_revision_plan, '
-                        'experiment_inventory_research_experiment_plan, novelty_verification_related_work_matrix, '
-                        'references, scores.'
+                        f'{allowed_sections}.'
                     ),
                     'retry_required': True,
                     'retry_tool': 'review_final_markdown_write',
                 }
             )
         if requested_section_id and section_content is None and requested_section_id not in incoming_sections:
-            section_name = _required_final_report_section_titles().get(requested_section_id, requested_section_id)
+            section_name = _required_final_report_section_titles(review_fast_mode=review_fast_mode).get(
+                requested_section_id,
+                requested_section_id,
+            )
             return _return_final_write_failure(
                 {
                     'status': 'error',
@@ -1126,7 +1201,10 @@ def build_review_tools(runtime: ReviewRuntimeContext) -> list[Any]:
                 content=requested_content,
             )
             if not requested_content:
-                section_name = _required_final_report_section_titles().get(requested_section_id, requested_section_id)
+                section_name = _required_final_report_section_titles(review_fast_mode=review_fast_mode).get(
+                    requested_section_id,
+                    requested_section_id,
+                )
                 return _return_final_write_failure(
                     {
                         'status': 'error',
@@ -1145,6 +1223,7 @@ def build_review_tools(runtime: ReviewRuntimeContext) -> list[Any]:
         draft_sections = _apply_retrieval_disabled_report_defaults(
             draft_sections,
             retrieval_not_started=retrieval_not_started,
+            review_fast_mode=review_fast_mode,
         )
 
         if not draft_sections:
@@ -1190,8 +1269,45 @@ def build_review_tools(runtime: ReviewRuntimeContext) -> list[Any]:
             progress_message = (
                 'Section draft saved. '
                 f'{len(missing_section_ids)} required section(s) are still missing. '
-                f"Next required section: {_required_final_report_section_titles().get(missing_section_ids[0], missing_section_ids[0])}."
+                f"Next required section: {_required_final_report_section_titles(review_fast_mode=review_fast_mode).get(missing_section_ids[0], missing_section_ids[0])}."
             )
+            if review_fast_mode:
+                next_steps = [
+                    (
+                        'FAST MODE: submit all remaining sections in one call using markdown with '
+                        '## Summary, ## Strengths, ## Weaknesses, ## Key Issues, '
+                        '## Actionable Suggestions, ## Scores headings.'
+                    ),
+                    (
+                        'Or pass section_id + section_content for the next missing section only: '
+                        + ', '.join(
+                            _required_final_report_section_titles(review_fast_mode=True).get(
+                                section_key,
+                                section_key,
+                            )
+                            for section_key in missing_section_ids
+                        )
+                        + '.'
+                    ),
+                ]
+            else:
+                next_steps = [
+                    (
+                        "Submit the next section with review_final_markdown_write("
+                        "section_id='<next>', section_content='<markdown>')."
+                    ),
+                    (
+                        'Missing sections: '
+                        + ', '.join(
+                            _required_final_report_section_titles(review_fast_mode=False).get(
+                                section_key,
+                                section_key,
+                            )
+                            for section_key in missing_section_ids
+                        )
+                        + '.'
+                    ),
+                ]
             progress_payload = _build_final_report_progress_payload(
                 source=normalized_source,
                 completed_section_ids=completed_section_ids,
@@ -1205,21 +1321,9 @@ def build_review_tools(runtime: ReviewRuntimeContext) -> list[Any]:
                 reason='required_sections_missing',
                 message=progress_message,
                 retry_required=True,
-                next_steps=[
-                    (
-                        "Submit the next section with review_final_markdown_write("
-                        "section_id='<next>', section_content='<markdown>')."
-                    ),
-                    (
-                        'Missing sections: '
-                        + ', '.join(
-                            _required_final_report_section_titles().get(section_key, section_key)
-                            for section_key in missing_section_ids
-                        )
-                        + '.'
-                    ),
-                ],
+                next_steps=next_steps,
                 current_section_id=current_section_id,
+                review_fast_mode=review_fast_mode,
             )
             progress_payload['paper_search_state'] = paper_search_state_payload
             rt.sync_state_usage(ctx.usage)
@@ -1320,7 +1424,10 @@ def build_review_tools(runtime: ReviewRuntimeContext) -> list[Any]:
                 )
             )
 
-        markdown_text = _build_final_report_markdown_from_sections(draft_sections)
+        markdown_text = _build_final_report_markdown_from_sections(
+            draft_sections,
+            review_fast_mode=review_fast_mode,
+        )
         if not markdown_text:
             return _return_final_write_failure(
                 {

@@ -105,14 +105,34 @@ def _build_agent_model() -> OpenAIChatCompletionsModel | OpenAIResponsesModel:
     )
 
 
+def _model_uses_max_completion_tokens(model_name: str) -> bool:
+    """OpenAI reasoning-era models reject chat.completions max_tokens."""
+    name = model_name.strip().lower()
+    if not name:
+        return False
+    if name.startswith('gpt-5'):
+        return True
+    if name.startswith(('o1', 'o3', 'o4')):
+        return True
+    return False
+
+
 def _build_agent_model_settings(*, tool_choice: str | None = None) -> ModelSettings:
     settings = get_settings()
     model_name = str(settings.agent_model or '').strip().lower()
     use_xhigh_reasoning = model_name in {'gpt-5.4', 'gpt-5.3', 'gpt-5.2'}
+    use_max_completion_tokens = _model_uses_max_completion_tokens(model_name)
+
+    extra_args: dict[str, Any] | None = None
+    max_tokens = settings.agent_max_tokens
+    if use_max_completion_tokens:
+        max_tokens = None
+        extra_args = {'max_completion_tokens': settings.agent_max_tokens}
 
     return ModelSettings(
         temperature=settings.agent_temperature,
-        max_tokens=settings.agent_max_tokens,
+        max_tokens=max_tokens,
+        extra_args=extra_args,
         tool_choice=tool_choice,
         reasoning=Reasoning(effort='xhigh') if use_xhigh_reasoning else None,
     )
@@ -394,6 +414,15 @@ async def run_job_async(job_id: str) -> None:
 
     mutate_job_state(job_id, apply_paper_search_state)
 
+    if settings.review_fast_mode:
+        append_event(
+            job_id,
+            'review_fast_mode_enabled',
+            max_turns=settings.agent_max_turns,
+            max_markdown_chars=settings.max_markdown_chars_to_model,
+            min_annotations=settings.min_annotations_for_final,
+        )
+
     prompt = build_review_agent_system_prompt(
         source_file_id=job_id,
         source_file_name=job.source_pdf_name,
@@ -401,6 +430,10 @@ async def run_job_async(job_id: str) -> None:
         paper_markdown=parse_result.markdown,
         use_meta_review=False,
         paper_search_runtime_state=paper_search_runtime_state,
+        review_fast_mode=settings.review_fast_mode,
+        max_markdown_chars=settings.max_markdown_chars_to_model,
+        review_fast_max_turns=settings.agent_max_turns,
+        review_fast_min_annotations=settings.min_annotations_for_final,
     )
     write_text_atomic(Path(artifacts['prompt_snapshot']), prompt)
 
@@ -483,7 +516,11 @@ async def run_job_async(job_id: str) -> None:
                 agent,
                 input=next_input,
                 context=runtime,
-                max_turns=max(20, settings.agent_max_turns),
+                max_turns=(
+                    settings.agent_max_turns
+                    if settings.review_fast_mode
+                    else max(20, settings.agent_max_turns)
+                ),
                 run_config=run_config,
             )
         )
@@ -595,7 +632,7 @@ async def run_job_async(job_id: str) -> None:
                         forced_agent,
                         input=forced_input,
                         context=runtime,
-                        max_turns=12,
+                        max_turns=8 if settings.review_fast_mode else 12,
                         run_config=run_config,
                     )
                 except Exception as exc:

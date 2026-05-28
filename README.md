@@ -147,6 +147,19 @@ For the full provider setup guide, see `docs/paper_search_providers.md`.
 | `OPENAI_AGENTS_DISABLE_TRACING` | Disable tracing noise in local gateways | Recommended `1` |
 | `AGENT_RESUME_ATTEMPTS` | Resume attempts (hard cap) | `2` |
 
+### Fast Review (~5 minutes)
+
+Set `REVIEW_FAST_MODE=true` for a lightweight profile aimed at short wall-clock time and fewer LLM/tool rounds:
+
+| Variable | Fast default | Effect |
+| :--- | :--- | :--- |
+| `REVIEW_FAST_MODE` | `false` | Enables compact prompt + tight turn budget |
+| `REVIEW_FAST_MAX_TURNS` | `22` | Caps agent tool/LLM turns |
+| `REVIEW_FAST_MAX_MARKDOWN_CHARS` | `48000` | Smaller paper context in prompt |
+| `REVIEW_FAST_MIN_ANNOTATIONS` | `2` | Only a few PDF annotations required |
+
+Fast mode also disables `paper_search`, lowers annotation gates, and enables MinerU local fallback when cloud download fails.
+
 ### Finalization Gates
 
 | Variable | Default | Description |
