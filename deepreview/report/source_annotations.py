@@ -162,6 +162,45 @@ def _coerce_annotation_item(value: AnnotationItem | dict[str, Any]) -> Annotatio
         return None
 
 
+def _find_best_text_match(
+    target_text: str,
+    page_lines: list[_ContentLine],
+) -> tuple[float, float, float, float] | None:
+    """Find the best matching content line by text similarity and return its bbox."""
+    if not target_text or not page_lines:
+        return None
+
+    target_lower = target_text.lower().strip()
+    target_words = set(target_lower.split())
+
+    best_match: _ContentLine | None = None
+    best_score = 0.0
+
+    for line in page_lines:
+        if line.bbox is None:
+            continue
+        line_lower = line.text.lower().strip()
+        line_words = set(line_lower.split())
+
+        if target_lower in line_lower or line_lower in target_lower:
+            overlap = len(target_words & line_words)
+            score = overlap / max(len(target_words), 1)
+            if score > best_score:
+                best_score = score
+                best_match = line
+
+        if not best_match and target_words & line_words:
+            overlap = len(target_words & line_words)
+            score = overlap / max(len(target_words | line_words), 1)
+            if score > best_score:
+                best_score = score
+                best_match = line
+
+    if best_match and best_score >= 0.3:
+        return best_match.bbox
+    return None
+
+
 def build_source_annotations_for_export(
     *,
     annotations: list[AnnotationItem] | list[dict[str, Any]],
@@ -184,6 +223,12 @@ def build_source_annotations_for_export(
 
         selected = page_lines[start_idx:end_idx] if page_lines else []
         selected_boxes = [line.bbox for line in selected if line.bbox is not None]
+
+        if not selected_boxes and page_lines:
+            target_text = str(ann.text or '').strip()
+            matched_bbox = _find_best_text_match(target_text, page_lines)
+            if matched_bbox:
+                selected_boxes = [matched_bbox]
 
         if not selected_boxes and page_lines:
             nearby_start = max(0, start_idx - 2)

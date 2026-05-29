@@ -117,11 +117,37 @@ def _model_uses_max_completion_tokens(model_name: str) -> bool:
     return False
 
 
+def _model_supports_reasoning(model_name: str) -> bool:
+    """Check if model supports reasoning tokens."""
+    name = model_name.strip().lower()
+    if not name:
+        return False
+    if name.startswith('gpt-5'):
+        return True
+    if name.startswith(('o1', 'o3', 'o4')):
+        return True
+    return False
+
+
+def _model_supports_temperature(model_name: str) -> bool:
+    """Check if model supports custom temperature. Reasoning models typically don't."""
+    name = model_name.strip().lower()
+    if not name:
+        return True
+    # GPT-5 mini and reasoning models don't support custom temperature
+    if 'gpt-5-mini' in name or 'gpt-5 mini' in name:
+        return False
+    if name.startswith(('o1', 'o3', 'o4')):
+        return False
+    return True
+
+
 def _build_agent_model_settings(*, tool_choice: str | None = None) -> ModelSettings:
     settings = get_settings()
     model_name = str(settings.agent_model or '').strip().lower()
-    use_xhigh_reasoning = model_name in {'gpt-5.4', 'gpt-5.3', 'gpt-5.2'}
     use_max_completion_tokens = _model_uses_max_completion_tokens(model_name)
+    supports_reasoning = _model_supports_reasoning(model_name)
+    supports_temperature = _model_supports_temperature(model_name)
 
     extra_args: dict[str, Any] | None = None
     max_tokens = settings.agent_max_tokens
@@ -129,12 +155,21 @@ def _build_agent_model_settings(*, tool_choice: str | None = None) -> ModelSetti
         max_tokens = None
         extra_args = {'max_completion_tokens': settings.agent_max_tokens}
 
+    reasoning_config = None
+    if supports_reasoning:
+        effort = str(settings.agent_reasoning_effort or 'low').strip().lower()
+        if effort not in {'low', 'medium', 'high', 'xhigh'}:
+            effort = 'low'
+        reasoning_config = Reasoning(effort=effort)
+
+    temperature = settings.agent_temperature if supports_temperature else None
+
     return ModelSettings(
-        temperature=settings.agent_temperature,
+        temperature=temperature,
         max_tokens=max_tokens,
         extra_args=extra_args,
         tool_choice=tool_choice,
-        reasoning=Reasoning(effort='xhigh') if use_xhigh_reasoning else None,
+        reasoning=reasoning_config,
     )
 
 
@@ -219,6 +254,7 @@ def _render_report_pdf(
         content_list=content_list,
     )
 
+    settings = get_settings()
     report_pdf_bytes = build_review_report_pdf(
         workspace_title=job_title,
         source_pdf_name=source_pdf_name,
@@ -238,6 +274,9 @@ def _render_report_pdf(
         owner_email=None,
         token_usage=token_usage,
         agent_model=agent_model,
+        brand_name=settings.pdf_brand_name,
+        producer_name=settings.pdf_producer_name,
+        logo_path_override=settings.pdf_logo_path,
     )
     report_pdf_path.parent.mkdir(parents=True, exist_ok=True)
     report_pdf_path.write_bytes(report_pdf_bytes)

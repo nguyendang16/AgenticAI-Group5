@@ -647,13 +647,13 @@ def build_review_tools(runtime: ReviewRuntimeContext) -> list[Any]:
     ) -> dict[str, Any]:
         rt = ctx.context
         rt.record_tool('pdf_read_lines')
-        if rt.settings.review_fast_mode and int(rt.tool_counts.get('pdf_read_lines', 0)) > 1:
+        if rt.settings.review_fast_mode and int(rt.tool_counts.get('pdf_read_lines', 0)) > 5:
             rt.sync_state_usage(ctx.usage)
             return {
                 'status': 'error',
                 'reason': 'fast_mode_limit',
                 'message': (
-                    'FAST MODE: `pdf_read_lines` is limited to one call. '
+                    'FAST MODE: `pdf_read_lines` is limited to 5 calls. '
                     'Use the Paper Markdown section from the system prompt.'
                 ),
             }

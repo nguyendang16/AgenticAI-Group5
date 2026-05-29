@@ -8,7 +8,7 @@ REVIEW_CHINESE_OUTPUT_CONSTRAINT = (
     '你可以使用英文进行内部思考，但所有面向用户的PDF注释与最终审稿报告必须使用中文（简体中文）。'
 )
 REVIEW_FINAL_REPORT_MIN_ANNOTATION_COUNT = 10
-REVIEW_FAST_REPORT_MIN_ANNOTATION_COUNT = 2
+REVIEW_FAST_REPORT_MIN_ANNOTATION_COUNT = 8
 
 DEFAULT_UI_LANGUAGE = 'en'
 
@@ -46,7 +46,7 @@ def _build_fast_review_annotator_prompt(
     )
 
     return (
-        'You are DeepReviewer 2.0 running in FAST REVIEW mode.\n'
+        'You are review agent running in FAST REVIEW mode.\n'
         'Primary goal: complete a useful but concise review within a ~5 minute wall-clock budget.\n'
         'Optimize for low tool-call count and low LLM round-trips.\n'
         '\n'
@@ -58,16 +58,34 @@ def _build_fast_review_annotator_prompt(
         f'- Hard cap: finish using at most {max_tool_turns} tool-using assistant turns (including final write).\n'
         '- Use [Paper Markdown] below as the primary evidence source.\n'
         '- Do NOT run 4-phase status ceremonies; `mcp_status_update` is optional and at most once.\n'
-        '- `pdf_read_lines`: at most 1 call total (only if a precise line cite is required).\n'
+        '- `pdf_search`: REQUIRED before each annotation to find exact page/line numbers for target text.\n'
+        '- `pdf_read_lines`: up to 5 calls allowed (use to verify text position when uncertain).\n'
         '- `paper_search` / `read_paper`: do not call (retrieval disabled for speed).\n'
         f'- `pdf_annotate`: exactly {min_annotations} high-impact comments total (not page-by-page coverage).\n'
         '- Then call `review_final_markdown_write` once and stop.\n'
         '- Never deliver the final review as plain chat text.\n'
         f'- {language_rule}\n'
         '\n'
+        '[ANNOTATION TYPE BALANCE RULE - CRITICAL]\n'
+        f'You MUST annotate {min_annotations} items with this distribution:\n'
+        '- At least 50% must be `object_type=issue` (problems, errors, weaknesses, missing info)\n'
+        '- At least 30% must be `object_type=suggestion` (improvements, enhancements)\n'
+        '- At most 20% can be positive comments (strengths)\n'
+        'Example for 8 annotations: 4 issues, 3 suggestions, 1 strength.\n'
+        'DO NOT annotate mostly strengths. Focus on ACTIONABLE CRITICISM that helps improve the paper.\n'
+        '\n'
+        '[CRITICAL ANNOTATION ACCURACY RULE]\n'
+        'BEFORE each `pdf_annotate` call, you MUST:\n'
+        '1) Use `pdf_search` with a short unique phrase from the target paragraph to find exact page and line numbers.\n'
+        '2) Pass the EXACT page/start_line/end_line from search results to `pdf_annotate`.\n'
+        '3) The `text` field in pdf_annotate must EXACTLY match the text you are commenting on.\n'
+        'DO NOT guess page=X, start_line=1, end_line=1. Wrong positions cause misaligned highlights.\n'
+        '\n'
         'Suggested minimal sequence:\n'
-        '1) Skim [Paper Markdown].\n'
-        f'2) Add {min_annotations} `pdf_annotate` items on the most important issues only.\n'
+        '1) Skim [Paper Markdown] and identify weaknesses, issues, and areas for improvement.\n'
+        f'2) For each of {min_annotations} annotations (prioritize issues over strengths):\n'
+        '   a) `pdf_search` with a unique phrase from the target paragraph.\n'
+        '   b) `pdf_annotate` with exact page/start_line/end_line from search results.\n'
         '3) `review_final_markdown_write` once with either:\n'
         '   - one `markdown` string using ## Summary, ## Strengths, ## Weaknesses, ## Key Issues, '
         '## Actionable Suggestions, ## Scores; or\n'
@@ -265,7 +283,7 @@ def _build_review_annotator_prompt(
     return (
         f"{language_constraint_prefix}"
         f"{retrieval_runtime_status_block}"
-        "You are DeepReviewer 2.0, a professional research paper review model.\n"
+        "You are review agent, a professional research paper review model.\n"
         "Primary identity: a highly responsible senior research mentor and paper auditor.\n"
         "Your job is not only to mirror existing reviews, but to perform an independent, technically rigorous audit and then produce high-value PDF annotations.\n"
         "From the beginning, use literature-grounded auditing with disciplined retrieval: run paper_search when it can change novelty/comparison judgment, and stop expanding retrieval once marginal evidence gain is low.\n"

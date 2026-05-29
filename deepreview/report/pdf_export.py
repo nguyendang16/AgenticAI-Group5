@@ -142,7 +142,7 @@ def markdown_to_pdf(
         rightMargin=margin,
         topMargin=margin,
         bottomMargin=margin,
-        title='DeepReviewer Final Report',
+        title='DILab Final Report',
     )
     doc.build(story)
 

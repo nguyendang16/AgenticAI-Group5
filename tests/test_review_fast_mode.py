@@ -24,8 +24,8 @@ class ReviewFastModeTests(unittest.TestCase):
             )
         )
         self.assertTrue(settings.review_fast_mode)
-        self.assertLessEqual(settings.agent_max_turns, 22)
-        self.assertEqual(settings.min_annotations_for_final, 2)
+        self.assertLessEqual(settings.agent_max_turns, 40)
+        self.assertEqual(settings.min_annotations_for_final, 8)
         self.assertFalse(settings.paper_search_enabled)
 
     def test_fast_prompt_is_compact(self) -> None:
@@ -44,7 +44,7 @@ class ReviewFastModeTests(unittest.TestCase):
         self.assertLess(len(prompt), 8000)
 
     def test_resolve_min_annotations(self) -> None:
-        self.assertEqual(resolve_review_min_annotation_count(review_fast_mode=True), 2)
+        self.assertEqual(resolve_review_min_annotation_count(review_fast_mode=True), 8)
         self.assertEqual(resolve_review_min_annotation_count(review_fast_mode=False), 10)
 
     def test_fast_final_report_section_order(self) -> None:

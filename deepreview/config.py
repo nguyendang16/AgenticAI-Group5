@@ -14,7 +14,7 @@ class Settings(BaseSettings):
         extra='ignore',
     )
 
-    app_name: str = 'DeepReviewer-2.0 OSS Backend'
+    app_name: str = 'Review Agent OSS Backend'
 
     data_dir: Path = Field(default=Path('./data'))
 
@@ -40,13 +40,14 @@ class Settings(BaseSettings):
     agent_max_tokens: int = 4096
     agent_max_turns: int = 1000
     agent_resume_attempts: int = 2
+    agent_reasoning_effort: str = 'low'  # low, medium, high, xhigh
     max_markdown_chars_to_model: int = 120000
 
-    # Fast review (~5 min target): short prompt, fewer tool/LLM rounds, no paper search.
+    # Fast review: short prompt, fewer tool/LLM rounds, no paper search.
     review_fast_mode: bool = False
-    review_fast_max_turns: int = 22
-    review_fast_max_markdown_chars: int = 48000
-    review_fast_min_annotations: int = 2
+    review_fast_max_turns: int = 40
+    review_fast_max_markdown_chars: int = 100000
+    review_fast_min_annotations: int = 8
 
     # Submit behavior
     submit_default_wait_seconds: int = 8
@@ -107,6 +108,9 @@ class Settings(BaseSettings):
     pdf_title_font_size: int = 15
     pdf_body_font_size: int = 10
     pdf_page_margin: int = 48
+    pdf_brand_name: str = 'DILab'
+    pdf_producer_name: str = 'DILab'
+    pdf_logo_path: str = 'logo.png'
 
     def mineru_poll_templates(self) -> list[str]:
         templates: list[str] = []
