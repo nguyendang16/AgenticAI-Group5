@@ -16,6 +16,11 @@ from deepreview.storage import annotations_path, append_event, write_json_atomic
 from deepreview.types import AnnotationItem, PaperSearchUsage
 
 
+def _log_tool_call(job_id: str, tool: str, **detail: Any) -> None:
+    payload = {key: value for key, value in detail.items() if value is not None and value != ''}
+    append_event(job_id, 'tool_call', tool=tool, **payload)
+
+
 def _normalize_signature(text: str) -> str:
     return ' '.join(str(text or '').strip().lower().split())
 
@@ -582,6 +587,7 @@ def build_review_tools(runtime: ReviewRuntimeContext) -> list[Any]:
     ) -> dict[str, Any]:
         rt = ctx.context
         rt.record_tool('mcp_status_update')
+        _log_tool_call(rt.job_id, 'mcp_status_update', step=str(step or '').strip())
 
         row = {
             'step': str(step or '').strip(),
@@ -608,8 +614,9 @@ def build_review_tools(runtime: ReviewRuntimeContext) -> list[Any]:
     ) -> dict[str, Any]:
         rt = ctx.context
         rt.record_tool('pdf_search')
-
         text = str(query or '').strip()
+        _log_tool_call(rt.job_id, 'pdf_search', query=text[:200] if text else None)
+
         if not text:
             rt.sync_state_usage(ctx.usage)
             return {'status': 'error', 'reason': 'empty_query', 'message': 'query is required'}
@@ -647,6 +654,13 @@ def build_review_tools(runtime: ReviewRuntimeContext) -> list[Any]:
     ) -> dict[str, Any]:
         rt = ctx.context
         rt.record_tool('pdf_read_lines')
+        _log_tool_call(
+            rt.job_id,
+            'pdf_read_lines',
+            page=int(page),
+            start_line=int(start_line),
+            end_line=int(end_line),
+        )
         if rt.settings.review_fast_mode and int(rt.tool_counts.get('pdf_read_lines', 0)) > 5:
             rt.sync_state_usage(ctx.usage)
             return {
@@ -686,6 +700,7 @@ def build_review_tools(runtime: ReviewRuntimeContext) -> list[Any]:
     ) -> dict[str, Any]:
         rt = ctx.context
         rt.record_tool('pdf_jump')
+        _log_tool_call(rt.job_id, 'pdf_jump', page=int(page))
 
         lines = rt.page_index.get(int(page))
         if not lines:
@@ -714,6 +729,14 @@ def build_review_tools(runtime: ReviewRuntimeContext) -> list[Any]:
     ) -> dict[str, Any]:
         rt = ctx.context
         rt.record_tool('pdf_annotate')
+        _log_tool_call(
+            rt.job_id,
+            'pdf_annotate',
+            page=int(page),
+            start_line=int(start_line),
+            end_line=int(end_line),
+            object_type=str(object_type or 'suggestion'),
+        )
         paper_search_state_payload = _paper_search_state_payload(rt.paper_search_runtime_state)
         retrieval_not_started = _paper_search_not_started(paper_search_state_payload)
         required_search_calls = (
@@ -878,6 +901,12 @@ def build_review_tools(runtime: ReviewRuntimeContext) -> list[Any]:
 
         questions = normalize_question_list(question_list)
         query_text = str(query or '').strip()
+        _log_tool_call(
+            rt.job_id,
+            'paper_search',
+            query=query_text[:200] if query_text else None,
+            question_count=len(questions) if questions else 0,
+        )
 
         try:
             result = await rt.paper_adapter.search(
@@ -1032,8 +1061,8 @@ def build_review_tools(runtime: ReviewRuntimeContext) -> list[Any]:
     ) -> dict[str, Any]:
         rt = ctx.context
         rt.record_tool('read_paper')
-
         rows = [row for row in (items or []) if isinstance(row, dict)]
+        _log_tool_call(rt.job_id, 'read_paper', item_count=len(rows))
         if not rows:
             rt.sync_state_usage(ctx.usage)
             return {'status': 'error', 'reason': 'empty_items', 'message': 'items is required'}
@@ -1076,6 +1105,11 @@ def build_review_tools(runtime: ReviewRuntimeContext) -> list[Any]:
     ) -> dict[str, Any]:
         rt = ctx.context
         rt.record_tool('review_final_markdown_write')
+        _log_tool_call(
+            rt.job_id,
+            'review_final_markdown_write',
+            section_id=str(section_id or '').strip() or None,
+        )
         attempt_no = int(rt.tool_counts.get('review_final_markdown_write', 0))
         usage = rt.paper_search_usage
         review_fast_mode = bool(rt.settings.review_fast_mode)

@@ -5,7 +5,7 @@
 **Automated paper review with tool-grounded reasoning and evidence verification.**  
 `PDF -> MinerU Markdown -> Review Agent Tool Loop -> Final Markdown -> Final PDF`
 
-[Quick Start](#quick-start) • [Configuration](#configuration) • [CLI Usage](#cli-usage)
+[Quick Start](#quick-start) • [Web UI](#web-ui) • [Configuration](#configuration) • [CLI Usage](#cli-usage)
 
 </div>
 
@@ -93,6 +93,21 @@ python main.py result --job-id <job_id> --format all
 python main.py result --job-id <job_id> --format md
 python main.py result --job-id <job_id> --format pdf
 ```
+
+---
+
+## Web UI
+
+Start the local server (same pipeline as the CLI — jobs run via `main.py _run-job`):
+
+```bash
+chmod +x scripts/serve_ui.sh
+./scripts/serve_ui.sh
+```
+
+Open [http://127.0.0.1:8080](http://127.0.0.1:8080), upload a PDF, and watch **tool progress** (`pdf_search`, `pdf_annotate`, etc.) in the timeline. When the job completes, view the markdown report and PDF in the browser.
+
+Environment variables are read from `.env` in the project root (same as CLI).
 
 ---
 

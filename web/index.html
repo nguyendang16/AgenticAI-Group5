@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Evidence-Verified Peer Review</title>
+    <link rel="icon" href="/favicon.ico" type="image/png" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <img src="/logo.png" alt="Logo" class="logo" onerror="this.style.display='none'" />
+      <div>
+        <h1>Evidence-Verified Agentic Peer Review</h1>
+        <p class="subtitle">Upload a PDF · watch tool progress · view the final report</p>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel upload-panel">
+        <h2>Submit paper</h2>
+        <form id="upload-form">
+          <label class="file-label">
+            <input type="file" id="pdf-file" accept="application/pdf,.pdf" required />
+            <span id="file-name">Choose PDF…</span>
+          </label>
+          <input type="text" id="title-input" placeholder="Optional title" />
+          <button type="submit" id="submit-btn">Start review</button>
+        </form>
+        <p id="submit-error" class="error" hidden></p>
+      </section>
+
+      <section class="panel progress-panel" id="progress-panel" hidden>
+        <h2>Progress</h2>
+        <div class="status-row">
+          <span class="status-badge" id="status-badge">queued</span>
+          <span id="status-message"></span>
+        </div>
+        <div class="metrics">
+          <span>Annotations: <strong id="annotation-count">0</strong></span>
+          <span>Tool calls: <strong id="tool-calls">0</strong></span>
+        </div>
+        <ol id="tool-timeline" class="timeline"></ol>
+      </section>
+
+      <section class="panel result-panel" id="result-panel" hidden>
+        <h2>Final report</h2>
+        <div class="result-actions">
+          <button type="button" id="tab-md" class="tab active">Markdown</button>
+          <button type="button" id="tab-pdf" class="tab">PDF</button>
+          <a id="download-pdf" class="link-btn" href="#" download hidden>Download PDF</a>
+        </div>
+        <article id="report-markdown" class="report-md"></article>
+        <iframe id="report-pdf" class="report-pdf" hidden title="Final report PDF"></iframe>
+        <p id="result-error" class="error" hidden></p>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

@@ -21,6 +21,9 @@ dependencies = [
   "pymupdf>=1.26.0",
   "mdit-py-plugins>=0.4.2",
   "markdown-it-py>=3.0.0",
+  "fastapi>=0.115.0",
+  "uvicorn[standard]>=0.32.0",
+  "python-multipart>=0.0.12",
 ]
 
 [project.optional-dependencies]
@@ -51,6 +54,7 @@ packages = [
   "deepreview.tools",
   "deepreview.prompts",
   "deepreview.report",
+  "deepreview.api",
 ]
 
 [tool.ruff]
