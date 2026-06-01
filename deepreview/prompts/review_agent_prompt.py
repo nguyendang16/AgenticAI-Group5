@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
-from typing import Optional
+from typing import Any, Optional
+
+from deepreview.criteria_kg import format_criteria_bundle_for_prompt
 
 
 REVIEW_CHINESE_OUTPUT_CONSTRAINT = (
@@ -36,6 +38,7 @@ def _build_fast_review_annotator_prompt(
     max_markdown_chars: int,
     max_tool_turns: int,
     min_annotations: int,
+    criteria_bundle: dict[str, Any] | None = None,
 ) -> str:
     resolved_ui_language = normalize_ui_language(ui_language, fallback='en', strict=False)
     markdown_text = _truncate_paper_markdown(paper_markdown, max_chars=max_markdown_chars)
@@ -44,6 +47,7 @@ def _build_fast_review_annotator_prompt(
         if resolved_ui_language == 'zh-CN'
         else 'All user-visible annotations and the final report must be in English.'
     )
+    criteria_section = format_criteria_bundle_for_prompt(criteria_bundle, max_criteria=24)
 
     return (
         'You are review agent running in FAST REVIEW mode.\n'
@@ -86,12 +90,23 @@ def _build_fast_review_annotator_prompt(
         f'2) For each of {min_annotations} annotations (prioritize issues over strengths):\n'
         '   a) `pdf_search` with a unique phrase from the target paragraph.\n'
         '   b) `pdf_annotate` with exact page/start_line/end_line from search results.\n'
-        '3) `review_final_markdown_write` once with either:\n'
-        '   - one `markdown` string using ## Summary, ## Strengths, ## Weaknesses, ## Key Issues, '
-        '## Actionable Suggestions, ## Scores; or\n'
-        '   - section_id + section_content for each required id: '
-        'summary, strengths, weaknesses, key_issues, actionable_suggestions, scores.\n'
+        '3) `review_final_markdown_write` ONCE with a single `markdown` argument containing exactly these '
+        '## headings (one section each, no duplication):\n'
+        '   Summary, Strengths, Weaknesses, Key Issues, Actionable Suggestions, Claim-Level Audit, Scores.\n'
+        '   Do NOT put Strengths/Weaknesses/Key Issues inside Summary.\n'
+        '   Do NOT call review_final_markdown_write multiple times.\n'
+        '4) Each `pdf_annotate` MUST include `criterion_id` from active criteria only (not OTHER/routing).\n'
+        '5) Claim-Level Audit: markdown table with 5 columns:\n'
+        '   | ID | Evidence | Status | Conf | Fix |\n'
+        '   - ID: C01, C02, etc. (from Criterion Legend).\n'
+        '   - Evidence: brief quote or summary.\n'
+        '   - Status: Missing, Partial, Supported, or Check.\n'
+        '   - Conf: H (High), M (Medium), L (Low).\n'
+        '   - Fix: brief suggestion.\n'
+        '   Rules: missing detail → Missing/H. Citation-only → Partial/M.\n'
+        '   Do NOT use OTHER/SIG routing criteria.\n'
         '\n'
+        f'{criteria_section}'
         '[Paper Markdown]\n'
         f'{markdown_text or "(empty)"}\n'
     )
@@ -156,6 +171,7 @@ def _build_review_annotator_prompt(
     ui_language: str = 'en',
     max_markdown_chars: int = 120000,
     min_annotation_count: int = REVIEW_FINAL_REPORT_MIN_ANNOTATION_COUNT,
+    criteria_bundle: dict[str, Any] | None = None,
 ) -> str:
     raw_output = (meta_review_raw_output or '').strip()
 
@@ -165,6 +181,7 @@ def _build_review_annotator_prompt(
     structured_text = json.dumps(structured_output, ensure_ascii=False, indent=2)
 
     markdown_text = _truncate_paper_markdown(paper_markdown, max_chars=max_markdown_chars)
+    criteria_section = format_criteria_bundle_for_prompt(criteria_bundle)
 
     final_annotation_expectation = (
         "Your final annotations must be more concrete than the Meta-Review, show deeper paper understanding, and capture the core mechanisms behind each weakness."
@@ -1504,6 +1521,7 @@ def _build_review_annotator_prompt(
         "\n"
         f"{meta_context_tail}"
         f"{language_constraint_suffix}"
+        f"{criteria_section}"
         "[Paper Markdown]\n"
         f"{markdown_text or '(empty)'}\n"
     )
@@ -1525,6 +1543,7 @@ def build_review_agent_system_prompt(
     max_markdown_chars: int = 120000,
     review_fast_max_turns: int = 18,
     review_fast_min_annotations: int = REVIEW_FAST_REPORT_MIN_ANNOTATION_COUNT,
+    criteria_bundle: dict[str, Any] | None = None,
 ) -> str:
     if review_fast_mode:
         return _build_fast_review_annotator_prompt(
@@ -1535,6 +1554,7 @@ def build_review_agent_system_prompt(
             max_markdown_chars=max_markdown_chars,
             max_tool_turns=review_fast_max_turns,
             min_annotations=review_fast_min_annotations,
+            criteria_bundle=criteria_bundle,
         )
 
     return _build_review_annotator_prompt(
@@ -1548,6 +1568,7 @@ def build_review_agent_system_prompt(
         ui_language=ui_language,
         max_markdown_chars=max_markdown_chars,
         min_annotation_count=resolve_review_min_annotation_count(review_fast_mode=False),
+        criteria_bundle=criteria_bundle,
     )
 
 

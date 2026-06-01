@@ -60,6 +60,7 @@ class AnnotationItem(BaseModel):
     summary: str | None = None
     object_type: str = 'suggestion'
     severity: str | None = None
+    criterion_id: str | None = None
     created_at: datetime = Field(default_factory=utcnow)
 
 

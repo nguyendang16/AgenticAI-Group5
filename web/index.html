@@ -25,6 +25,13 @@
             <span id="file-name">Choose PDF…</span>
           </label>
           <input type="text" id="title-input" placeholder="Optional title" />
+          <details class="kg-options">
+            <summary>Venue criteria (Neo4j, optional)</summary>
+            <input type="text" id="review-venue" placeholder="Venue e.g. ICLR, NeurIPS" />
+            <input type="text" id="review-journal" placeholder="Journal (if not conference)" />
+            <input type="text" id="review-domain" placeholder="Domain e.g. Machine Learning" />
+            <input type="text" id="review-article-type" placeholder="Article type e.g. full_paper" />
+          </details>
           <button type="submit" id="submit-btn">Start review</button>
         </form>
         <p id="submit-error" class="error" hidden></p>

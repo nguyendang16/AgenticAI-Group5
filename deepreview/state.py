@@ -82,6 +82,7 @@ def ensure_artifact_paths(job_id: UUID | str) -> dict[str, Path]:
         'final_markdown': root / 'final_report.md',
         'report_pdf': root / 'final_report.pdf',
         'prompt_snapshot': root / 'agent_prompt.txt',
+        'review_criteria_bundle': root / 'review_criteria_bundle.json',
         'raw_result': root / 'mineru_result_raw.json',
     }
 

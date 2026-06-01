@@ -111,6 +111,78 @@ Environment variables are read from `.env` in the project root (same as CLI).
 
 ---
 
+## Review Criteria Knowledge Graph (Neo4j)
+
+The system uses a **Knowledge Graph** to ground reviews in venue-specific criteria extracted from official reviewer guidelines.
+
+### What's in the KG?
+
+| Node Type | Description |
+| :--- | :--- |
+| `Venue` / `Journal` | Conference or journal (e.g., ICLR, NeurIPS, TWELF) |
+| `ReviewCriterion` | Specific review criterion with semantic ID (e.g., `TWELF_C01_CLARITY_PRESENTATION`) |
+| `EvidenceRequirement` | Required evidence for each criterion |
+| `SourceDocument` | Original guideline document provenance |
+
+**Currently loaded venues:** ICLR, NeurIPS, ICML, ACL, CHI, AAAI, TWELF, Computers & Education, ETRD, ETS.
+
+### How It Works
+
+1. **Extraction**: LLM extracts criteria from Word templates → structured JSON
+2. **Loading**: JSON loaded into Neo4j with semantic criterion IDs
+3. **Runtime**: Review agent queries KG by venue → criteria injected into prompt
+4. **Report**: Criterion Legend + Claim-Level Audit table trace critiques to criteria
+
+### Setup
+
+```bash
+# 1) Extract criteria from templates
+python -m src.main_extract --template_dir templates --output_dir outputs/extracted_json
+
+# 2) Load into Neo4j (configure .env first)
+python -m src.main_load_graph --json_dir outputs/extracted_json
+
+# 3) Test retrieval
+python -m src.retriever --venue "TWELF"
+```
+
+### Configuration
+
+| Variable | Description | Default |
+| :--- | :--- | :--- |
+| `NEO4J_URI` | Neo4j connection URI (e.g., `neo4j+s://xxx.databases.neo4j.io`) | - |
+| `NEO4J_USERNAME` | Neo4j username | `neo4j` |
+| `NEO4J_PASSWORD` | Neo4j password | Required |
+| `NEO4J_DATABASE` | Database name | `neo4j` |
+| `REVIEW_CRITERIA_ENABLED` | Enable KG-grounded reviews | `true` |
+| `REVIEW_CRITERIA_JSON_DIR` | Fallback JSON directory | `outputs/extracted_json` |
+| `REVIEW_VENUE` | Override venue detection | Auto-detect |
+
+### Fallback Behavior
+
+If the manuscript's venue is **not in KG**:
+- System uses general review pipeline (no venue-specific criteria)
+- Agent still produces full review with all sections
+- No Criterion Legend or Claim-Level Audit in report
+
+### Running on Another Machine
+
+If using **Neo4j Aura (cloud)**, just configure `.env` with the same credentials — no rebuild needed.
+
+For local Neo4j:
+```bash
+# Export from source machine
+neo4j-admin database dump neo4j --to-path=/backup/
+
+# Import on target machine
+neo4j-admin database load neo4j --from-path=/backup/
+
+# Or simply reload from JSON
+python -m src.main_load_graph --json_dir outputs/extracted_json --clear
+```
+
+---
+
 ## Configuration
 
 ### LLM Settings

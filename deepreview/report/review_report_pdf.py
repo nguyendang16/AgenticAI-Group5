@@ -35,6 +35,68 @@ from reportlab.platypus import (
 
 logger = logging.getLogger(__name__)
 
+_CRITERION_ID_TOKEN_RE = re.compile(r'\b([A-Z]{2,12}_C\d{2}_[A-Z0-9_]+)\b')
+
+
+_CRITERION_LIKE_TOKEN_RE = re.compile(
+    r'([A-Z]{2,}_C\d{2}_[A-Z0-9_]+)'  # TWELF_C01_CLARITY_PRESENTATION
+)
+
+
+def _protect_criterion_ids_in_markup(text: str) -> str:
+    """Replace underscores with hyphens in criterion IDs for PDF rendering."""
+    if not text:
+        return text
+
+    def _replace_underscores(match: re.Match) -> str:
+        token = match.group(1)
+        return token.replace('_', '-')
+
+    return _CRITERION_LIKE_TOKEN_RE.sub(_replace_underscores, text)
+
+
+def _compute_smart_col_widths(
+    rows: list[tuple[bool, list[str]]],
+    max_cols: int,
+    content_width: float,
+) -> list[float]:
+    """Allocate column widths based on content, ensuring long tokens don't wrap."""
+    if max_cols <= 0:
+        return []
+
+    col_max_len: list[int] = [0] * max_cols
+    col_has_long_token: list[bool] = [False] * max_cols
+
+    for _is_header, cells in rows:
+        for col_idx, cell in enumerate(cells):
+            if col_idx >= max_cols:
+                break
+            text = str(cell or '').strip()
+            col_max_len[col_idx] = max(col_max_len[col_idx], len(text))
+            longest_word = max((len(w) for w in text.split()), default=0)
+            if longest_word > 20:
+                col_has_long_token[col_idx] = True
+
+    weights = []
+    for col_idx in range(max_cols):
+        base = max(5, col_max_len[col_idx])
+        if col_has_long_token[col_idx]:
+            base = int(base * 1.4)
+        weights.append(base)
+
+    total_weight = sum(weights) or 1
+    min_col = content_width * 0.08
+    max_col = content_width * 0.40
+
+    raw_widths = [(w / total_weight) * content_width for w in weights]
+    clamped = [max(min_col, min(max_col, w)) for w in raw_widths]
+    clamped_total = sum(clamped)
+    if clamped_total > 0:
+        scale = content_width / clamped_total
+        return [w * scale for w in clamped]
+    return [content_width / max_cols] * max_cols
+
+
 PAGE_WIDTH, PAGE_HEIGHT = A4
 
 FONT_ENGLISH_NAME = 'DS-Satoshi-Medium'
@@ -726,7 +788,7 @@ def _render_markdown_inline_children(
 
         if token_type == 'text':
             escaped_text = _render_formula_aware_text(
-                token_content,
+                _protect_criterion_ids_in_markup(token_content),
                 formula_font=effective_formula_font or None,
             )
             if strong_depth > 0 or italic_depth > 0:
@@ -757,15 +819,16 @@ def _render_markdown_inline_children(
             parts.append('<br/>')
             continue
         if token_type == 'code_inline':
+            protected_content = _protect_criterion_ids_in_markup(token_content)
             if _looks_like_formula_text(token_content):
                 parts.append(_apply_strike(
                     _render_formula_aware_text(
-                        token_content,
+                        protected_content,
                         formula_font=effective_formula_font or None,
                     )
                 ))
             else:
-                escaped_code = _escape(token_content)
+                escaped_code = _escape(protected_content)
                 inline_font = str(inline_code_font or '').strip()
                 if _contains_non_ascii(token_content):
                     inline_font = str(body_font or inline_code_font or '').strip()
@@ -1403,10 +1466,11 @@ def _build_styles(fonts: ReportFonts) -> StyleSheet1:
             name='MarkdownTableHeader',
             parent=styles['BodyTextEnterprise'],
             fontName=fonts.heading,
-            fontSize=9.4,
-            leading=12.5,
+            fontSize=7.5,
+            leading=10.0,
             spaceAfter=0,
-            wordWrap='CJK',
+            wordWrap='LTR',
+            splitLongWords=0,
         )
     )
     styles.add(
@@ -1414,10 +1478,11 @@ def _build_styles(fonts: ReportFonts) -> StyleSheet1:
             name='MarkdownTableCell',
             parent=styles['BodyTextEnterprise'],
             fontName=fonts.body,
-            fontSize=9.3,
-            leading=12.2,
+            fontSize=7.2,
+            leading=9.5,
             spaceAfter=0,
-            wordWrap='CJK',
+            wordWrap='LTR',
+            splitLongWords=0,
         )
     )
 
@@ -1633,7 +1698,7 @@ def _append_markdown_report(story: list, styles: StyleSheet1, *, markdown: str) 
             max_cols = max(len(cells) for _, cells in rows)
             if max_cols > 0:
                 content_width = PAGE_WIDTH - (40 * mm)
-                col_width = content_width / max_cols
+                col_widths = _compute_smart_col_widths(rows, max_cols, content_width)
 
                 table_data: list[list[Any]] = []
                 header_rows: list[int] = []
@@ -1644,13 +1709,13 @@ def _append_markdown_report(story: list, styles: StyleSheet1, *, markdown: str) 
                     row_flowables = []
                     for cell in padded:
                         style_name = 'MarkdownTableHeader' if is_header else 'MarkdownTableCell'
-                        content = cell or '&nbsp;'
+                        content = _protect_criterion_ids_in_markup(cell or '&nbsp;')
                         row_flowables.append(Paragraph(content, styles[style_name]))
                     table_data.append(row_flowables)
 
                 markdown_table = Table(
                     table_data,
-                    colWidths=[col_width] * max_cols,
+                    colWidths=col_widths,
                     hAlign='LEFT',
                     repeatRows=1 if header_rows else 0,
                 )

@@ -103,6 +103,25 @@ class Settings(BaseSettings):
     force_english_output: bool = True
     ui_language: str = 'en'
 
+    # Neo4j review-criteria knowledge graph
+    review_criteria_enabled: bool = True
+    review_venue: str | None = Field(default=None, validation_alias='REVIEW_VENUE')
+    review_journal: str | None = Field(default=None, validation_alias='REVIEW_JOURNAL')
+    review_domain: str | None = Field(default=None, validation_alias='REVIEW_DOMAIN')
+    review_article_type: str | None = Field(default=None, validation_alias='REVIEW_ARTICLE_TYPE')
+    review_infer_venue_from_paper: bool = Field(
+        default=True,
+        validation_alias='REVIEW_INFER_VENUE_FROM_PAPER',
+    )
+    review_criteria_json_dir: Path = Field(
+        default=Path('outputs/extracted_json'),
+        validation_alias='REVIEW_CRITERIA_JSON_DIR',
+    )
+    neo4j_uri: str | None = Field(default=None, validation_alias='NEO4J_URI')
+    neo4j_username: str = Field(default='neo4j', validation_alias='NEO4J_USERNAME')
+    neo4j_password: str | None = Field(default=None, validation_alias='NEO4J_PASSWORD')
+    neo4j_database: str = Field(default='neo4j', validation_alias='NEO4J_DATABASE')
+
     # PDF export
     pdf_font_name: str = 'Helvetica'
     pdf_title_font_size: int = 15

@@ -58,6 +58,10 @@ def favicon() -> FileResponse:
 async def submit_job(
     file: UploadFile = File(...),
     title: str | None = Form(None),
+    review_venue: str | None = Form(None),
+    review_journal: str | None = Form(None),
+    review_domain: str | None = Form(None),
+    review_article_type: str | None = Form(None),
 ) -> dict[str, Any]:
     if not file.filename or not file.filename.lower().endswith('.pdf'):
         raise HTTPException(status_code=400, detail='Only PDF files are supported')
@@ -71,7 +75,14 @@ async def submit_job(
         tmp_path = Path(tmp.name)
 
     try:
-        job = create_job_from_pdf(tmp_path, title=title or Path(file.filename).stem)
+        job = create_job_from_pdf(
+            tmp_path,
+            title=title or Path(file.filename).stem,
+            review_venue=review_venue,
+            review_journal=review_journal,
+            review_domain=review_domain,
+            review_article_type=review_article_type,
+        )
         spawn_worker(str(job.id))
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc

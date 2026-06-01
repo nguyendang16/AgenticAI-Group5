@@ -30,7 +30,15 @@ def status_snapshot(job: JobState) -> dict[str, Any]:
     }
 
 
-def create_job_from_pdf(pdf_path: Path, title: str | None = None) -> JobState:
+def create_job_from_pdf(
+    pdf_path: Path,
+    title: str | None = None,
+    *,
+    review_venue: str | None = None,
+    review_journal: str | None = None,
+    review_domain: str | None = None,
+    review_article_type: str | None = None,
+) -> JobState:
     pdf_path = pdf_path.expanduser().resolve()
     if not pdf_path.exists() or not pdf_path.is_file():
         raise FileNotFoundError(f'PDF not found: {pdf_path}')
@@ -44,9 +52,22 @@ def create_job_from_pdf(pdf_path: Path, title: str | None = None) -> JobState:
             f'PDF too large: {file_size} bytes, max allowed {int(settings.max_pdf_bytes)} bytes'
         )
 
+    metadata: dict[str, Any] = {}
+    if review_venue and str(review_venue).strip():
+        metadata['review_venue'] = str(review_venue).strip()
+    if review_journal and str(review_journal).strip():
+        metadata['review_journal'] = str(review_journal).strip()
+    if review_domain and str(review_domain).strip():
+        metadata['review_domain'] = str(review_domain).strip()
+    if review_article_type and str(review_article_type).strip():
+        metadata['review_article_type'] = str(review_article_type).strip()
+    if title and str(title).strip():
+        metadata['title'] = str(title).strip()
+
     job = JobState(
         title=(title or pdf_path.stem).strip() or pdf_path.stem,
         source_pdf_name=pdf_path.name,
+        metadata=metadata,
     )
     save_job_state(job)
 

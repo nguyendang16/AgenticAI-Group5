@@ -21,6 +21,7 @@ from deepreview.adapters.paper_search import (
     PaperSearchConfig,
 )
 from deepreview.config import get_settings
+from deepreview.criteria_kg import resolve_review_criteria_bundle
 from deepreview.prompts.review_agent_prompt import build_review_agent_system_prompt
 from deepreview.report.review_report_pdf import build_review_report_pdf
 from deepreview.report.source_annotations import build_source_annotations_for_export
@@ -462,6 +463,32 @@ async def run_job_async(job_id: str) -> None:
             min_annotations=settings.min_annotations_for_final,
         )
 
+    criteria_bundle, criteria_resolution = resolve_review_criteria_bundle(
+        settings=settings,
+        paper_markdown=parse_result.markdown,
+        job_metadata=job.metadata,
+        extra_inference_text=f'{job.title}\n{job.source_pdf_name}',
+    )
+    append_event(
+        job_id,
+        'review_criteria_resolved',
+        **criteria_resolution,
+    )
+    if criteria_bundle is not None:
+        write_json_atomic(
+            Path(artifacts['review_criteria_bundle']),
+            criteria_bundle,
+        )
+
+    def apply_criteria_metadata(state):
+        metadata = dict(state.metadata)
+        metadata['review_criteria_resolution'] = criteria_resolution
+        if criteria_bundle is not None:
+            metadata['review_criteria_count'] = int(criteria_bundle.get('criteria_count') or 0)
+        state.metadata = metadata
+
+    mutate_job_state(job_id, apply_criteria_metadata)
+
     prompt = build_review_agent_system_prompt(
         source_file_id=job_id,
         source_file_name=job.source_pdf_name,
@@ -473,6 +500,7 @@ async def run_job_async(job_id: str) -> None:
         max_markdown_chars=settings.max_markdown_chars_to_model,
         review_fast_max_turns=settings.agent_max_turns,
         review_fast_min_annotations=settings.min_annotations_for_final,
+        criteria_bundle=criteria_bundle,
     )
     write_text_atomic(Path(artifacts['prompt_snapshot']), prompt)
 
@@ -489,6 +517,7 @@ async def run_job_async(job_id: str) -> None:
         paper_adapter=paper_adapter,
         paper_search_runtime_state=paper_search_runtime_state,
         settings=settings,
+        criteria_bundle=criteria_bundle,
     )
 
     tools = build_review_tools(runtime)

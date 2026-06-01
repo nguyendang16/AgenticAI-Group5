@@ -10,6 +10,11 @@ from agents import RunContextWrapper, function_tool
 
 from deepreview.adapters.paper_search import PaperSearchAdapter, normalize_question_list
 from deepreview.config import Settings
+from deepreview.criteria_kg import (
+    build_final_report_markdown,
+    redistribute_stuffed_summary_sections,
+    sanitize_fast_report_sections,
+)
 from deepreview.report.final_report import validate_final_report
 from deepreview.state import mutate_job_state
 from deepreview.storage import annotations_path, append_event, write_json_atomic, write_text_atomic
@@ -108,6 +113,11 @@ _FAST_REQUIRED_FINAL_REPORT_SECTIONS: list[tuple[str, str, tuple[str, ...]]] = [
     ('weaknesses', 'Weaknesses', ('weaknesses',)),
     ('key_issues', 'Key Issues', ('key issues', 'issues')),
     ('actionable_suggestions', 'Actionable Suggestions', ('actionable suggestions', 'suggestions')),
+    (
+        'claim_level_audit',
+        'Claim-Level Audit',
+        ('claim-level audit', 'claim level audit', 'audit table', 'evidence audit'),
+    ),
     ('scores', 'Scores', ('scores', 'score', 'final score')),
 ]
 
@@ -520,6 +530,7 @@ class ReviewRuntimeContext:
     paper_adapter: PaperSearchAdapter
     paper_search_runtime_state: dict[str, Any]
     settings: Settings
+    criteria_bundle: dict[str, Any] | None = None
 
     annotations: list[AnnotationItem] = field(default_factory=list)
     final_markdown_text: str | None = None
@@ -726,6 +737,7 @@ def build_review_tools(runtime: ReviewRuntimeContext) -> list[Any]:
         summary: str | None = None,
         object_type: str = 'suggestion',
         severity: str | None = None,
+        criterion_id: str | None = None,
     ) -> dict[str, Any]:
         rt = ctx.context
         rt.record_tool('pdf_annotate')
@@ -790,6 +802,7 @@ def build_review_tools(runtime: ReviewRuntimeContext) -> list[Any]:
             rt.sync_state_usage(ctx.usage)
             return {'status': 'error', 'reason': 'comment_required', 'message': 'comment is required'}
 
+        criterion_id_text = str(criterion_id).strip() if criterion_id else None
         ann = AnnotationItem(
             id=str(uuid4()),
             page=int(page),
@@ -800,6 +813,7 @@ def build_review_tools(runtime: ReviewRuntimeContext) -> list[Any]:
             summary=str(summary).strip() if summary else None,
             object_type=str(object_type or 'suggestion').strip() or 'suggestion',
             severity=str(severity).strip() if severity else None,
+            criterion_id=criterion_id_text or None,
         )
         rt.annotations.append(ann)
         rt.persist_annotations(ctx.usage)
@@ -1254,6 +1268,12 @@ def build_review_tools(runtime: ReviewRuntimeContext) -> list[Any]:
         has_new_sections = bool(incoming_sections)
         if has_new_sections:
             draft_sections.update(incoming_sections)
+        if review_fast_mode:
+            draft_sections = redistribute_stuffed_summary_sections(
+                draft_sections,
+                review_fast_mode=True,
+            )
+            draft_sections = sanitize_fast_report_sections(draft_sections)
         draft_sections = _apply_retrieval_disabled_report_defaults(
             draft_sections,
             retrieval_not_started=retrieval_not_started,
@@ -1310,7 +1330,7 @@ def build_review_tools(runtime: ReviewRuntimeContext) -> list[Any]:
                     (
                         'FAST MODE: submit all remaining sections in one call using markdown with '
                         '## Summary, ## Strengths, ## Weaknesses, ## Key Issues, '
-                        '## Actionable Suggestions, ## Scores headings.'
+                        '## Actionable Suggestions, ## Claim-Level Audit, ## Scores headings.'
                     ),
                     (
                         'Or pass section_id + section_content for the next missing section only: '
@@ -1458,8 +1478,12 @@ def build_review_tools(runtime: ReviewRuntimeContext) -> list[Any]:
                 )
             )
 
-        markdown_text = _build_final_report_markdown_from_sections(
+        title_map = _required_final_report_section_titles(review_fast_mode=review_fast_mode)
+        markdown_text = build_final_report_markdown(
             draft_sections,
+            section_order=section_order,
+            section_titles=title_map,
+            criteria_bundle=rt.criteria_bundle,
             review_fast_mode=review_fast_mode,
         )
         if not markdown_text:

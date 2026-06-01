@@ -58,6 +58,7 @@ class ReviewFastModeTests(unittest.TestCase):
                 'weaknesses',
                 'key_issues',
                 'actionable_suggestions',
+                'claim_level_audit',
                 'scores',
             ],
         )

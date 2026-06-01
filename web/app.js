@@ -45,6 +45,14 @@ uploadForm.addEventListener('submit', async (e) => {
   form.append('file', file);
   const title = document.getElementById('title-input').value.trim();
   if (title) form.append('title', title);
+  const venue = document.getElementById('review-venue')?.value.trim();
+  const journal = document.getElementById('review-journal')?.value.trim();
+  const domain = document.getElementById('review-domain')?.value.trim();
+  const articleType = document.getElementById('review-article-type')?.value.trim();
+  if (venue) form.append('review_venue', venue);
+  if (journal) form.append('review_journal', journal);
+  if (domain) form.append('review_domain', domain);
+  if (articleType) form.append('review_article_type', articleType);
 
   submitBtn.disabled = true;
   submitBtn.textContent = 'Submitting…';
@@ -153,6 +161,11 @@ function formatEvent(ev) {
   }
   if (event === 'created') {
     return `<span class="event-meta">${ts}</span> Job created`;
+  }
+  if (event === 'review_criteria_resolved') {
+    const count = ev.criteria_count ?? 0;
+    const source = ev.source || ev.skipped || 'none';
+    return `<span class="event-meta">${ts}</span> <span class="tool-name">criteria</span> ${count} from ${escapeHtml(source)}`;
   }
 
   return `<span class="event-meta">${ts}</span> ${escapeHtml(event)}`;
