@@ -130,6 +130,7 @@ FONT_MONO_UNICODE_CANDIDATES = (
 )
 
 LOGO_CANDIDATES = (
+    Path('assets/branding/logo.png'),
     Path('logo.png'),
     Path('assets/logo.png'),
     Path('assets/logo-small.png'),
@@ -3740,7 +3741,7 @@ def build_review_report_pdf(
     agent_model: str | None = None,
     brand_name: str = 'DILab',
     producer_name: str = 'DILab',
-    logo_path_override: str | None = 'logo.png',
+    logo_path_override: str | None = 'assets/branding/logo.png',
 ) -> bytes:
     brand_display = str(brand_name or 'DILab').strip() or 'DILab'
     producer_display = str(producer_name or brand_display).strip() or brand_display

@@ -215,7 +215,7 @@ Fast mode also disables `paper_search`, lowers annotation gates, and enables Min
 | :--- | :--- | :--- |
 | `PDF_BRAND_NAME` | `DILab` | Brand name in PDF header/footer |
 | `PDF_PRODUCER_NAME` | `DILab` | Producer name in PDF metadata |
-| `PDF_LOGO_PATH` | `logo.png` | Path to logo file |
+| `PDF_LOGO_PATH` | `assets/branding/logo.png` | Path to logo file |
 
 ### MinerU Settings
 

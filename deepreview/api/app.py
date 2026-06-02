@@ -21,6 +21,18 @@ from deepreview.types import JobStatus
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 _WEB_DIR = _REPO_ROOT / 'web'
+_LOGO_CANDIDATES = (
+    _REPO_ROOT / 'assets/branding/logo.png',
+    _REPO_ROOT / 'assets/logo.png',
+    _REPO_ROOT / 'logo.png',
+)
+
+
+def _resolve_logo_path() -> Path | None:
+    for candidate in _LOGO_CANDIDATES:
+        if candidate.exists():
+            return candidate
+    return None
 
 app = FastAPI(title='Evidence-Verified Agentic Peer Review', version='0.1.0')
 
@@ -40,16 +52,16 @@ def health() -> dict[str, str]:
 
 @app.get('/logo.png')
 def logo() -> FileResponse:
-    path = _REPO_ROOT / 'logo.png'
-    if not path.exists():
+    path = _resolve_logo_path()
+    if path is None:
         raise HTTPException(status_code=404, detail='logo.png not found')
     return FileResponse(path, media_type='image/png')
 
 
 @app.get('/favicon.ico')
 def favicon() -> FileResponse:
-    path = _REPO_ROOT / 'logo.png'
-    if not path.exists():
+    path = _resolve_logo_path()
+    if path is None:
         raise HTTPException(status_code=404, detail='favicon not found')
     return FileResponse(path, media_type='image/png')
 
