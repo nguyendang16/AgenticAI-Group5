@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -9,6 +10,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
+from deepreview.config import get_settings
+from deepreview.evaluation.tier1 import evaluate_job_dir, save_job_evaluation
 from deepreview.job_service import (
     artifact_path,
     create_job_from_pdf,
@@ -16,7 +19,7 @@ from deepreview.job_service import (
     spawn_worker,
     status_snapshot,
 )
-from deepreview.state import load_job_state
+from deepreview.state import ensure_artifact_paths, load_job_state
 from deepreview.types import JobStatus
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -162,6 +165,58 @@ def get_report_pdf(job_id: str) -> FileResponse:
     if path is None:
         raise HTTPException(status_code=404, detail='PDF report missing')
     return FileResponse(path, media_type='application/pdf', filename=f'review-{job_id}.pdf')
+
+
+@app.post('/api/jobs/{job_id}/evaluate')
+def evaluate_job(job_id: str) -> dict[str, Any]:
+    job = load_job_state(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail=f'Job not found: {job_id}')
+
+    job_dir = ensure_artifact_paths(job_id)['source_pdf'].parent
+    try:
+        result = evaluate_job_dir(job_dir)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f'{type(exc).__name__}: {exc}') from exc
+
+    save_job_evaluation(job_dir, result)
+    return result
+
+
+@app.get('/api/jobs/{job_id}/evaluation')
+def get_job_evaluation(job_id: str) -> dict[str, Any]:
+    job = load_job_state(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail=f'Job not found: {job_id}')
+
+    eval_path = ensure_artifact_paths(job_id)['source_pdf'].parent / 'evaluation.json'
+    if not eval_path.exists():
+        raise HTTPException(status_code=404, detail='Evaluation not found. POST /evaluate first.')
+    return json.loads(eval_path.read_text(encoding='utf-8'))
+
+
+@app.get('/api/evaluations/harvest')
+def harvest_all_evaluations() -> dict[str, Any]:
+    settings = get_settings()
+    jobs_root = settings.data_dir / 'jobs'
+    from deepreview.evaluation.tier1 import evaluate_jobs_root, write_evaluation_report
+
+    rows = evaluate_jobs_root(jobs_root)
+    if not rows:
+        raise HTTPException(status_code=404, detail=f'No jobs under {jobs_root}')
+
+    output_dir = settings.data_dir / 'evaluations' / 'latest'
+    paths = write_evaluation_report(rows, output_dir=output_dir)
+    for row in rows:
+        job_id = str(row.get('job_id') or '').strip()
+        if job_id:
+            save_job_evaluation(jobs_root / job_id, row)
+
+    payload = json.loads(paths['json'].read_text(encoding='utf-8'))
+    payload['paths'] = {key: str(path) for key, path in paths.items()}
+    return payload
 
 
 if _WEB_DIR.is_dir():

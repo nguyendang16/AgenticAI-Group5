@@ -56,10 +56,22 @@
           <button type="button" id="tab-md" class="tab active">Markdown</button>
           <button type="button" id="tab-pdf" class="tab">PDF</button>
           <a id="download-pdf" class="link-btn" href="#" download hidden>Download PDF</a>
+          <button type="button" id="evaluate-btn" class="link-btn" hidden>Run evaluation</button>
         </div>
         <article id="report-markdown" class="report-md"></article>
         <iframe id="report-pdf" class="report-pdf" hidden title="Final report PDF"></iframe>
         <p id="result-error" class="error" hidden></p>
+      </section>
+
+      <section class="panel eval-panel" id="eval-panel" hidden>
+        <h2>Tier 1 evaluation</h2>
+        <p class="eval-intro">Automatic process-validity metrics from job artifacts (reliability, OQI, grounding sample).</p>
+        <div id="eval-summary" class="eval-summary"></div>
+        <details id="eval-details" class="eval-details" hidden>
+          <summary>Detailed scores</summary>
+          <pre id="eval-json" class="eval-json"></pre>
+        </details>
+        <p id="eval-error" class="error" hidden></p>
       </section>
     </main>
 

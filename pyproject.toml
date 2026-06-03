@@ -59,6 +59,7 @@ packages = [
   "deepreview.prompts",
   "deepreview.report",
   "deepreview.api",
+  "deepreview.evaluation",
   "src",
 ]
 

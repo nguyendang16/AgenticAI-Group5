@@ -18,6 +18,12 @@ const downloadPdf = document.getElementById('download-pdf');
 const resultError = document.getElementById('result-error');
 const tabMd = document.getElementById('tab-md');
 const tabPdf = document.getElementById('tab-pdf');
+const evaluateBtn = document.getElementById('evaluate-btn');
+const evalPanel = document.getElementById('eval-panel');
+const evalSummary = document.getElementById('eval-summary');
+const evalDetails = document.getElementById('eval-details');
+const evalJson = document.getElementById('eval-json');
+const evalError = document.getElementById('eval-error');
 
 let pollTimer = null;
 let eventsAfter = 0;
@@ -108,11 +114,13 @@ async function pollJob(jobId) {
       clearInterval(pollTimer);
       pollTimer = null;
       await loadResult(jobId);
+      showEvaluateButton(jobId);
     } else if (status.status === 'failed') {
       clearInterval(pollTimer);
       pollTimer = null;
       submitError.textContent = status.error || status.message || 'Job failed';
       submitError.hidden = false;
+      showEvaluateButton(jobId);
     }
   } catch (err) {
     console.error(err);
@@ -228,3 +236,61 @@ tabPdf.addEventListener('click', () => {
   reportMarkdown.hidden = true;
   reportPdf.hidden = false;
 });
+
+function showEvaluateButton(jobId) {
+  if (!evaluateBtn) return;
+  evaluateBtn.hidden = false;
+  evaluateBtn.onclick = () => runEvaluation(jobId);
+}
+
+function evalCard(label, value, ok) {
+  const cls = ok === true ? 'pass' : ok === false ? 'fail' : '';
+  return `<div class="eval-card ${cls}"><span class="label">${escapeHtml(label)}</span><span class="value">${escapeHtml(value)}</span></div>`;
+}
+
+function renderEvaluation(data) {
+  evalPanel.hidden = false;
+  evalError.hidden = true;
+  const rel = data.reliability || {};
+  const oqi = data.oqi || {};
+  const q4 = oqi.q4_grounding || {};
+  const eff = data.efficiency || {};
+
+  evalSummary.innerHTML = [
+    evalCard('Status', data.status || 'n/a', rel.completed === true),
+    evalCard('OQI', oqi.total != null ? `${oqi.total}/10` : 'n/a', oqi.tier1_quality_pass === true),
+    evalCard(
+      'Grounding',
+      q4.sample_size ? `${q4.passed}/${q4.sample_size}` : 'n/a',
+      q4.sample_size ? q4.passed === q4.sample_size : null,
+    ),
+    evalCard('Tier 2', data.tier2_needed ? 'Needed' : 'No', data.tier2_needed === false),
+    evalCard('Bucket', data.root_cause_bucket || '-', null),
+    evalCard('Wall clock', eff.wall_clock_minutes != null ? `${eff.wall_clock_minutes} min` : 'n/a', null),
+  ].join('');
+
+  evalDetails.hidden = false;
+  evalJson.textContent = JSON.stringify(data, null, 2);
+}
+
+async function runEvaluation(jobId) {
+  if (!evaluateBtn) return;
+  evalError.hidden = true;
+  evaluateBtn.disabled = true;
+  evaluateBtn.textContent = 'Evaluating…';
+
+  try {
+    const res = await fetch(`${API}/api/jobs/${jobId}/evaluate`, { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.detail || data.message || 'Evaluation failed');
+    }
+    renderEvaluation(data);
+  } catch (err) {
+    evalError.textContent = err.message || String(err);
+    evalError.hidden = false;
+  } finally {
+    evaluateBtn.disabled = false;
+    evaluateBtn.textContent = 'Run evaluation';
+  }
+}

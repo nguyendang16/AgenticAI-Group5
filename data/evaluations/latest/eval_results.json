@@ -1,0 +1,165 @@
+{
+  "jobs": [
+    {
+      "job_id": "1c6e5728-c042-47ae-ad70-f6bb7e12c7a1",
+      "title": "Breaking the boundaries of conventional vocabulary learning  the impact of vocabulary learning with intelligent interactive companion in CAVL environm",
+      "source_pdf_name": "tmp49rex5wf.pdf",
+      "status": "completed",
+      "error": null,
+      "annotation_count": 8,
+      "reliability": {
+        "completed": true,
+        "has_final_markdown": true,
+        "has_final_pdf": true,
+        "no_fatal_error": true,
+        "final_write_gate": true,
+        "tier1_pass": true
+      },
+      "efficiency": {
+        "wall_clock_minutes": 1.79,
+        "tokens_total": 993258,
+        "tokens_input": 990244,
+        "tokens_output": 3014,
+        "tool_calls_total": 17,
+        "paper_search_calls": 0,
+        "agent_run_incomplete_count": 0,
+        "flags": []
+      },
+      "oqi": {
+        "q1_structure": {
+          "score": 1,
+          "sections_found": [
+            "summary",
+            "strengths",
+            "weaknesses",
+            "suggestions"
+          ],
+          "word_count": 633,
+          "section_ok": true,
+          "length_ok": false
+        },
+        "q2_coverage": {
+          "score": 1,
+          "keyword_hits": {
+            "method": true,
+            "experiments": true,
+            "limitations": false
+          },
+          "hit_count": 2
+        },
+        "q3_specificity": {
+          "score": 2,
+          "annotation_count": 8,
+          "distinct_pages": 8,
+          "avg_comment_length": 189.1,
+          "count_ok": true,
+          "pages_ok": true,
+          "comment_ok": true
+        },
+        "q4_grounding": {
+          "sample_size": 3,
+          "passed": 3,
+          "pass_rate": 1.0,
+          "checks": [
+            {
+              "annotation_id": "9713bcb2-7ae6-4f5f-a7ab-6d4ca21b0589",
+              "page": 4,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "LLMs offer new opportunities for CAVL through personalization, contextualization, and real-time feedback functions (Zhan"
+            },
+            {
+              "annotation_id": "eed47174-a7ea-4550-ac34-e222e3b567cf",
+              "page": 13,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "This study used one-way analysis of covariance (ANCOVA) to evaluate the learning achievement of the two groups of studen"
+            },
+            {
+              "annotation_id": "75a6348e-03fe-4843-a06e-4f3c66434ca9",
+              "page": 8,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "In the in-class phase, the IIC breaks the traditional “teacher-student” binary teaching structure and establishes a dyna"
+            }
+          ],
+          "score": 2
+        },
+        "q5_actionability": {
+          "score": 2,
+          "suggestion_bullets": 6,
+          "placeholder_ratio": 0.0,
+          "bullets_ok": true,
+          "placeholder_ok": true
+        },
+        "total": 8,
+        "max": 10,
+        "tier1_quality_pass": true
+      },
+      "tier2_needed": false,
+      "root_cause_bucket": null,
+      "evaluated_at": "2026-06-04T03:21:06.172018+08:00",
+      "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
+      "artifacts": {
+        "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/1c6e5728-c042-47ae-ad70-f6bb7e12c7a1/job.json",
+        "final_report_md": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/1c6e5728-c042-47ae-ad70-f6bb7e12c7a1/final_report.md",
+        "annotations_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/1c6e5728-c042-47ae-ad70-f6bb7e12c7a1/annotations.json",
+        "mineru_markdown": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/1c6e5728-c042-47ae-ad70-f6bb7e12c7a1/mineru_full.md"
+      }
+    },
+    {
+      "job_id": "481ab98f-653e-40dc-b897-9bd1e0747c94",
+      "title": "Breaking the boundaries of conventional vocabulary learning  the impact of vocabulary learning with intelligent interactive companion in CAVL environm",
+      "source_pdf_name": "tmpwnpns5q5.pdf",
+      "status": "failed",
+      "error": "openai.APIConnectionError: Connection error.",
+      "annotation_count": 0,
+      "reliability": {
+        "completed": false,
+        "has_final_markdown": false,
+        "has_final_pdf": false,
+        "no_fatal_error": false,
+        "final_write_gate": false,
+        "tier1_pass": false
+      },
+      "efficiency": {
+        "wall_clock_minutes": 2.15,
+        "tokens_total": 0,
+        "tokens_input": 0,
+        "tokens_output": 0,
+        "tool_calls_total": 0,
+        "paper_search_calls": 0,
+        "agent_run_incomplete_count": 0,
+        "flags": []
+      },
+      "oqi": null,
+      "tier2_needed": true,
+      "root_cause_bucket": "R2",
+      "evaluated_at": "2026-06-04T03:21:06.173488+08:00",
+      "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
+      "artifacts": {
+        "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/481ab98f-653e-40dc-b897-9bd1e0747c94/job.json",
+        "final_report_md": null,
+        "annotations_json": null,
+        "mineru_markdown": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/481ab98f-653e-40dc-b897-9bd1e0747c94/mineru_full.md"
+      }
+    }
+  ],
+  "aggregate": {
+    "job_count": 2,
+    "completed_count": 1,
+    "completion_rate": 0.5,
+    "median_oqi": 8,
+    "grounding_pass_rate_mean": 1.0,
+    "root_cause_counts": {
+      "R2": 1
+    },
+    "top_root_causes": [
+      {
+        "bucket": "R2",
+        "count": 1
+      }
+    ],
+    "verdict": "no-go"
+  }
+}

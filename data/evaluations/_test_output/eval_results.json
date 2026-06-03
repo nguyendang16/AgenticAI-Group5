@@ -1,0 +1,42 @@
+{
+  "jobs": [
+    {
+      "job_id": "a",
+      "reliability": {
+        "completed": true
+      },
+      "oqi": {
+        "total": 8,
+        "q4_grounding": {
+          "pass_rate": 1.0
+        }
+      },
+      "root_cause_bucket": null
+    },
+    {
+      "job_id": "b",
+      "reliability": {
+        "completed": false
+      },
+      "oqi": null,
+      "root_cause_bucket": "R2"
+    }
+  ],
+  "aggregate": {
+    "job_count": 2,
+    "completed_count": 1,
+    "completion_rate": 0.5,
+    "median_oqi": 8,
+    "grounding_pass_rate_mean": 1.0,
+    "root_cause_counts": {
+      "R2": 1
+    },
+    "top_root_causes": [
+      {
+        "bucket": "R2",
+        "count": 1
+      }
+    ],
+    "verdict": "no-go"
+  }
+}
