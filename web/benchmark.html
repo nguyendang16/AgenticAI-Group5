@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KG Benchmark</title>
+    <link rel="icon" href="/favicon.ico" type="image/png" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <img src="/logo.png" alt="Logo" class="logo" onerror="this.style.display='none'" />
+      <div>
+        <h1>Knowledge Graph Benchmark</h1>
+        <p class="subtitle">Neo4j review-criteria KG quality and link-prediction results</p>
+      </div>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/">Review App</a>
+      </nav>
+    </header>
+
+    <main class="layout benchmark-layout">
+      <section class="panel benchmark-summary">
+        <h2>Current KG Snapshot</h2>
+        <div class="benchmark-grid">
+          <div class="metric-card">
+            <span class="metric-label">Source documents</span>
+            <strong>10</strong>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Review criteria</span>
+            <strong>55</strong>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Evidence requirements</span>
+            <strong>115</strong>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Triples</span>
+            <strong>332</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Framework 1: KG Quality</h2>
+        <p class="benchmark-note">
+          Based on Zaveri et al. Linked Data quality dimensions: completeness, consistency,
+          provenance, conciseness, and availability.
+        </p>
+        <table class="benchmark-table">
+          <thead>
+            <tr>
+              <th>Dimension</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Required property completeness</td><td>1.0</td></tr>
+            <tr><td>Criteria with evidence</td><td>1.0</td></tr>
+            <tr><td>Criteria with domain</td><td>1.0</td></tr>
+            <tr><td>Criteria with article type</td><td>1.0</td></tr>
+            <tr><td>Criteria with source provenance</td><td>1.0</td></tr>
+            <tr><td>Duplicate criterion IDs</td><td>0</td></tr>
+            <tr><td>Neo4j reachable</td><td>True</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="panel">
+        <h2>Framework 2: PyKEEN Link Prediction</h2>
+        <p class="benchmark-note">
+          Real PyKEEN TransE evaluation compared against a typed tail-popularity baseline.
+          Higher MRR and Hits@K are better; lower MR is better.
+        </p>
+        <table class="benchmark-table">
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>MRR</th>
+              <th>MR</th>
+              <th>Hits@1</th>
+              <th>Hits@3</th>
+              <th>Hits@10</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>TransE, 30 epochs</td>
+              <td>0.0394</td>
+              <td>86.3881</td>
+              <td>0.0</td>
+              <td>0.0299</td>
+              <td>0.1045</td>
+            </tr>
+            <tr>
+              <td>Typed tail-popularity baseline</td>
+              <td>0.0641</td>
+              <td>50.0</td>
+              <td>0.0</td>
+              <td>0.0455</td>
+              <td>0.2273</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="panel">
+        <h2>Interpretation</h2>
+        <p>
+          The KG is strong as a curated retrieval and provenance graph: every criterion has
+          evidence, domain/article metadata, and source provenance. The embedding benchmark is
+          weaker because the graph is small and schema-driven, so TransE does not yet learn useful
+          graph-completion structure.
+        </p>
+        <p>
+          Next improvement: add paper-level nodes such as claims, methods, experiments, datasets,
+          results, limitations, citations, and evidence spans, then link them to review criteria.
+        </p>
+      </section>
+
+      <section class="panel">
+        <h2>References</h2>
+        <ul class="reference-list">
+          <li>
+            Zaveri et al. Quality assessment for Linked Data: A Survey.
+            <a href="https://doi.org/10.3233/SW-150175">https://doi.org/10.3233/SW-150175</a>
+          </li>
+          <li>
+            Ali et al. PyKEEN 1.0: A Python Library for Training and Evaluating Knowledge Graph
+            Embeddings.
+            <a href="https://www.jmlr.org/papers/v22/20-825.html">
+              https://www.jmlr.org/papers/v22/20-825.html
+            </a>
+          </li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

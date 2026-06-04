@@ -33,6 +33,21 @@ body {
   background: var(--surface);
 }
 
+.site-nav {
+  margin-left: auto;
+}
+
+.site-nav a {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.site-nav a:hover {
+  color: var(--text);
+}
+
 .logo {
   height: 48px;
   width: auto;
@@ -271,4 +286,98 @@ body {
 .error {
   color: var(--error);
   font-size: 0.9rem;
+}
+
+.benchmark-layout {
+  max-width: 1080px;
+}
+
+.benchmark-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.metric-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.85rem;
+  background: rgba(0, 0, 0, 0.14);
+}
+
+.metric-card strong {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 1.45rem;
+}
+
+.metric-label {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.benchmark-note {
+  color: var(--muted);
+  margin-top: -0.25rem;
+}
+
+.benchmark-table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow-wrap: anywhere;
+}
+
+.benchmark-table th,
+.benchmark-table td {
+  border-bottom: 1px solid var(--border);
+  padding: 0.6rem 0.5rem;
+  text-align: left;
+}
+
+.benchmark-table th {
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.benchmark-table td:not(:first-child),
+.benchmark-table th:not(:first-child) {
+  text-align: right;
+}
+
+.reference-list {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.reference-list a {
+  color: var(--accent);
+}
+
+@media (max-width: 760px) {
+  .site-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .site-nav {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .benchmark-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .benchmark-table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 460px) {
+  .benchmark-grid {
+    grid-template-columns: 1fr;
+  }
 }
