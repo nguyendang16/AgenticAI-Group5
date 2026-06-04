@@ -39,7 +39,7 @@ def load_json_templates(json_dir: Path) -> list[ExtractedTemplate]:
 
 def _is_conference(source_type: str) -> bool:
     token = source_type.lower()
-    return any(x in token for x in ('conference', 'cfp', 'review_form', 'reviewer'))
+    return any(x in token for x in ('conference', 'cfp', 'call_for_papers', 'review_form', 'reviewer'))
 
 
 def load_template_to_neo4j(session: Any, template: ExtractedTemplate) -> None:

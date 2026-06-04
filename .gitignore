@@ -16,10 +16,12 @@ dist/
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
+.pykeen-cache/
 
 # Environment files
 .env
 local.env
+.env.neo4j
 pasa/.pasa_env
 pasa/.pasa_env.local
 

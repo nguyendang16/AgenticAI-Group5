@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from deepreview.criteria_kg import (
     _infer_venue_with_priority,
+    build_graph_evaluation_summary,
     build_final_report_markdown,
     enrich_criteria_bundle,
     enrich_criteria_bundle_semantic_ids,
     format_criteria_bundle_for_prompt,
+    format_graph_evaluation_markdown,
     format_criteria_legend_markdown,
     normalize_claim_level_audit_markdown,
     normalize_confidence,
@@ -193,5 +195,37 @@ def test_build_report_includes_legend():
         review_fast_mode=True,
     )
     assert '## Criterion Legend' in md
+    assert '## Graph Evaluation' in md
     assert 'C01' in md
     assert '## Summary' in md
+
+
+def test_graph_evaluation_summarizes_sources():
+    bundle = enrich_criteria_bundle_semantic_ids(
+        {
+            'criteria_count': 1,
+            'query': {'venue': 'TWELF', 'journal': None, 'domain': 'Educational Technology', 'article_type': None},
+            'provenance': [{'source_id': 'twelf_guidelines', 'file_name': 'twelf.docx'}],
+            'criteria_by_group': {
+                'SCOPE_FIT': [
+                    {
+                        'criterion_id': 'criterion_1',
+                        'criterion_name': 'Fit',
+                        'criterion_group': 'SCOPE_FIT',
+                        'description': 'Scope fit.',
+                        'evidence_required': [{'name': 'Learning context'}],
+                    }
+                ]
+            },
+        }
+    )
+    evaluation = build_graph_evaluation_summary(bundle)
+    assert evaluation['criteria_count'] == 1
+    assert evaluation['active_criteria_count'] == 1
+    assert evaluation['source_document_count'] == 1
+    assert evaluation['source_documents'][0]['file_name'] == 'twelf.docx'
+
+    md = format_graph_evaluation_markdown(bundle)
+    assert '## Graph Evaluation' in md
+    assert 'twelf.docx' in md
+    assert 'Evidence requirements linked: 1' in md

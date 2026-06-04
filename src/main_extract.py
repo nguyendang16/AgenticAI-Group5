@@ -9,16 +9,22 @@ from tqdm import tqdm
 from src.config import EXTRACT_MODEL
 from src.docx_io import extract_docx_text
 from src.llm_extractor import llm_extract_template
+from src.local_template_extractor import extract_template_locally
 from src.metadata_hints import infer_metadata_from_path
 from src.normalizer import merge_duplicate_criteria, normalize_template
 from src.validator import validate_template
 
 
 def _parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description='Extract review templates from .docx via LLM')
+    parser = argparse.ArgumentParser(description='Extract review templates from .docx')
     parser.add_argument('--template_dir', type=Path, default=Path('templates'))
     parser.add_argument('--output_dir', type=Path, default=Path('outputs/extracted_json'))
     parser.add_argument('--log_dir', type=Path, default=Path('outputs/logs'))
+    parser.add_argument(
+        '--local-only',
+        action='store_true',
+        help='Parse graph-template DOCX files locally without calling an external LLM',
+    )
     return parser.parse_args()
 
 
@@ -35,7 +41,8 @@ def main() -> int:
         print(f'No .docx files found in {template_dir}')
         return 1
 
-    print(f'Extraction model: {EXTRACT_MODEL}')
+    mode = 'local structured parser' if args.local_only else f'LLM ({EXTRACT_MODEL})'
+    print(f'Extraction mode: {mode}')
     print(f'Found {len(docx_files)} templates')
 
     all_warnings: list[dict] = []
@@ -44,18 +51,22 @@ def main() -> int:
     for path in tqdm(docx_files, desc='Extracting'):
         file_warnings: list[dict] = [{'type': 'file', 'file_name': path.name}]
         try:
-            hints = infer_metadata_from_path(path)
-            raw_text = extract_docx_text(path)
-            if not raw_text.strip():
-                file_warnings.append({'type': 'empty_document', 'file_name': path.name})
-                all_warnings.append({'file': path.name, 'warnings': file_warnings})
-                continue
+            if args.local_only:
+                template, local_warnings = extract_template_locally(path)
+                file_warnings.extend(local_warnings)
+            else:
+                hints = infer_metadata_from_path(path)
+                raw_text = extract_docx_text(path)
+                if not raw_text.strip():
+                    file_warnings.append({'type': 'empty_document', 'file_name': path.name})
+                    all_warnings.append({'file': path.name, 'warnings': file_warnings})
+                    continue
 
-            template = llm_extract_template(raw_text=raw_text, hints=hints)
-            template = normalize_template(template)
-            template, dup_warnings = merge_duplicate_criteria(template)
-            file_warnings.extend(dup_warnings)
-            file_warnings.extend(validate_template(template))
+                template = llm_extract_template(raw_text=raw_text, hints=hints)
+                template = normalize_template(template)
+                template, dup_warnings = merge_duplicate_criteria(template)
+                file_warnings.extend(dup_warnings)
+                file_warnings.extend(validate_template(template))
 
             out_path = output_dir / f'{template.source_document.source_id}.json'
             out_path.write_text(

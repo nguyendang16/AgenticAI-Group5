@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
-from pydantic import AliasChoices, Field
+from pydantic import AliasChoices, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -21,11 +21,23 @@ class Settings(BaseSettings):
     # OpenAI Agent SDK runtime
     openai_api_key: str | None = Field(
         default=None,
-        validation_alias=AliasChoices('OPENAI_API_KEY', 'API_KEY', 'LLM_API_KEY'),
+        validation_alias=AliasChoices(
+            'OPENAI_API_KEY',
+            'GEMINI_API_KEY',
+            'GOOGLE_API_KEY',
+            'API_KEY',
+            'LLM_API_KEY',
+        ),
     )
     openai_base_url: str | None = Field(
         default=None,
-        validation_alias=AliasChoices('BASE_URL', 'OPENAI_BASE_URL', 'LLM_BASE_URL'),
+        validation_alias=AliasChoices(
+            'BASE_URL',
+            'OPENAI_BASE_URL',
+            'GEMINI_BASE_URL',
+            'GOOGLE_BASE_URL',
+            'LLM_BASE_URL',
+        ),
     )
     openai_use_responses_api: bool = Field(
         default=False,
@@ -139,6 +151,25 @@ class Settings(BaseSettings):
                 continue
             templates.append(normalized)
         return templates
+
+    @field_validator(
+        'openai_api_key',
+        'openai_base_url',
+        'mineru_api_token',
+        'paper_search_base_url',
+        'paper_search_api_key',
+        'deepxiv_api_token',
+        'paper_read_base_url',
+        'paper_read_api_key',
+        'neo4j_uri',
+        'neo4j_password',
+        mode='before',
+    )
+    @classmethod
+    def _blank_string_as_none(cls, value: object) -> object:
+        if isinstance(value, str) and not value.strip():
+            return None
+        return value
 
 def apply_review_fast_profile(settings: Settings) -> Settings:
     if not settings.review_fast_mode:

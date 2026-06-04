@@ -165,7 +165,18 @@ function formatEvent(ev) {
   if (event === 'review_criteria_resolved') {
     const count = ev.criteria_count ?? 0;
     const source = ev.source || ev.skipped || 'none';
-    return `<span class="event-meta">${ts}</span> <span class="tool-name">criteria</span> ${count} from ${escapeHtml(source)}`;
+    const evaluation = ev.graph_evaluation || {};
+    const active = evaluation.active_criteria_count;
+    const sourceDocs = Array.isArray(evaluation.source_documents) ? evaluation.source_documents : [];
+    const docLabel = sourceDocs
+      .slice(0, 3)
+      .map((doc) => doc.file_name || doc.source_id)
+      .filter(Boolean)
+      .join(', ');
+    const parts = [`${count} from ${source}`];
+    if (active != null) parts.push(`${active} active`);
+    if (docLabel) parts.push(`sources: ${docLabel}`);
+    return `<span class="event-meta">${ts}</span> <span class="tool-name">criteria</span> ${escapeHtml(parts.join(' | '))}`;
   }
 
   return `<span class="event-meta">${ts}</span> ${escapeHtml(event)}`;

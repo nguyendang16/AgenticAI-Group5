@@ -36,6 +36,22 @@ def _resolved_api_key() -> str:
     return str(settings.openai_api_key or 'EMPTY')
 
 
+def _validate_llm_config() -> None:
+    settings = get_settings()
+    base_url = str(settings.openai_base_url or '').strip()
+    api_key = str(settings.openai_api_key or '').strip()
+
+    if base_url and not base_url.startswith(('http://', 'https://')):
+        raise RuntimeError(
+            'Invalid OpenAI BASE_URL/OPENAI_BASE_URL: it must start with http:// or https://.'
+        )
+    if not base_url and not api_key:
+        raise RuntimeError(
+            'LLM is not configured. Set OPENAI_API_KEY for the OpenAI API, or set BASE_URL '
+            'to an OpenAI-compatible local/provider endpoint.'
+        )
+
+
 def _build_mineru_adapter() -> MineruAdapter:
     settings = get_settings()
     return MineruAdapter(
@@ -373,6 +389,7 @@ def _complete_with_existing_final_report(job_id: str, *, warning: str) -> bool:
 
 async def run_job_async(job_id: str) -> None:
     settings = get_settings()
+    _validate_llm_config()
     job = load_job_state(job_id)
     if job is None:
         raise FileNotFoundError(f'Job not found: {job_id}')
@@ -473,6 +490,11 @@ async def run_job_async(job_id: str) -> None:
         job_id,
         'review_criteria_resolved',
         **criteria_resolution,
+        graph_evaluation=(
+            criteria_bundle.get('evaluation')
+            if isinstance(criteria_bundle, dict) and isinstance(criteria_bundle.get('evaluation'), dict)
+            else None
+        ),
     )
     if criteria_bundle is not None:
         write_json_atomic(

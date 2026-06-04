@@ -1,0 +1,19 @@
+services:
+  neo4j:
+    build:
+      context: ./docker/neo4j
+    image: deepreview-neo4j:local
+    container_name: deepreview-neo4j
+    restart: unless-stopped
+    env_file:
+      - .env.neo4j
+    ports:
+      - "127.0.0.1:7474:7474"
+      - "127.0.0.1:7687:7687"
+    volumes:
+      - deepreview_neo4j_data:/data
+      - deepreview_neo4j_logs:/logs
+
+volumes:
+  deepreview_neo4j_data:
+  deepreview_neo4j_logs:

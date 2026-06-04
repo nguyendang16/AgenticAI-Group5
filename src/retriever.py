@@ -40,13 +40,28 @@ def retrieve_criteria_bundle(
     article_type_name = (article_type or '').strip()
 
     query = """
-    OPTIONAL MATCH (v:Venue)
-    WHERE ($venue_slug <> '' AND v.venue_id = $venue_slug)
-       OR ($venue <> '' AND toLower(v.name) CONTAINS toLower($venue))
-    OPTIONAL MATCH (j:Journal)
-    WHERE ($journal_slug <> '' AND j.journal_id = $journal_slug)
-       OR ($journal <> '' AND toLower(j.name) CONTAINS toLower($journal))
-    WITH coalesce(v, j) AS host, labels(coalesce(v, j))[0] AS host_label
+    OPTIONAL MATCH (v_direct:Venue)
+    WHERE ($venue_slug <> '' AND v_direct.venue_id = $venue_slug)
+       OR ($venue <> '' AND toLower(v_direct.name) CONTAINS toLower($venue))
+    OPTIONAL MATCH (venue_doc:SourceDocument)-[:DESCRIBES]->(v_from_source:Venue)
+    WHERE $venue <> ''
+      AND (
+        toLower(venue_doc.source_id) CONTAINS toLower($venue_slug)
+        OR toLower(venue_doc.file_name) CONTAINS toLower($venue)
+        OR toLower(venue_doc.source_title) CONTAINS toLower($venue)
+      )
+    OPTIONAL MATCH (j_direct:Journal)
+    WHERE ($journal_slug <> '' AND j_direct.journal_id = $journal_slug)
+       OR ($journal <> '' AND toLower(j_direct.name) CONTAINS toLower($journal))
+    OPTIONAL MATCH (journal_doc:SourceDocument)-[:DESCRIBES]->(j_from_source:Journal)
+    WHERE $journal <> ''
+      AND (
+        toLower(journal_doc.source_id) CONTAINS toLower($journal_slug)
+        OR toLower(journal_doc.file_name) CONTAINS toLower($journal)
+        OR toLower(journal_doc.source_title) CONTAINS toLower($journal)
+      )
+    WITH coalesce(v_direct, v_from_source, j_direct, j_from_source) AS host,
+         labels(coalesce(v_direct, v_from_source, j_direct, j_from_source))[0] AS host_label
     WHERE host IS NOT NULL
     OPTIONAL MATCH (host)-[:HAS_CRITERION]->(c:ReviewCriterion)
     OPTIONAL MATCH (c)-[:REQUIRES_EVIDENCE]->(e:EvidenceRequirement)

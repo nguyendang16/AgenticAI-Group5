@@ -441,6 +441,7 @@ def enrich_criteria_bundle(bundle: dict[str, Any]) -> dict[str, Any]:
     out['criteria_count'] = sum(len(v) for v in new_groups.values())
     if id_map:
         out['criterion_id_map'] = id_map
+    out['evaluation'] = build_graph_evaluation_summary(out)
     return out
 
 
@@ -466,6 +467,60 @@ def _short_group_label(group: str) -> str:
     """Shorten group name: CLARITY_PRESENTATION -> CLARITY."""
     parts = group.split('_')
     return parts[0] if parts else group
+
+
+def build_graph_evaluation_summary(bundle: dict[str, Any] | None) -> dict[str, Any]:
+    """Summarize the KG retrieval result for reports and UI progress."""
+    if not bundle:
+        return {
+            'status': 'not_available',
+            'criteria_count': 0,
+            'active_criteria_count': 0,
+            'reference_only_count': 0,
+            'source_document_count': 0,
+            'source_documents': [],
+            'groups_present': [],
+            'evidence_requirements_count': 0,
+        }
+
+    groups = bundle.get('criteria_by_group') if isinstance(bundle.get('criteria_by_group'), dict) else {}
+    criteria: list[dict[str, Any]] = []
+    for group_items in groups.values():
+        if isinstance(group_items, list):
+            criteria.extend(item for item in group_items if isinstance(item, dict))
+
+    active_count = sum(1 for item in criteria if is_scoring_active_criterion(item))
+    reference_count = max(0, len(criteria) - active_count)
+    evidence_count = 0
+    for item in criteria:
+        evidence = item.get('evidence_required')
+        if isinstance(evidence, list):
+            evidence_count += len(evidence)
+
+    provenance = bundle.get('provenance') if isinstance(bundle.get('provenance'), list) else []
+    seen_sources: set[tuple[str, str]] = set()
+    source_documents: list[dict[str, str]] = []
+    for row in provenance:
+        if not isinstance(row, dict):
+            continue
+        source_id = _clean(row.get('source_id'))
+        file_name = _clean(row.get('file_name'))
+        key = (source_id, file_name)
+        if key in seen_sources:
+            continue
+        seen_sources.add(key)
+        source_documents.append({'source_id': source_id, 'file_name': file_name})
+
+    return {
+        'status': 'ready' if criteria else 'empty',
+        'criteria_count': len(criteria),
+        'active_criteria_count': active_count,
+        'reference_only_count': reference_count,
+        'source_document_count': len(source_documents),
+        'source_documents': source_documents,
+        'groups_present': sorted(groups.keys()),
+        'evidence_requirements_count': evidence_count,
+    }
 
 
 def normalize_verification_status(raw: str) -> str:
@@ -784,6 +839,50 @@ def format_criteria_legend_markdown(bundle: dict[str, Any] | None) -> str:
     return '\n'.join(lines)
 
 
+def format_graph_evaluation_markdown(bundle: dict[str, Any] | None) -> str:
+    """Compact report section explaining what the criteria graph returned."""
+    if not bundle or int(bundle.get('criteria_count') or 0) <= 0:
+        return ''
+
+    evaluation = bundle.get('evaluation')
+    if not isinstance(evaluation, dict):
+        evaluation = build_graph_evaluation_summary(bundle)
+
+    query = bundle.get('query') if isinstance(bundle.get('query'), dict) else {}
+    venue = _clean(query.get('venue')) or '-'
+    journal = _clean(query.get('journal')) or '-'
+    domain = _clean(query.get('domain')) or '-'
+    article_type = _clean(query.get('article_type')) or '-'
+    groups = evaluation.get('groups_present') if isinstance(evaluation.get('groups_present'), list) else []
+    source_documents = (
+        evaluation.get('source_documents') if isinstance(evaluation.get('source_documents'), list) else []
+    )
+
+    lines = [
+        '## Graph Evaluation',
+        '',
+        f'- Query: venue={venue}; journal={journal}; domain={domain}; article_type={article_type}',
+        f"- Criteria returned: {int(evaluation.get('criteria_count') or 0)} "
+        f"({int(evaluation.get('active_criteria_count') or 0)} active, "
+        f"{int(evaluation.get('reference_only_count') or 0)} reference-only)",
+        f"- Evidence requirements linked: {int(evaluation.get('evidence_requirements_count') or 0)}",
+    ]
+    if groups:
+        lines.append(f"- Groups: {', '.join(str(group) for group in groups)}")
+    if source_documents:
+        lines.append('- Source documents / literature:')
+        for row in source_documents[:8]:
+            if not isinstance(row, dict):
+                continue
+            source_id = _clean(row.get('source_id')) or '-'
+            file_name = _clean(row.get('file_name')) or '-'
+            lines.append(f'  - {file_name} ({source_id})')
+    else:
+        lines.append('- Source documents / literature: none returned by graph')
+    lines.append('')
+    return '\n'.join(lines)
+
+
 _INLINE_SECTION_LINE = re.compile(
     r'^\s*(?:[-*]\s*)?(?P<title>summary|strengths|weaknesses|key issues|issues|'
     r'actionable suggestions|suggestions|claim[- ]level audit|audit table|scores)\s*:?\s*$',
@@ -943,6 +1042,9 @@ def build_final_report_markdown(
     legend = format_criteria_legend_markdown(criteria_bundle)
     if legend:
         blocks.append(legend.strip())
+    graph_evaluation = format_graph_evaluation_markdown(criteria_bundle)
+    if graph_evaluation:
+        blocks.append(graph_evaluation.strip())
     for section_id in section_order:
         content = str(normalized.get(section_id) or '').strip()
         if not content:
