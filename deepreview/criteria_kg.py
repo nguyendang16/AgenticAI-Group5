@@ -289,6 +289,43 @@ def _load_bundle_from_json_dir(
     }
 
 
+def _criteria_query_variants(query: dict[str, str]) -> list[dict[str, str]]:
+    """Alternate venue/journal placements when UI or inference uses the wrong host label."""
+    variants: list[dict[str, str]] = []
+    seen: set[tuple[str, str, str, str]] = set()
+
+    def _add(venue: str, journal: str, domain: str, article_type: str) -> None:
+        key = (venue, journal, domain, article_type)
+        if key in seen:
+            return
+        seen.add(key)
+        variants.append(
+            {
+                'venue': venue,
+                'journal': journal,
+                'domain': domain,
+                'article_type': article_type,
+            }
+        )
+
+    venue = _clean(query.get('venue'))
+    journal = _clean(query.get('journal'))
+    domain = _clean(query.get('domain'))
+    article_type = _clean(query.get('article_type'))
+
+    _add(venue, journal, domain, article_type)
+    # e.g. TWELF2026 is stored as Journal in Neo4j but often entered in the venue field
+    if venue and not journal:
+        _add('', venue, domain, article_type)
+    if journal and not venue:
+        _add(journal, '', domain, article_type)
+    if venue.upper().startswith('TWELF'):
+        for jname in ('TWELF2026', 'TWELF'):
+            if jname != journal:
+                _add('', jname, domain, article_type)
+    return variants
+
+
 def _retrieve_from_neo4j(
     *,
     venue: str,
@@ -355,21 +392,35 @@ def resolve_review_criteria_bundle(
         resolution['skipped'] = 'no_venue_or_journal'
         return None, resolution
 
-    bundle = _retrieve_from_neo4j(
-        venue=query['venue'],
-        journal=query['journal'],
-        domain=query['domain'],
-        article_type=query['article_type'],
-        settings=settings,
-    )
-    if bundle is None:
-        bundle = _load_bundle_from_json_dir(
-            _criteria_json_dir(settings),
-            venue=query['venue'],
-            journal=query['journal'],
-            domain=query['domain'],
-            article_type=query['article_type'],
+    bundle = None
+    resolved_query = query
+    for variant in _criteria_query_variants(query):
+        bundle = _retrieve_from_neo4j(
+            venue=variant['venue'],
+            journal=variant['journal'],
+            domain=variant['domain'],
+            article_type=variant['article_type'],
+            settings=settings,
         )
+        if bundle is not None:
+            resolved_query = variant
+            break
+    if bundle is None:
+        for variant in _criteria_query_variants(query):
+            bundle = _load_bundle_from_json_dir(
+                _criteria_json_dir(settings),
+                venue=variant['venue'],
+                journal=variant['journal'],
+                domain=variant['domain'],
+                article_type=variant['article_type'],
+            )
+            if bundle is not None:
+                resolved_query = variant
+                break
+
+    resolution['query'] = resolved_query
+    if resolved_query != query:
+        resolution['query_fallback'] = True
 
     if bundle is None:
         resolution['skipped'] = 'no_criteria_found'
@@ -412,11 +463,17 @@ def enrich_criteria_bundle(bundle: dict[str, Any]) -> dict[str, Any]:
         return bundle
 
     flat: list[dict[str, Any]] = []
+    seen_flat: set[str] = set()
     for group_name in sorted(groups.keys()):
         for item in groups[group_name]:
             if isinstance(item, dict):
                 row = normalize_criterion_metadata(dict(item))
                 row.setdefault('criterion_group', group_name)
+                cid = _clean(row.get('criterion_id'))
+                dedupe_key = cid or f"{row.get('criterion_name')}|{row.get('description')}"
+                if dedupe_key in seen_flat:
+                    continue
+                seen_flat.add(dedupe_key)
                 flat.append(row)
 
     remapped = assign_semantic_criterion_ids(
