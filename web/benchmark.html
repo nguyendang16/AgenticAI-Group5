@@ -22,6 +22,11 @@
     <main class="layout benchmark-layout">
       <section class="panel benchmark-summary">
         <h2>Current KG Snapshot</h2>
+        <p class="benchmark-note">
+          This graph is built from curated conference and journal review templates, then loaded
+          into local Neo4j. It is used by the review agent to retrieve venue-specific criteria,
+          evidence requirements, and provenance before reviewing a submitted paper.
+        </p>
         <div class="benchmark-grid">
           <div class="metric-card">
             <span class="metric-label">Source documents</span>
@@ -48,6 +53,21 @@
           Based on Zaveri et al. Linked Data quality dimensions: completeness, consistency,
           provenance, conciseness, and availability.
         </p>
+        <div class="explanation-block">
+          <h3>What this checks</h3>
+          <p>
+            This evaluation asks whether the graph is usable as a reliable knowledge source. For
+            this project, that means each review criterion should have a stable ID, name, group,
+            description, evidence requirement, article/domain applicability, and source document
+            provenance.
+          </p>
+          <p>
+            These checks matter more than link prediction for the current system because the review
+            agent uses the KG as a retrieval and grounding layer. If provenance or required
+            properties are missing, the generated review cannot explain where its criteria came
+            from.
+          </p>
+        </div>
         <table class="benchmark-table">
           <thead>
             <tr>
@@ -73,6 +93,21 @@
           Real PyKEEN TransE evaluation compared against a typed tail-popularity baseline.
           Higher MRR and Hits@K are better; lower MR is better.
         </p>
+        <div class="explanation-block">
+          <h3>What this checks</h3>
+          <p>
+            Link prediction tests whether a model can hide one part of a graph triple and predict
+            it back. Example: given <code>ReviewCriterion - REQUIRES_EVIDENCE - ?</code>, the model
+            ranks possible evidence nodes and gets a better score when the correct node is near the
+            top.
+          </p>
+          <p>
+            PyKEEN trains an embedding model, here TransE, on training triples and evaluates it on
+            held-out test triples. This is useful when a KG has enough repeated structure to learn
+            missing links, but it is less informative for a small hand-curated graph with mostly
+            unique criteria and evidence nodes.
+          </p>
+        </div>
         <table class="benchmark-table">
           <thead>
             <tr>
@@ -106,6 +141,61 @@
       </section>
 
       <section class="panel">
+        <h2>How to Read the Metrics</h2>
+        <table class="benchmark-table">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Meaning</th>
+              <th>Direction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>MRR</td>
+              <td>Mean reciprocal rank. Rewards putting the correct answer near rank 1.</td>
+              <td>Higher is better</td>
+            </tr>
+            <tr>
+              <td>MR</td>
+              <td>Mean rank of the correct answer among candidates.</td>
+              <td>Lower is better</td>
+            </tr>
+            <tr>
+              <td>Hits@1</td>
+              <td>Fraction of test triples where the correct answer is ranked first.</td>
+              <td>Higher is better</td>
+            </tr>
+            <tr>
+              <td>Hits@3</td>
+              <td>Fraction where the correct answer appears in the top 3.</td>
+              <td>Higher is better</td>
+            </tr>
+            <tr>
+              <td>Hits@10</td>
+              <td>Fraction where the correct answer appears in the top 10.</td>
+              <td>Higher is better</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="panel">
+        <h2>What the Baseline Means</h2>
+        <p>
+          The typed tail-popularity baseline is a simple non-learning comparison method. It does
+          not train embeddings. Instead, for each relation type, it ranks candidate tail nodes by
+          how frequently they appeared with that relation in the training graph.
+        </p>
+        <p>
+          A baseline is important because it tells us whether the learned model is actually adding
+          value. In this benchmark, the baseline outperforms TransE, which suggests that the current
+          KG does not yet contain enough rich graph structure for embedding learning to beat a
+          simple frequency-based rule.
+        </p>
+      </section>
+
+      <section class="panel">
         <h2>Interpretation</h2>
         <p>
           The KG is strong as a curated retrieval and provenance graph: every criterion has
@@ -116,6 +206,29 @@
         <p>
           Next improvement: add paper-level nodes such as claims, methods, experiments, datasets,
           results, limitations, citations, and evidence spans, then link them to review criteria.
+        </p>
+        <ul class="benchmark-list">
+          <li>
+            Strong point: the KG is reliable for retrieving review criteria with provenance.
+          </li>
+          <li>
+            Weak point: the KG is not yet large or relationally rich enough for strong embedding
+            prediction.
+          </li>
+          <li>
+            Practical conclusion: use Zaveri-style KG quality as the main evaluation, and treat
+            PyKEEN as an exploratory secondary benchmark.
+          </li>
+        </ul>
+      </section>
+
+      <section class="panel">
+        <h2>Recommended Next Benchmark</h2>
+        <p>
+          For this review system, retrieval evaluation should be added next. Create test queries
+          such as <code>TWELF educational technology proposal</code> or <code>ICLR ML paper</code>,
+          define the expected criteria, and measure Precision@K, Recall@K, and MRR. This would
+          evaluate the system behavior more directly than link prediction.
         </p>
       </section>
 
