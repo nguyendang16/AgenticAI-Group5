@@ -17,6 +17,43 @@ def _slug(text: str) -> str:
     return re.sub(r'[^a-zA-Z0-9]+', '_', str(text or '').lower()).strip('_')
 
 
+def _normalize_source_docs(raw: Any) -> list[dict[str, str]]:
+    docs: list[dict[str, str]] = []
+    seen: set[str] = set()
+    if not isinstance(raw, list):
+        return docs
+    for item in raw:
+        if item is None:
+            continue
+        props = dict(item) if not isinstance(item, dict) else item
+        sid = str(props.get('source_id') or '').strip()
+        if not sid or sid in seen:
+            continue
+        seen.add(sid)
+        docs.append({'source_id': sid, 'file_name': str(props.get('file_name') or '').strip()})
+    return docs
+
+
+def _dedupe_criteria_by_group(
+    criteria_by_group: dict[str, list[dict[str, Any]]],
+) -> dict[str, list[dict[str, Any]]]:
+    """One entry per criterion_id (fallback: name+group) within each group."""
+    deduped: dict[str, list[dict[str, Any]]] = {}
+    for group, items in criteria_by_group.items():
+        unique: list[dict[str, Any]] = []
+        seen: set[str] = set()
+        for item in items:
+            cid = str(item.get('criterion_id') or '').strip()
+            key = cid or f"{item.get('criterion_name')}|{item.get('description')}"
+            if key in seen:
+                continue
+            seen.add(key)
+            unique.append(item)
+        if unique:
+            deduped[group] = unique
+    return deduped
+
+
 def retrieve_criteria_bundle(
     *,
     venue: str | None = None,
@@ -66,8 +103,10 @@ def retrieve_criteria_bundle(
     OPTIONAL MATCH (host)-[:HAS_CRITERION]->(c:ReviewCriterion)
     OPTIONAL MATCH (c)-[:REQUIRES_EVIDENCE]->(e:EvidenceRequirement)
     OPTIONAL MATCH (c)-[:SUPPORTED_BY_SOURCE]->(d:SourceDocument)
-    OPTIONAL MATCH (host)-[:HAS_REVIEW_FIELD]->(f:ReviewFormField)
-    WITH host, host_label, c, collect(DISTINCT e) AS evidence_list, d, collect(DISTINCT f) AS fields
+    WITH host, host_label, c,
+         collect(DISTINCT e) AS evidence_list,
+         [doc IN collect(DISTINCT d) WHERE doc IS NOT NULL |
+           {source_id: doc.source_id, file_name: doc.file_name}] AS source_docs
     WHERE c IS NOT NULL
       AND (
         $domain_name = '' OR $domain_name IN coalesce(c.applies_to_domain, [])
@@ -87,8 +126,7 @@ def retrieve_criteria_bundle(
            c.applies_to_domain AS applies_to_domain,
            c.applies_to_article_type AS applies_to_article_type,
            evidence_list,
-           d.source_id AS source_id,
-           d.file_name AS file_name
+           source_docs
     """
 
     criteria_by_group: dict[str, list[dict[str, Any]]] = defaultdict(list)
@@ -121,6 +159,8 @@ def retrieve_criteria_bundle(
                         'required': props.get('required'),
                     }
                 )
+            source_docs = _normalize_source_docs(record.get('source_docs'))
+            primary = source_docs[0] if source_docs else {'source_id': '', 'file_name': ''}
             entry = {
                 'criterion_id': record['criterion_id'],
                 'criterion_name': record['criterion_name'],
@@ -133,17 +173,21 @@ def retrieve_criteria_bundle(
                 'applies_to_article_type': record['applies_to_article_type'] or [],
                 'evidence_required': evidence_items,
                 'provenance': {
-                    'source_id': record['source_id'],
-                    'file_name': record['file_name'],
+                    'source_id': primary['source_id'],
+                    'file_name': primary['file_name'],
                 },
+                'provenance_sources': source_docs,
             }
             criteria_by_group[group].append(entry)
-            sid = record['source_id'] or ''
-            if sid and sid not in seen_sources:
-                seen_sources.add(sid)
-                provenance.append({'source_id': sid, 'file_name': record['file_name'] or ''})
+            for doc in source_docs:
+                sid = doc['source_id']
+                if sid not in seen_sources:
+                    seen_sources.add(sid)
+                    provenance.append(doc)
 
     driver.close()
+
+    criteria_by_group = _dedupe_criteria_by_group(dict(criteria_by_group))
 
     return {
         'query': {

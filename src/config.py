@@ -11,7 +11,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(_REPO_ROOT / '.env', override=False)
 
-# Fixed extraction model (not read from AGENT_MODEL in .env).
+# Fixed extraction model.
 EXTRACT_MODEL = 'gpt-4o-mini'
 
 

@@ -141,7 +141,7 @@ class Settings(BaseSettings):
     pdf_page_margin: int = 48
     pdf_brand_name: str = 'DILab'
     pdf_producer_name: str = 'DILab'
-    pdf_logo_path: str = 'logo.png'
+    pdf_logo_path: str = 'assets/branding/logo.png'
 
     def mineru_poll_templates(self) -> list[str]:
         templates: list[str] = []
