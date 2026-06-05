@@ -49,10 +49,60 @@ def _cmd_judge(args: argparse.Namespace) -> int:
 
 
 def _cmd_decision_metrics(_args: argparse.Namespace) -> int:
-    from benchmark.decision_metrics import DECISION_METRICS_PATH, run_decision_metrics
+    try:
+        from benchmark.decision_metrics import DECISION_METRICS_PATH, run_decision_metrics
+    except ImportError as exc:
+        print(f'Skipping decision-metrics: {exc}')
+        return 0
 
     rows = run_decision_metrics()
     print(f'Wrote {len(rows)} labeled runs to {DECISION_METRICS_PATH}')
+    return 0
+
+
+def _cmd_compare(_args: argparse.Namespace) -> int:
+    from benchmark.compare import (
+        OVERALL_SUMMARY_PATH,
+        PAIRED_COMPARISON_PATH,
+        VENUE_SUMMARY_PATH,
+        build_paired_comparison,
+    )
+
+    metadata = build_paired_comparison()
+    print(
+        'Wrote paired comparison outputs: '
+        f'{PAIRED_COMPARISON_PATH}, {OVERALL_SUMMARY_PATH}, {VENUE_SUMMARY_PATH} '
+        f'({metadata["valid_pairs"]} valid pairs, {metadata["excluded_pairs"]} excluded)'
+    )
+    return 0
+
+
+def _cmd_report(_args: argparse.Namespace) -> int:
+    from benchmark.report import BENCHMARK_SUMMARY_PATH, generate_report
+
+    path = generate_report(rebuild_comparison=True)
+    print(f'Wrote {path}')
+    return 0
+
+
+def _cmd_all(args: argparse.Namespace) -> int:
+    steps: list[tuple[str, Callable[[argparse.Namespace], int]]] = [
+        ('build-manifest', _cmd_build_manifest),
+        ('run', _cmd_run),
+        ('collect', _cmd_collect),
+        ('check', _cmd_check),
+        ('judge', _cmd_judge),
+        ('decision-metrics', _cmd_decision_metrics),
+        ('compare', _cmd_compare),
+        ('report', _cmd_report),
+    ]
+
+    for name, handler in steps:
+        print(f'==> benchmark {name}')
+        rc = handler(args)
+        if rc != 0:
+            print(f'benchmark {name} failed with exit code {rc}')
+            return rc
     return 0
 
 
@@ -86,6 +136,21 @@ def main(argv: list[str] | None = None) -> int:
         help='sklearn accept/reject metrics for labeled manifest papers',
     )
     decision_metrics_parser.set_defaults(func=_cmd_decision_metrics)
+
+    compare_parser = subparsers.add_parser('compare', help='Build paired KG_ON vs KG_OFF comparison CSVs')
+    compare_parser.set_defaults(func=_cmd_compare)
+
+    report_parser = subparsers.add_parser('report', help='Generate benchmark_summary.md')
+    report_parser.set_defaults(func=_cmd_report)
+
+    all_parser = subparsers.add_parser(
+        'all',
+        help='Run build-manifest through report (full benchmark pipeline)',
+    )
+    all_parser.add_argument('--dry-run', action='store_true', help='Print planned run commands only')
+    all_parser.add_argument('--paper-id', default=None, help='Run a single paper from the manifest')
+    all_parser.add_argument('--timeout', type=int, default=3600, help='Watch timeout in seconds')
+    all_parser.set_defaults(func=_cmd_all)
 
     args = parser.parse_args(argv)
     if args.command is None:
