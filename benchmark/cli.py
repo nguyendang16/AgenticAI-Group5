@@ -14,6 +14,16 @@ def _cmd_build_manifest(_args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_run(args: argparse.Namespace) -> int:
+    from benchmark.runner import run_paired_benchmark
+
+    return run_paired_benchmark(
+        timeout_seconds=args.timeout,
+        dry_run=args.dry_run,
+        paper_id_filter=args.paper_id,
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format='%(levelname)s %(name)s: %(message)s')
 
@@ -22,6 +32,12 @@ def main(argv: list[str] | None = None) -> int:
 
     build_parser = subparsers.add_parser('build-manifest', help='Build benchmark/manifest.jsonl')
     build_parser.set_defaults(func=_cmd_build_manifest)
+
+    run_parser = subparsers.add_parser('run', help='Run paired KG_ON/KG_OFF benchmark')
+    run_parser.add_argument('--dry-run', action='store_true', help='Print planned commands only')
+    run_parser.add_argument('--paper-id', default=None, help='Run a single paper from the manifest')
+    run_parser.add_argument('--timeout', type=int, default=3600, help='Watch timeout in seconds')
+    run_parser.set_defaults(func=_cmd_run)
 
     args = parser.parse_args(argv)
     if args.command is None:
