@@ -47,7 +47,36 @@ def _build_fast_review_annotator_prompt(
         if resolved_ui_language == 'zh-CN'
         else 'All user-visible annotations and the final report must be in English.'
     )
-    criteria_section = format_criteria_bundle_for_prompt(criteria_bundle, max_criteria=24)
+    kg_active = bool(criteria_bundle and int(criteria_bundle.get('criteria_count') or 0) > 0)
+    criteria_section = (
+        format_criteria_bundle_for_prompt(criteria_bundle, max_criteria=24) if kg_active else ''
+    )
+
+    if kg_active:
+        final_sections = (
+            'Summary, Strengths, Weaknesses, Key Issues, Actionable Suggestions, '
+            'Claim-Level Audit, Scores.'
+        )
+        audit_block = (
+            '4) Each `pdf_annotate` MUST include `criterion_id` from active criteria only (not OTHER/routing).\n'
+            '5) Claim-Level Audit: markdown table with 5 columns:\n'
+            '   | ID | Evidence | Status | Conf | Fix |\n'
+            '   - ID: C01, C02, etc. (from Criterion Legend).\n'
+            '   - Evidence: brief quote or summary.\n'
+            '   - Status: Missing, Partial, Supported, or Check.\n'
+            '   - Conf: H (High), M (Medium), L (Low).\n'
+            '   - Fix: brief suggestion.\n'
+            '   Rules: missing detail → Missing/H. Citation-only → Partial/M.\n'
+            '   Do NOT use OTHER/SIG routing criteria.\n'
+        )
+    else:
+        final_sections = (
+            'Summary, Strengths, Weaknesses, Key Issues, Actionable Suggestions, Scores.'
+        )
+        audit_block = (
+            '4) Do NOT attach venue criterion identifiers to annotations.\n'
+            '5) The final report uses only the six sections listed above.\n'
+        )
 
     return (
         'You are review agent running in FAST REVIEW mode.\n'
@@ -92,19 +121,10 @@ def _build_fast_review_annotator_prompt(
         '   b) `pdf_annotate` with exact page/start_line/end_line from search results.\n'
         '3) `review_final_markdown_write` ONCE with a single `markdown` argument containing exactly these '
         '## headings (one section each, no duplication):\n'
-        '   Summary, Strengths, Weaknesses, Key Issues, Actionable Suggestions, Claim-Level Audit, Scores.\n'
+        f'   {final_sections}\n'
         '   Do NOT put Strengths/Weaknesses/Key Issues inside Summary.\n'
         '   Do NOT call review_final_markdown_write multiple times.\n'
-        '4) Each `pdf_annotate` MUST include `criterion_id` from active criteria only (not OTHER/routing).\n'
-        '5) Claim-Level Audit: markdown table with 5 columns:\n'
-        '   | ID | Evidence | Status | Conf | Fix |\n'
-        '   - ID: C01, C02, etc. (from Criterion Legend).\n'
-        '   - Evidence: brief quote or summary.\n'
-        '   - Status: Missing, Partial, Supported, or Check.\n'
-        '   - Conf: H (High), M (Medium), L (Low).\n'
-        '   - Fix: brief suggestion.\n'
-        '   Rules: missing detail → Missing/H. Citation-only → Partial/M.\n'
-        '   Do NOT use OTHER/SIG routing criteria.\n'
+        f'{audit_block}'
         '\n'
         f'{criteria_section}'
         '[Paper Markdown]\n'
