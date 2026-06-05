@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from deepreview.prompts.review_agent_prompt import build_review_agent_system_prompt
+from deepreview.tools.review_tools import _required_final_report_section_order
 
 
 def test_fast_kg_off_prompt_omits_claim_audit_and_criterion_id():
@@ -42,3 +43,32 @@ def test_fast_kg_on_prompt_keeps_claim_audit():
     assert 'Claim-Level Audit' in prompt
     assert 'criterion_id' in prompt
     assert 'VENUE REVIEW CRITERIA' in prompt
+
+
+def test_fast_generic_section_order_without_criteria():
+    assert _required_final_report_section_order(
+        review_fast_mode=True,
+        kg_criteria_active=False,
+    ) == [
+        'summary',
+        'strengths',
+        'weaknesses',
+        'key_issues',
+        'actionable_suggestions',
+        'scores',
+    ]
+
+
+def test_fast_kg_section_order_unchanged():
+    assert _required_final_report_section_order(
+        review_fast_mode=True,
+        kg_criteria_active=True,
+    ) == [
+        'summary',
+        'strengths',
+        'weaknesses',
+        'key_issues',
+        'actionable_suggestions',
+        'claim_level_audit',
+        'scores',
+    ]

@@ -51,7 +51,7 @@ class ReviewFastModeTests(unittest.TestCase):
         from deepreview.tools.review_tools import _required_final_report_section_order
 
         self.assertEqual(
-            _required_final_report_section_order(review_fast_mode=True),
+            _required_final_report_section_order(review_fast_mode=True, kg_criteria_active=True),
             [
                 'summary',
                 'strengths',
