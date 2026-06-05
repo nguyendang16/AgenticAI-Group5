@@ -32,6 +32,14 @@ def _cmd_collect(_args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_check(_args: argparse.Namespace) -> int:
+    from benchmark.checks import DETERMINISTIC_SCORES_PATH, run_all_checks
+
+    scores = run_all_checks()
+    print(f'Wrote {len(scores)} rows to {DETERMINISTIC_SCORES_PATH}')
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format='%(levelname)s %(name)s: %(message)s')
 
@@ -49,6 +57,9 @@ def main(argv: list[str] | None = None) -> int:
 
     collect_parser = subparsers.add_parser('collect', help='Harvest job artifacts to runs.jsonl')
     collect_parser.set_defaults(func=_cmd_collect)
+
+    check_parser = subparsers.add_parser('check', help='Run deterministic validators on runs.jsonl')
+    check_parser.set_defaults(func=_cmd_check)
 
     args = parser.parse_args(argv)
     if args.command is None:
