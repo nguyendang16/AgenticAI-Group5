@@ -260,6 +260,21 @@ Fast mode also disables `paper_search`, lowers annotation gates, and enables Min
 
 ---
 
+## KG Benchmark
+
+Paired KG_ON vs KG_OFF benchmark over the paper corpus. Install optional dependencies, build the manifest, then run the pipeline:
+
+```bash
+pip install -e ".[benchmark]"
+python -m benchmark build-manifest
+python -m benchmark run --dry-run
+python -m benchmark all
+```
+
+See `docs/superpowers/specs/2026-06-06-kg-benchmark-design.md` for design details.
+
+---
+
 ## External Services
 
 ### MinerU (Required)
