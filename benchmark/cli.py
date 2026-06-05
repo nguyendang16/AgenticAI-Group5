@@ -24,6 +24,14 @@ def _cmd_run(args: argparse.Namespace) -> int:
     )
 
 
+def _cmd_collect(_args: argparse.Namespace) -> int:
+    from benchmark.collect import harvest_all
+
+    rows = harvest_all()
+    print(f'Wrote {len(rows)} runs to benchmark/results/runs.jsonl')
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format='%(levelname)s %(name)s: %(message)s')
 
@@ -38,6 +46,9 @@ def main(argv: list[str] | None = None) -> int:
     run_parser.add_argument('--paper-id', default=None, help='Run a single paper from the manifest')
     run_parser.add_argument('--timeout', type=int, default=3600, help='Watch timeout in seconds')
     run_parser.set_defaults(func=_cmd_run)
+
+    collect_parser = subparsers.add_parser('collect', help='Harvest job artifacts to runs.jsonl')
+    collect_parser.set_defaults(func=_cmd_collect)
 
     args = parser.parse_args(argv)
     if args.command is None:
