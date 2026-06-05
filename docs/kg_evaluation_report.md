@@ -1,6 +1,6 @@
 # Knowledge Graph Evaluation Report
 
-Generated: 2026-06-04T08:39:38.159890+00:00
+Generated: 2026-06-05T00:23:52.760765+00:00
 
 ## Framework 1: Zaveri et al. Linked Data Quality Dimensions
 
