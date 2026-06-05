@@ -40,6 +40,14 @@ def _cmd_check(_args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_judge(args: argparse.Namespace) -> int:
+    from benchmark.judge import REVIEW_QUALITY_SCORES_PATH, judge_all
+
+    scores = judge_all(job_id=args.job_id)
+    print(f'Wrote {len(scores)} rows to {REVIEW_QUALITY_SCORES_PATH}')
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format='%(levelname)s %(name)s: %(message)s')
 
@@ -60,6 +68,10 @@ def main(argv: list[str] | None = None) -> int:
 
     check_parser = subparsers.add_parser('check', help='Run deterministic validators on runs.jsonl')
     check_parser.set_defaults(func=_cmd_check)
+
+    judge_parser = subparsers.add_parser('judge', help='DeepEval report-level quality scoring')
+    judge_parser.add_argument('--job-id', default=None, help='Judge a single benchmark job')
+    judge_parser.set_defaults(func=_cmd_judge)
 
     args = parser.parse_args(argv)
     if args.command is None:
