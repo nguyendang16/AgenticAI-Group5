@@ -48,6 +48,14 @@ def _cmd_judge(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_decision_metrics(_args: argparse.Namespace) -> int:
+    from benchmark.decision_metrics import DECISION_METRICS_PATH, run_decision_metrics
+
+    rows = run_decision_metrics()
+    print(f'Wrote {len(rows)} labeled runs to {DECISION_METRICS_PATH}')
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format='%(levelname)s %(name)s: %(message)s')
 
@@ -72,6 +80,12 @@ def main(argv: list[str] | None = None) -> int:
     judge_parser = subparsers.add_parser('judge', help='DeepEval report-level quality scoring')
     judge_parser.add_argument('--job-id', default=None, help='Judge a single benchmark job')
     judge_parser.set_defaults(func=_cmd_judge)
+
+    decision_metrics_parser = subparsers.add_parser(
+        'decision-metrics',
+        help='sklearn accept/reject metrics for labeled manifest papers',
+    )
+    decision_metrics_parser.set_defaults(func=_cmd_decision_metrics)
 
     args = parser.parse_args(argv)
     if args.command is None:
