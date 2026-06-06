@@ -23,6 +23,20 @@ let pollTimer = null;
 let eventsAfter = 0;
 let currentJobId = null;
 
+function rememberLatestPaperImport(paper) {
+  try {
+    localStorage.setItem(
+      'deepreview.latestPaperInput',
+      JSON.stringify({
+        ...paper,
+        updated_at: new Date().toISOString(),
+      }),
+    );
+  } catch (err) {
+    console.warn('Could not persist latest paper import', err);
+  }
+}
+
 pdfFile.addEventListener('change', () => {
   const file = pdfFile.files?.[0];
   fileName.textContent = file ? file.name : 'Choose PDF…';
@@ -45,6 +59,7 @@ uploadForm.addEventListener('submit', async (e) => {
   form.append('file', file);
   const title = document.getElementById('title-input').value.trim();
   if (title) form.append('title', title);
+  const displayTitle = title || file.name.replace(/\.pdf$/i, '');
   const venue = document.getElementById('review-venue')?.value.trim();
   const journal = document.getElementById('review-journal')?.value.trim();
   const domain = document.getElementById('review-domain')?.value.trim();
@@ -53,6 +68,16 @@ uploadForm.addEventListener('submit', async (e) => {
   if (journal) form.append('review_journal', journal);
   if (domain) form.append('review_domain', domain);
   if (articleType) form.append('review_article_type', articleType);
+
+  rememberLatestPaperImport({
+    title: displayTitle,
+    source_pdf_name: file.name,
+    status: 'submitting',
+    venue,
+    journal,
+    domain,
+    article_type: articleType,
+  });
 
   submitBtn.disabled = true;
   submitBtn.textContent = 'Submitting…';
@@ -63,6 +88,16 @@ uploadForm.addEventListener('submit', async (e) => {
     if (!res.ok) {
       throw new Error(data.detail || data.message || 'Submit failed');
     }
+    rememberLatestPaperImport({
+      title: displayTitle,
+      source_pdf_name: file.name,
+      status: data.status || 'queued',
+      job_id: data.job_id,
+      venue,
+      journal,
+      domain,
+      article_type: articleType,
+    });
     startJob(data.job_id);
   } catch (err) {
     submitError.textContent = err.message || String(err);

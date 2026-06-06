@@ -397,6 +397,7 @@
         'pdf_exporting',
       ]);
       let refreshTimer = null;
+      const latestPaperStorageKey = 'deepreview.latestPaperInput';
       const timeText = (value) => {
         if (!value) return '--';
         const date = new Date(value);
@@ -406,6 +407,36 @@
       function setText(id, value) {
         const element = document.getElementById(id);
         if (element) element.textContent = text(value);
+      }
+
+      function setPaperDisplay(paper) {
+        const title = paper?.title || paper?.source_pdf_name || '--';
+        setText('benchmark-header-paper', `Evaluated paper: ${title}`);
+        setText('benchmark-paper-title', title);
+        setText('paper-title', title);
+        setText('paper-source-pdf', paper?.source_pdf_name);
+        setText('paper-status', paper?.status);
+        setText('paper-venue', paper?.venue || paper?.journal);
+        setText('paper-domain', paper?.domain);
+        setText('paper-criteria-source', paper?.criteria_source);
+        setText('paper-criteria-count', paper?.criteria_count);
+        setText('paper-annotations', paper?.annotation_count);
+        setText('paper-updated', timeText(paper?.updated_at));
+        setText('paper-final-report', paper?.final_report_ready ? 'Ready' : 'Waiting');
+      }
+
+      function applyStoredPaperHint() {
+        try {
+          const raw = localStorage.getItem(latestPaperStorageKey);
+          if (!raw) return null;
+          const paper = JSON.parse(raw);
+          if (!paper || typeof paper !== 'object') return null;
+          setPaperDisplay(paper);
+          return paper;
+        } catch (err) {
+          console.warn('Could not read latest paper import', err);
+          return null;
+        }
       }
 
       function row(cells) {
@@ -429,19 +460,20 @@
         if (linkBody) linkBody.innerHTML = `<tr><td colspan="6">${message}</td></tr>`;
       }
 
-      function scheduleRefresh(shouldRefresh) {
+      function scheduleRefresh(shouldRefresh, delayMs = 8000) {
         if (refreshTimer) {
           clearTimeout(refreshTimer);
           refreshTimer = null;
         }
         if (shouldRefresh) {
-          refreshTimer = setTimeout(loadBenchmark, 8000);
+          refreshTimer = setTimeout(loadBenchmark, delayMs);
         }
       }
 
       async function loadBenchmark() {
         const status = document.getElementById('benchmark-status-message');
         setStatusPill('loading', 'Loading');
+        applyStoredPaperHint();
         try {
           const response = await fetch(`/api/kg-benchmark?ts=${Date.now()}`, { cache: 'no-store' });
           const payload = await response.json();
@@ -482,18 +514,7 @@
           }
 
           setText('benchmark-version', `Framework version: ${quality.framework || 'IEEE ICNLP 2021 quality model'} + PyKEEN TransE`);
-          setText('benchmark-header-paper', `Evaluated paper: ${displayPaper.title || displayPaper.source_pdf_name || '--'}`);
-          setText('benchmark-paper-title', displayPaper.title || displayPaper.source_pdf_name);
-          setText('paper-title', displayPaper.title);
-          setText('paper-source-pdf', displayPaper.source_pdf_name);
-          setText('paper-status', displayPaper.status);
-          setText('paper-venue', displayPaper.venue || displayPaper.journal);
-          setText('paper-domain', displayPaper.domain);
-          setText('paper-criteria-source', displayPaper.criteria_source);
-          setText('paper-criteria-count', displayPaper.criteria_count);
-          setText('paper-annotations', displayPaper.annotation_count);
-          setText('paper-updated', timeText(displayPaper.updated_at));
-          setText('paper-final-report', displayPaper.final_report_ready ? 'Ready' : 'Waiting');
+          setPaperDisplay(displayPaper);
           const completedNote = document.getElementById('completed-paper-note');
           if (completedNote && completedPaper.job_id && completedPaper.job_id !== paper.job_id) {
             completedNote.textContent = `Latest completed review: ${completedPaper.title || completedPaper.source_pdf_name} (${completedPaper.status}, ${completedPaper.annotation_count || 0} annotations).`;
@@ -556,7 +577,7 @@
               fixed(baselineMetrics['Hits@10']),
             ]),
           ].join('');
-          scheduleRefresh(isRunning);
+          scheduleRefresh(false);
         } catch (error) {
           setStatusPill('failed', 'Error');
           status.textContent = error.message || String(error);
@@ -565,6 +586,14 @@
         }
       }
 
+      window.addEventListener('storage', (event) => {
+        if (event.key === latestPaperStorageKey) {
+          applyStoredPaperHint();
+          scheduleRefresh(true, 1000);
+        }
+      });
+
+      applyStoredPaperHint();
       loadBenchmark();
     </script>
   </body>
