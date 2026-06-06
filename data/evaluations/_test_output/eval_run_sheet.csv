@@ -1,3 +1,3 @@
-job_id,title,status,completed,wall_clock_min,tokens_total,tool_calls_total,annotation_count,oqi,q4_passed,q4_sample_size,tier2_needed,root_cause_bucket,error
-a,,,True,,,,,8,,,,,
-b,,,False,,,,,,,,,R2,
+job_id,title,status,system_verdict,completed,tier1_pass,wall_clock_min,tokens_total,tool_calls_total,M4_multi_round,M7_trace,annotation_count,tier2_needed,root_cause_bucket,error
+a,Paper A,completed,pass,True,True,30,200000,15,True,True,,False,,
+b,Paper B,failed,fail,False,False,5,10000,2,False,True,,True,R2,

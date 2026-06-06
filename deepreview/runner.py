@@ -834,6 +834,26 @@ async def run_job_async(job_id: str) -> None:
     append_event(job_id, 'completed', report_pdf_path=str(report_pdf_path))
 
 
+def _auto_evaluate_job(job_id: str) -> None:
+    settings = get_settings()
+    if not settings.auto_evaluate_on_job_finish:
+        return
+
+    try:
+        from deepreview.evaluation.tier1 import evaluate_and_save_job
+
+        result = evaluate_and_save_job(job_id)
+        append_event(
+            job_id,
+            'evaluation_completed',
+            tier2_needed=bool(result.get('tier2_needed')),
+            root_cause_bucket=result.get('root_cause_bucket'),
+        )
+    except Exception as exc:
+        detail = ''.join(traceback.format_exception_only(type(exc), exc)).strip()
+        append_event(job_id, 'evaluation_failed', error=detail)
+
+
 def run_job(job_id: str) -> None:
     try:
         asyncio.run(run_job_async(job_id))
@@ -848,3 +868,5 @@ def run_job(job_id: str) -> None:
             message='Review pipeline failed.',
             error=detail,
         )
+    finally:
+        _auto_evaluate_job(job_id)

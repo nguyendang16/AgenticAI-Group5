@@ -273,8 +273,21 @@ body {
   font-size: 0.9rem;
 }
 
+.eval-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.eval-header h2 {
+  margin: 0;
+}
+
 #evaluate-btn {
   margin-left: 0;
+  flex-shrink: 0;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--accent);
@@ -321,6 +334,143 @@ body {
 .eval-card .value {
   font-size: 1.1rem;
   font-weight: 600;
+}
+
+.eval-card .meta {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.eval-framework {
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.eval-framework-name {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.eval-sources {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.eval-sources a {
+  color: var(--accent);
+}
+
+.eval-verdict {
+  margin-bottom: 1rem;
+}
+
+.eval-verdict-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.eval-verdict-badge.pass {
+  border-color: var(--success);
+}
+
+.eval-verdict-badge.fail {
+  border-color: var(--error);
+}
+
+.eval-verdict-label {
+  color: var(--muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.eval-verdict-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.eval-verdict-badge.pass .eval-verdict-value {
+  color: var(--success);
+}
+
+.eval-verdict-badge.fail .eval-verdict-value {
+  color: var(--error);
+}
+
+.eval-verdict-note {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.eval-subheading {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+}
+
+.eval-checklist-wrap {
+  margin-bottom: 1rem;
+  overflow-x: auto;
+}
+
+.eval-checklist {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.eval-checklist th,
+.eval-checklist td {
+  border: 1px solid var(--border);
+  padding: 0.45rem 0.6rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.eval-checklist th {
+  background: var(--bg);
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.eval-checklist tr.pass .check-result {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.eval-checklist tr.fail .check-result {
+  color: var(--error);
+  font-weight: 600;
+}
+
+.eval-checklist .evidence {
+  color: var(--muted);
+  font-family: ui-monospace, monospace;
+  font-size: 0.75rem;
+}
+
+.eval-oqi {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .eval-card.pass .value {

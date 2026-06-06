@@ -6,21 +6,20 @@ const fileName = document.getElementById('file-name');
 const submitBtn = document.getElementById('submit-btn');
 const submitError = document.getElementById('submit-error');
 const progressPanel = document.getElementById('progress-panel');
-const resultPanel = document.getElementById('result-panel');
 const statusBadge = document.getElementById('status-badge');
 const statusMessage = document.getElementById('status-message');
 const annotationCount = document.getElementById('annotation-count');
 const toolCalls = document.getElementById('tool-calls');
 const toolTimeline = document.getElementById('tool-timeline');
-const reportMarkdown = document.getElementById('report-markdown');
-const reportPdf = document.getElementById('report-pdf');
-const downloadPdf = document.getElementById('download-pdf');
-const resultError = document.getElementById('result-error');
-const tabMd = document.getElementById('tab-md');
-const tabPdf = document.getElementById('tab-pdf');
 const evaluateBtn = document.getElementById('evaluate-btn');
 const evalPanel = document.getElementById('eval-panel');
+const evalFramework = document.getElementById('eval-framework');
+const evalVerdict = document.getElementById('eval-verdict');
 const evalSummary = document.getElementById('eval-summary');
+const evalChecklistWrap = document.getElementById('eval-checklist-wrap');
+const evalChecklistBody = document.getElementById('eval-checklist-body');
+const evalOqiDetails = document.getElementById('eval-oqi-details');
+const evalOqi = document.getElementById('eval-oqi');
 const evalDetails = document.getElementById('eval-details');
 const evalJson = document.getElementById('eval-json');
 const evalError = document.getElementById('eval-error');
@@ -37,8 +36,6 @@ pdfFile.addEventListener('change', () => {
 uploadForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   submitError.hidden = true;
-  resultPanel.hidden = true;
-  resultError.hidden = true;
 
   const file = pdfFile.files?.[0];
   if (!file) {
@@ -84,6 +81,11 @@ function startJob(jobId) {
   eventsAfter = 0;
   toolTimeline.innerHTML = '';
   progressPanel.hidden = false;
+  if (evalPanel) evalPanel.hidden = true;
+  if (evaluateBtn) evaluateBtn.hidden = true;
+  if (evalError) evalError.hidden = true;
+  if (evalChecklistWrap) evalChecklistWrap.hidden = true;
+  if (evalOqiDetails) evalOqiDetails.hidden = true;
   statusBadge.textContent = 'queued';
   statusBadge.className = 'status-badge';
   statusMessage.textContent = 'Job created…';
@@ -113,14 +115,13 @@ async function pollJob(jobId) {
     if (status.status === 'completed') {
       clearInterval(pollTimer);
       pollTimer = null;
-      await loadResult(jobId);
-      showEvaluateButton(jobId);
+      await loadJobEvaluation(jobId);
     } else if (status.status === 'failed') {
       clearInterval(pollTimer);
       pollTimer = null;
       submitError.textContent = status.error || status.message || 'Job failed';
       submitError.hidden = false;
-      showEvaluateButton(jobId);
+      await loadJobEvaluation(jobId);
     }
   } catch (err) {
     console.error(err);
@@ -175,6 +176,13 @@ function formatEvent(ev) {
     const source = ev.source || ev.skipped || 'none';
     return `<span class="event-meta">${ts}</span> <span class="tool-name">criteria</span> ${count} from ${escapeHtml(source)}`;
   }
+  if (event === 'evaluation_completed') {
+    const bucket = ev.root_cause_bucket ? ` · ${ev.root_cause_bucket}` : '';
+    return `<span class="event-meta">${ts}</span> <span class="tool-name">evaluation</span> completed${escapeHtml(bucket)}`;
+  }
+  if (event === 'evaluation_failed') {
+    return `<span class="event-meta">${ts}</span> <span class="tool-name">evaluation</span> failed ${escapeHtml(ev.error || '')}`;
+  }
 
   return `<span class="event-meta">${ts}</span> ${escapeHtml(event)}`;
 }
@@ -203,81 +211,163 @@ function escapeHtml(s) {
     .replace(/"/g, '&quot;');
 }
 
-async function loadResult(jobId) {
-  resultPanel.hidden = false;
-  resultError.hidden = true;
-
-  try {
-    const mdRes = await fetch(`${API}/api/jobs/${jobId}/report.md`);
-    if (!mdRes.ok) throw new Error('Markdown report not available');
-    const md = await mdRes.text();
-    reportMarkdown.textContent = md;
-
-    const pdfUrl = `${API}/api/jobs/${jobId}/report.pdf`;
-    reportPdf.src = pdfUrl;
-    downloadPdf.href = pdfUrl;
-    downloadPdf.hidden = false;
-  } catch (err) {
-    resultError.textContent = err.message || String(err);
-    resultError.hidden = false;
-  }
-}
-
-tabMd.addEventListener('click', () => {
-  tabMd.classList.add('active');
-  tabPdf.classList.remove('active');
-  reportMarkdown.hidden = false;
-  reportPdf.hidden = true;
-});
-
-tabPdf.addEventListener('click', () => {
-  tabPdf.classList.add('active');
-  tabMd.classList.remove('active');
-  reportMarkdown.hidden = true;
-  reportPdf.hidden = false;
-});
-
-function showEvaluateButton(jobId) {
+function showEvaluateButton(jobId, { alreadyLoaded = false } = {}) {
   if (!evaluateBtn) return;
   evaluateBtn.hidden = false;
+  evaluateBtn.textContent = alreadyLoaded ? 'Re-run evaluation' : 'Run evaluation';
   evaluateBtn.onclick = () => runEvaluation(jobId);
 }
 
-function evalCard(label, value, ok) {
+async function loadJobEvaluation(jobId) {
+  if (!evalPanel) return null;
+  evalError.hidden = true;
+
+  try {
+    const getRes = await fetch(`${API}/api/jobs/${jobId}/evaluation`);
+    if (getRes.ok) {
+      const data = await getRes.json();
+      renderEvaluation(data);
+      showEvaluateButton(jobId, { alreadyLoaded: true });
+      return data;
+    }
+    if (getRes.status === 404) {
+      return runEvaluation(jobId, { silent: true });
+    }
+    const payload = await getRes.json().catch(() => ({}));
+    throw new Error(payload.detail || payload.message || 'Failed to load evaluation');
+  } catch (err) {
+    evalError.textContent = err.message || String(err);
+    evalError.hidden = false;
+    showEvaluateButton(jobId);
+    return null;
+  }
+}
+
+function evalCard(label, value, ok, meta) {
   const cls = ok === true ? 'pass' : ok === false ? 'fail' : '';
-  return `<div class="eval-card ${cls}"><span class="label">${escapeHtml(label)}</span><span class="value">${escapeHtml(value)}</span></div>`;
+  const metaHtml = meta ? `<span class="meta">${escapeHtml(meta)}</span>` : '';
+  return `<div class="eval-card ${cls}"><span class="label">${escapeHtml(label)}</span><span class="value">${escapeHtml(value)}</span>${metaHtml}</div>`;
+}
+
+function formatMetricValue(value) {
+  if (value === true) return 'Yes';
+  if (value === false) return 'No';
+  if (value == null) return 'n/a';
+  if (typeof value === 'number' && value >= 1000) return value.toLocaleString();
+  return String(value);
+}
+
+function renderFramework(framework) {
+  if (!evalFramework || !framework) return;
+  const sources = (framework.sources || [])
+    .map(
+      (src) => `
+        <li>
+          <strong>${escapeHtml(src.id?.toUpperCase() || '')}</strong>
+          ${escapeHtml(src.authors || '')}, ${escapeHtml(src.venue || '')}
+          — <em>${escapeHtml(src.citation || '')}</em>
+          ${src.pdf_url ? ` · <a href="${escapeHtml(src.pdf_url)}" target="_blank" rel="noopener">PDF</a>` : ''}
+        </li>`,
+    )
+    .join('');
+  evalFramework.innerHTML = `
+    <p class="eval-framework-name">${escapeHtml(framework.name || 'System evaluation')}</p>
+    <ul class="eval-sources">${sources}</ul>
+  `;
+}
+
+function renderSystemVerdict(systemVerdict) {
+  if (!evalVerdict || !systemVerdict) return;
+  const pass = systemVerdict.verdict === 'pass';
+  const cls = pass ? 'pass' : 'fail';
+  const checklist = `${systemVerdict.checklist_passed ?? 0}/${systemVerdict.checklist_total ?? 0} checks`;
+  evalVerdict.innerHTML = `
+    <div class="eval-verdict-badge ${cls}">
+      <span class="eval-verdict-label">System verdict</span>
+      <span class="eval-verdict-value">${pass ? 'PASS' : 'FAIL'}</span>
+    </div>
+    <p class="eval-verdict-note">${escapeHtml(systemVerdict.note || '')} Checklist: ${escapeHtml(checklist)}.</p>
+  `;
+}
+
+function renderSystemMetrics(systemMetrics) {
+  if (!evalSummary || !systemMetrics) return;
+  const order = ['M1_sr', 'M2_k_proxy', 'M3_deliverable', 'M4_multi_round', 'M5_wall_clock', 'M6_tokens', 'M7_trace'];
+  evalSummary.innerHTML = order
+    .map((key) => {
+      const metric = systemMetrics[key];
+      if (!metric) return '';
+      const id = key.replace('_', ' ').toUpperCase();
+      return evalCard(
+        `${id}: ${metric.label}`,
+        formatMetricValue(metric.value),
+        metric.pass,
+      );
+    })
+    .join('');
+}
+
+function renderChecklist(checklist) {
+  if (!evalChecklistWrap || !evalChecklistBody || !checklist?.length) return;
+  evalChecklistBody.innerHTML = checklist
+    .map((item) => {
+      const result = item.pass ? '✓ Pass' : '✗ Fail';
+      const cls = item.pass ? 'pass' : 'fail';
+      return `<tr class="${cls}">
+        <td>${escapeHtml(item.label)}</td>
+        <td class="check-result">${result}</td>
+        <td>${escapeHtml(item.source)}</td>
+        <td class="evidence">${escapeHtml(item.evidence)}</td>
+      </tr>`;
+    })
+    .join('');
+  evalChecklistWrap.hidden = false;
+}
+
+function renderOqi(oqi) {
+  if (!evalOqiDetails || !evalOqi) return;
+  if (!oqi) {
+    evalOqiDetails.hidden = true;
+    return;
+  }
+  const q4 = oqi.q4_grounding || {};
+  evalOqi.innerHTML = [
+    evalCard('OQI total', `${oqi.total}/${oqi.max}`, oqi.tier1_quality_pass, 'informational'),
+    evalCard('Q1 structure', `${(oqi.q1_structure || {}).score}/2`, null, null),
+    evalCard('Q2 coverage', `${(oqi.q2_coverage || {}).score}/2`, null, null),
+    evalCard('Q3 specificity', `${(oqi.q3_specificity || {}).score}/2`, null, null),
+    evalCard(
+      'Q4 grounding sample',
+      q4.sample_size ? `${q4.passed}/${q4.sample_size}` : 'n/a',
+      q4.sample_size ? q4.passed === q4.sample_size : null,
+      null,
+    ),
+    evalCard('Q5 actionability', `${(oqi.q5_actionability || {}).score}/2`, null, null),
+  ].join('');
+  evalOqiDetails.hidden = false;
 }
 
 function renderEvaluation(data) {
   evalPanel.hidden = false;
   evalError.hidden = true;
-  const rel = data.reliability || {};
-  const oqi = data.oqi || {};
-  const q4 = oqi.q4_grounding || {};
-  const eff = data.efficiency || {};
 
-  evalSummary.innerHTML = [
-    evalCard('Status', data.status || 'n/a', rel.completed === true),
-    evalCard('OQI', oqi.total != null ? `${oqi.total}/10` : 'n/a', oqi.tier1_quality_pass === true),
-    evalCard(
-      'Grounding',
-      q4.sample_size ? `${q4.passed}/${q4.sample_size}` : 'n/a',
-      q4.sample_size ? q4.passed === q4.sample_size : null,
-    ),
-    evalCard('Tier 2', data.tier2_needed ? 'Needed' : 'No', data.tier2_needed === false),
-    evalCard('Bucket', data.root_cause_bucket || '-', null),
-    evalCard('Wall clock', eff.wall_clock_minutes != null ? `${eff.wall_clock_minutes} min` : 'n/a', null),
-  ].join('');
+  renderFramework(data.framework);
+  renderSystemVerdict(data.system_verdict);
+  renderSystemMetrics(data.system_metrics);
+  renderChecklist(data.system_checklist);
+  renderOqi(data.oqi);
 
   evalDetails.hidden = false;
   evalJson.textContent = JSON.stringify(data, null, 2);
 }
 
-async function runEvaluation(jobId) {
-  if (!evaluateBtn) return;
+async function runEvaluation(jobId, { silent = false } = {}) {
+  if (!evaluateBtn && !silent) return null;
   evalError.hidden = true;
-  evaluateBtn.disabled = true;
-  evaluateBtn.textContent = 'Evaluating…';
+  if (evaluateBtn) {
+    evaluateBtn.disabled = true;
+    evaluateBtn.textContent = 'Evaluating…';
+  }
 
   try {
     const res = await fetch(`${API}/api/jobs/${jobId}/evaluate`, { method: 'POST' });
@@ -286,11 +376,19 @@ async function runEvaluation(jobId) {
       throw new Error(data.detail || data.message || 'Evaluation failed');
     }
     renderEvaluation(data);
+    showEvaluateButton(jobId, { alreadyLoaded: true });
+    return data;
   } catch (err) {
     evalError.textContent = err.message || String(err);
     evalError.hidden = false;
+    showEvaluateButton(jobId);
+    return null;
   } finally {
-    evaluateBtn.disabled = false;
-    evaluateBtn.textContent = 'Run evaluation';
+    if (evaluateBtn) {
+      evaluateBtn.disabled = false;
+      if (!evaluateBtn.hidden) {
+        evaluateBtn.textContent = 'Re-run evaluation';
+      }
+    }
   }
 }

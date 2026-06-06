@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
 from deepreview.config import get_settings
-from deepreview.evaluation.tier1 import evaluate_job_dir, save_job_evaluation
+from deepreview.evaluation.tier1 import evaluate_and_save_job, save_job_evaluation
 from deepreview.job_service import (
     artifact_path,
     create_job_from_pdf,
@@ -173,16 +173,12 @@ def evaluate_job(job_id: str) -> dict[str, Any]:
     if job is None:
         raise HTTPException(status_code=404, detail=f'Job not found: {job_id}')
 
-    job_dir = ensure_artifact_paths(job_id)['source_pdf'].parent
     try:
-        result = evaluate_job_dir(job_dir)
+        return evaluate_and_save_job(job_id)
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f'{type(exc).__name__}: {exc}') from exc
-
-    save_job_evaluation(job_dir, result)
-    return result
 
 
 @app.get('/api/jobs/{job_id}/evaluation')
@@ -193,7 +189,7 @@ def get_job_evaluation(job_id: str) -> dict[str, Any]:
 
     eval_path = ensure_artifact_paths(job_id)['source_pdf'].parent / 'evaluation.json'
     if not eval_path.exists():
-        raise HTTPException(status_code=404, detail='Evaluation not found. POST /evaluate first.')
+        raise HTTPException(status_code=404, detail='Evaluation not found.')
     return json.loads(eval_path.read_text(encoding='utf-8'))
 
 

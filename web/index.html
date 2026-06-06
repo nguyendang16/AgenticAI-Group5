@@ -12,7 +12,7 @@
       <img src="/logo.png" alt="Logo" class="logo" onerror="this.style.display='none'" />
       <div>
         <h1>Evidence-Verified Agentic Peer Review</h1>
-        <p class="subtitle">Upload a PDF · watch tool progress · view the final report</p>
+        <p class="subtitle">Upload a PDF · watch tool progress · system performance evaluation</p>
       </div>
     </header>
 
@@ -50,25 +50,37 @@
         <ol id="tool-timeline" class="timeline"></ol>
       </section>
 
-      <section class="panel result-panel" id="result-panel" hidden>
-        <h2>Final report</h2>
-        <div class="result-actions">
-          <button type="button" id="tab-md" class="tab active">Markdown</button>
-          <button type="button" id="tab-pdf" class="tab">PDF</button>
-          <a id="download-pdf" class="link-btn" href="#" download hidden>Download PDF</a>
+      <section class="panel eval-panel" id="eval-panel" hidden>
+        <div class="eval-header">
+          <h2>System performance evaluation</h2>
           <button type="button" id="evaluate-btn" class="link-btn" hidden>Run evaluation</button>
         </div>
-        <article id="report-markdown" class="report-md"></article>
-        <iframe id="report-pdf" class="report-pdf" hidden title="Final report PDF"></iframe>
-        <p id="result-error" class="error" hidden></p>
-      </section>
-
-      <section class="panel eval-panel" id="eval-panel" hidden>
-        <h2>Tier 1 evaluation</h2>
-        <p class="eval-intro">Automatic process-validity metrics from job artifacts (reliability, OQI, grounding sample).</p>
+        <p class="eval-intro">
+          MINT–AgentBoard framework: system reliability, efficiency, and traceability only (not review quality).
+        </p>
+        <div id="eval-framework" class="eval-framework"></div>
+        <div id="eval-verdict" class="eval-verdict"></div>
         <div id="eval-summary" class="eval-summary"></div>
+        <div id="eval-checklist-wrap" class="eval-checklist-wrap" hidden>
+          <h3 class="eval-subheading">AgentBoard checklist</h3>
+          <table id="eval-checklist" class="eval-checklist">
+            <thead>
+              <tr>
+                <th>Check</th>
+                <th>Result</th>
+                <th>Source</th>
+                <th>Evidence</th>
+              </tr>
+            </thead>
+            <tbody id="eval-checklist-body"></tbody>
+          </table>
+        </div>
+        <details id="eval-oqi-details" class="eval-details" hidden>
+          <summary>Review quality (OQI — informational only, excluded from verdict)</summary>
+          <div id="eval-oqi" class="eval-oqi"></div>
+        </details>
         <details id="eval-details" class="eval-details" hidden>
-          <summary>Detailed scores</summary>
+          <summary>Full evaluation JSON</summary>
           <pre id="eval-json" class="eval-json"></pre>
         </details>
         <p id="eval-error" class="error" hidden></p>

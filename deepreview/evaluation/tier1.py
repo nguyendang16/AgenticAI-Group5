@@ -299,6 +299,199 @@ def _event_count(events: list[dict[str, Any]], event_name: str) -> int:
     return sum(1 for row in events if str(row.get('event') or '') == event_name)
 
 
+_FRAMEWORK: dict[str, Any] = {
+    'name': 'MINT–AgentBoard System Performance Evaluation Framework',
+    'scope': 'system_performance_only',
+    'design_doc': 'docs/2026-06-01-tiered-system-evaluation-design.md',
+    'sources': [
+        {
+            'id': 'mint',
+            'paper': 'MINT: Evaluating LLMs in Multi-turn Interaction with Tools and Language Feedback',
+            'authors': 'Wang et al.',
+            'venue': 'ICLR 2024',
+            'pdf_url': 'https://openreview.net/pdf?id=jp3gWrMuIZ',
+            'citation': 'Table 2 (Success Rate, interaction limit k); §3.2',
+        },
+        {
+            'id': 'agentboard',
+            'paper': 'AgentBoard: An Analytical Evaluation Board of Multi-turn LLM Agents',
+            'authors': 'Ma et al.',
+            'venue': 'NeurIPS 2024 (D&B Track)',
+            'pdf_url': (
+                'https://proceedings.neurips.cc/paper_files/paper/2024/file/'
+                '877b40688e330a0e2a3fc24084208dfa-Paper-Datasets_and_Benchmarks_Track.pdf'
+            ),
+            'citation': 'Table 1 (multi-round interaction, fine-grained metrics, traceability)',
+        },
+    ],
+    'go_no_go_thresholds': {
+        'completion_rate_min': 0.85,
+        'deliverable_rate_min': 0.80,
+        'median_wall_clock_max_minutes': 45,
+    },
+}
+
+_TRACE_TERMINAL_EVENTS = frozenset(
+    {
+        'completed',
+        'failed',
+        'completed_recovered',
+        'pipeline_exception',
+        'evaluation_completed',
+    }
+)
+
+
+def _is_traceable(events: list[dict[str, Any]]) -> bool:
+    return any(str(row.get('event') or '') in _TRACE_TERMINAL_EVENTS for row in events)
+
+
+def _build_system_checklist(
+    *,
+    reliability: dict[str, Any],
+    efficiency: dict[str, Any],
+    events: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    wall_min = efficiency.get('wall_clock_minutes')
+    tool_calls = int(efficiency.get('tool_calls_total') or 0)
+    return [
+        {
+            'id': 'job_completed',
+            'label': 'Job completed (SR)',
+            'pass': reliability.get('completed') is True,
+            'source': 'MINT Table 2',
+            'evidence': 'reliability.completed == true',
+        },
+        {
+            'id': 'final_markdown',
+            'label': 'Final markdown deliverable (>2 KB)',
+            'pass': reliability.get('has_final_markdown') is True,
+            'source': 'AgentBoard §2',
+            'evidence': 'final_report.md size > 2048 bytes',
+        },
+        {
+            'id': 'final_pdf',
+            'label': 'Final PDF exported',
+            'pass': reliability.get('has_final_pdf') is True,
+            'source': 'AgentBoard Table 1',
+            'evidence': 'final_report.pdf exists',
+        },
+        {
+            'id': 'final_write_gate',
+            'label': 'Final write gate satisfied',
+            'pass': reliability.get('final_write_gate') is True,
+            'source': 'AgentBoard Table 1',
+            'evidence': 'review_final_markdown_write or final_report_ready',
+        },
+        {
+            'id': 'multi_round',
+            'label': 'Multi-round tool loop (≥5 tool calls)',
+            'pass': tool_calls >= 5,
+            'source': 'AgentBoard Table 1',
+            'evidence': f'tool_calls_total={tool_calls}',
+        },
+        {
+            'id': 'traceable',
+            'label': 'Auditable event trace',
+            'pass': _is_traceable(events),
+            'source': 'AgentBoard Table 1',
+            'evidence': 'terminal event in events.jsonl',
+        },
+        {
+            'id': 'wall_clock_fast',
+            'label': 'Wall-clock within fast-mode target (≤45 min)',
+            'pass': wall_min is None or float(wall_min) <= 45,
+            'source': 'AgentBoard Table 1 / design doc',
+            'evidence': f'wall_clock_minutes={wall_min}',
+        },
+    ]
+
+
+def _build_system_metrics(
+    *,
+    reliability: dict[str, Any],
+    efficiency: dict[str, Any],
+    events: list[dict[str, Any]],
+) -> dict[str, Any]:
+    tool_calls = int(efficiency.get('tool_calls_total') or 0)
+    wall_min = efficiency.get('wall_clock_minutes')
+    tokens_total = int(efficiency.get('tokens_total') or 0)
+    return {
+        'M1_sr': {
+            'label': 'Success Rate (SR)',
+            'value': bool(reliability.get('completed')),
+            'pass': reliability.get('completed') is True,
+            'source': 'MINT Table 2',
+            'calculation': 'status == completed',
+        },
+        'M2_k_proxy': {
+            'label': 'Interaction depth (k proxy)',
+            'value': tool_calls,
+            'pass': tool_calls >= 1,
+            'source': 'MINT Table 2',
+            'calculation': 'efficiency.tool_calls_total',
+        },
+        'M3_deliverable': {
+            'label': 'Deliverable (tier1 pass)',
+            'value': bool(reliability.get('tier1_pass')),
+            'pass': reliability.get('tier1_pass') is True,
+            'source': 'AgentBoard §2',
+            'calculation': 'completed AND final_report.md > 2 KB',
+        },
+        'M4_multi_round': {
+            'label': 'Multi-round interaction',
+            'value': tool_calls >= 5,
+            'pass': tool_calls >= 5,
+            'source': 'AgentBoard Table 1',
+            'calculation': 'tool_calls_total >= 5',
+        },
+        'M5_wall_clock': {
+            'label': 'Wall-clock latency (min)',
+            'value': wall_min,
+            'pass': wall_min is None or float(wall_min) <= 45,
+            'source': 'AgentBoard Table 1',
+            'calculation': 'efficiency.wall_clock_minutes',
+        },
+        'M6_tokens': {
+            'label': 'Token cost (total)',
+            'value': tokens_total,
+            'pass': True,
+            'source': 'AgentBoard Table 1',
+            'calculation': 'efficiency.tokens_total',
+        },
+        'M7_trace': {
+            'label': 'Traceable process',
+            'value': _is_traceable(events),
+            'pass': _is_traceable(events),
+            'source': 'AgentBoard Table 1',
+            'calculation': 'terminal event in events.jsonl',
+        },
+    }
+
+
+def _system_verdict_per_job(
+    *,
+    reliability: dict[str, Any],
+    efficiency: dict[str, Any],
+    checklist: list[dict[str, Any]],
+) -> dict[str, Any]:
+    critical_ids = {'job_completed', 'final_markdown', 'final_write_gate', 'traceable'}
+    critical = [item for item in checklist if item['id'] in critical_ids]
+    critical_pass = all(item['pass'] for item in critical)
+    checklist_pass = sum(1 for item in checklist if item['pass'])
+    wall_min = efficiency.get('wall_clock_minutes')
+    return {
+        'verdict': 'pass' if critical_pass and reliability.get('tier1_pass') else 'fail',
+        'critical_pass': critical_pass,
+        'checklist_passed': checklist_pass,
+        'checklist_total': len(checklist),
+        'tier1_pass': reliability.get('tier1_pass'),
+        'wall_clock_minutes': wall_min,
+        'wall_clock_within_target': wall_min is None or float(wall_min) <= 45,
+        'note': 'System performance only; OQI/review quality excluded from verdict.',
+    }
+
+
 def _classify_root_cause_bucket(
     *,
     job: JobState,
@@ -423,11 +616,11 @@ def evaluate_job_dir(job_dir: Path, *, repo_root: Path | None = None) -> dict[st
 
     tier2_needed = (
         not reliability['tier1_pass']
-        or (oqi is not None and int(oqi['total']) <= 5)
+        or job.status == JobStatus.failed
         or (
-            oqi is not None
-            and int((oqi.get('q4_grounding') or {}).get('passed') or 0) <= 1
-            and int((oqi.get('q4_grounding') or {}).get('sample_size') or 0) >= 2
+            wall_min is not None
+            and float(wall_min) > 90
+            and reliability.get('completed')
         )
     )
     root_cause = _classify_root_cause_bucket(
@@ -437,6 +630,22 @@ def evaluate_job_dir(job_dir: Path, *, repo_root: Path | None = None) -> dict[st
         oqi=oqi,
     )
 
+    system_checklist = _build_system_checklist(
+        reliability=reliability,
+        efficiency=efficiency,
+        events=events,
+    )
+    system_metrics = _build_system_metrics(
+        reliability=reliability,
+        efficiency=efficiency,
+        events=events,
+    )
+    system_verdict = _system_verdict_per_job(
+        reliability=reliability,
+        efficiency=efficiency,
+        checklist=system_checklist,
+    )
+
     return {
         'job_id': str(job.id),
         'title': job.title,
@@ -444,6 +653,10 @@ def evaluate_job_dir(job_dir: Path, *, repo_root: Path | None = None) -> dict[st
         'status': job.status.value,
         'error': job.error,
         'annotation_count': int(job.annotation_count or len(annotations)),
+        'framework': _FRAMEWORK,
+        'system_metrics': system_metrics,
+        'system_checklist': system_checklist,
+        'system_verdict': system_verdict,
         'reliability': reliability,
         'efficiency': efficiency,
         'oqi': oqi,
@@ -493,20 +706,36 @@ def aggregate_verdict(rows: list[dict[str, Any]]) -> dict[str, Any]:
     completed = len(completed_rows)
     completion_rate = (completed / total) if total else 0.0
 
-    oqi_values = [
-        int((row.get('oqi') or {}).get('total'))
-        for row in completed_rows
-        if isinstance(row.get('oqi'), dict) and (row.get('oqi') or {}).get('total') is not None
+    deliverable_rows = [
+        row for row in completed_rows if (row.get('reliability') or {}).get('tier1_pass')
     ]
-    median_oqi = statistics.median(oqi_values) if oqi_values else None
+    deliverable_rate = (len(deliverable_rows) / total) if total else 0.0
 
-    grounding_rates: list[float] = []
+    wall_clocks: list[float] = []
     for row in completed_rows:
-        q4 = (row.get('oqi') or {}).get('q4_grounding') or {}
-        rate = q4.get('pass_rate')
-        if isinstance(rate, (int, float)):
-            grounding_rates.append(float(rate))
-    grounding_pass_rate = statistics.mean(grounding_rates) if grounding_rates else None
+        wall = (row.get('efficiency') or {}).get('wall_clock_minutes')
+        if isinstance(wall, (int, float)):
+            wall_clocks.append(float(wall))
+    median_wall_clock = statistics.median(wall_clocks) if wall_clocks else None
+
+    token_totals: list[int] = []
+    for row in completed_rows:
+        tokens = (row.get('efficiency') or {}).get('tokens_total')
+        if isinstance(tokens, int):
+            token_totals.append(tokens)
+    median_tokens = statistics.median(token_totals) if token_totals else None
+
+    tool_calls: list[int] = []
+    for row in completed_rows:
+        calls = (row.get('efficiency') or {}).get('tool_calls_total')
+        if isinstance(calls, int):
+            tool_calls.append(calls)
+    median_tool_calls = statistics.median(tool_calls) if tool_calls else None
+
+    system_pass_count = sum(
+        1 for row in rows if (row.get('system_verdict') or {}).get('verdict') == 'pass'
+    )
+    system_pass_rate = (system_pass_count / total) if total else 0.0
 
     bucket_counts: dict[str, int] = {}
     for row in rows:
@@ -514,28 +743,39 @@ def aggregate_verdict(rows: list[dict[str, Any]]) -> dict[str, Any]:
         if bucket:
             bucket_counts[str(bucket)] = bucket_counts.get(str(bucket), 0) + 1
 
+    thresholds = _FRAMEWORK['go_no_go_thresholds']
     verdict = 'no-go'
     if (
-        completion_rate >= 0.85
-        and median_oqi is not None
-        and median_oqi >= 7
-        and grounding_pass_rate is not None
-        and grounding_pass_rate >= 0.80
+        completion_rate >= thresholds['completion_rate_min']
+        and deliverable_rate >= thresholds['deliverable_rate_min']
+        and (
+            median_wall_clock is None
+            or median_wall_clock <= thresholds['median_wall_clock_max_minutes']
+        )
     ):
         verdict = 'go'
-    elif completion_rate >= 0.70 and (median_oqi is None or median_oqi >= 6):
+    elif completion_rate >= 0.70 and deliverable_rate >= 0.70:
         verdict = 'go-with-fixes'
 
     top_buckets = sorted(bucket_counts.items(), key=lambda item: (-item[1], item[0]))[:3]
     return {
+        'framework': _FRAMEWORK['name'],
+        'scope': _FRAMEWORK['scope'],
         'job_count': total,
         'completed_count': completed,
         'completion_rate': round(completion_rate, 3),
-        'median_oqi': median_oqi,
-        'grounding_pass_rate_mean': round(grounding_pass_rate, 3) if grounding_pass_rate is not None else None,
+        'deliverable_count': len(deliverable_rows),
+        'deliverable_rate': round(deliverable_rate, 3),
+        'system_pass_count': system_pass_count,
+        'system_pass_rate': round(system_pass_rate, 3),
+        'median_wall_clock_minutes': median_wall_clock,
+        'median_tokens_total': median_tokens,
+        'median_tool_calls_total': median_tool_calls,
         'root_cause_counts': bucket_counts,
         'top_root_causes': [{'bucket': b, 'count': c} for b, c in top_buckets],
         'verdict': verdict,
+        'thresholds': thresholds,
+        'note': 'Corpus verdict uses system metrics only (SR, deliverable, wall-clock). OQI excluded.',
     }
 
 
@@ -558,14 +798,15 @@ def write_evaluation_report(
         'job_id',
         'title',
         'status',
+        'system_verdict',
         'completed',
+        'tier1_pass',
         'wall_clock_min',
         'tokens_total',
         'tool_calls_total',
+        'M4_multi_round',
+        'M7_trace',
         'annotation_count',
-        'oqi',
-        'q4_passed',
-        'q4_sample_size',
         'tier2_needed',
         'root_cause_bucket',
         'error',
@@ -576,21 +817,22 @@ def write_evaluation_report(
         for row in rows:
             rel = row.get('reliability') or {}
             eff = row.get('efficiency') or {}
-            oqi = row.get('oqi') or {}
-            q4 = oqi.get('q4_grounding') or {}
+            sm = row.get('system_metrics') or {}
+            sv = row.get('system_verdict') or {}
             writer.writerow(
                 {
                     'job_id': row.get('job_id'),
                     'title': row.get('title'),
                     'status': row.get('status'),
+                    'system_verdict': sv.get('verdict'),
                     'completed': rel.get('completed'),
+                    'tier1_pass': rel.get('tier1_pass'),
                     'wall_clock_min': eff.get('wall_clock_minutes'),
                     'tokens_total': eff.get('tokens_total'),
                     'tool_calls_total': eff.get('tool_calls_total'),
+                    'M4_multi_round': (sm.get('M4_multi_round') or {}).get('pass'),
+                    'M7_trace': (sm.get('M7_trace') or {}).get('pass'),
                     'annotation_count': row.get('annotation_count'),
-                    'oqi': oqi.get('total'),
-                    'q4_passed': q4.get('passed'),
-                    'q4_sample_size': q4.get('sample_size'),
                     'tier2_needed': row.get('tier2_needed'),
                     'root_cause_bucket': row.get('root_cause_bucket'),
                     'error': row.get('error'),
@@ -598,19 +840,31 @@ def write_evaluation_report(
             )
 
     md_lines = [
-        '# Tier 1 Evaluation Summary',
+        '# MINT–AgentBoard System Performance Summary',
         '',
+        f'Framework: **{_FRAMEWORK["name"]}**',
         f'- Jobs evaluated: **{summary["job_count"]}**',
-        f'- Completion rate: **{summary["completed_count"]}/{summary["job_count"]}** ({summary["completion_rate"]:.0%})',
-        f'- Median OQI: **{summary["median_oqi"]}**/10' if summary['median_oqi'] is not None else '- Median OQI: **n/a**',
+        f'- Success rate (M1): **{summary["completed_count"]}/{summary["job_count"]}** ({summary["completion_rate"]:.0%})',
+        f'- Deliverable rate (M3): **{summary["deliverable_count"]}/{summary["job_count"]}** ({summary["deliverable_rate"]:.0%})',
     ]
-    if summary['grounding_pass_rate_mean'] is not None:
+    if summary['median_wall_clock_minutes'] is not None:
         md_lines.append(
-            f'- Mean grounding pass rate (Q4 sample): **{summary["grounding_pass_rate_mean"]:.0%}**'
+            f'- Median wall-clock (M5): **{summary["median_wall_clock_minutes"]:.1f} min** '
+            f'(target ≤ {summary["thresholds"]["median_wall_clock_max_minutes"]} min)'
         )
+    if summary['median_tokens_total'] is not None:
+        md_lines.append(f'- Median tokens (M6): **{int(summary["median_tokens_total"]):,}**')
+    if summary['median_tool_calls_total'] is not None:
+        md_lines.append(f'- Median tool calls (M2 k proxy): **{int(summary["median_tool_calls_total"])}**')
     md_lines.extend(
         [
-            f'- Verdict: **{summary["verdict"].upper().replace("-", " ")}**',
+            f'- System pass rate: **{summary["system_pass_count"]}/{summary["job_count"]}** ({summary["system_pass_rate"]:.0%})',
+            f'- Corpus verdict: **{summary["verdict"].upper().replace("-", " ")}**',
+            '',
+            '## Paper sources',
+            '',
+            '- **MINT** (Wang et al., ICLR 2024): Table 2 — SR, interaction depth k',
+            '- **AgentBoard** (Ma et al., NeurIPS 2024 D&B): Table 1 — multi-round, latency, cost, trace',
             '',
             '## Top root-cause buckets',
             '',
@@ -624,9 +878,13 @@ def write_evaluation_report(
 
     md_lines.extend(['', '## Per-job results', ''])
     for row in rows:
-        oqi_total = (row.get('oqi') or {}).get('total')
+        sv = row.get('system_verdict') or {}
+        eff = row.get('efficiency') or {}
         md_lines.append(
-            f'- `{row.get("job_id")}` · {row.get("status")} · OQI={oqi_total if oqi_total is not None else "n/a"} · tier2={row.get("tier2_needed")} · bucket={row.get("root_cause_bucket") or "-"}'
+            f'- `{row.get("job_id")}` · {row.get("status")} · system={sv.get("verdict", "n/a")} · '
+            f'wall={eff.get("wall_clock_minutes", "n/a")} min · tokens={eff.get("tokens_total", "n/a")} · '
+            f'tools={eff.get("tool_calls_total", "n/a")} · tier2={row.get("tier2_needed")} · '
+            f'bucket={row.get("root_cause_bucket") or "-"}'
         )
 
     md_path = output_dir / 'eval_summary.md'
@@ -639,3 +897,12 @@ def save_job_evaluation(job_dir: Path, payload: dict[str, Any]) -> Path:
     path = job_dir / 'evaluation.json'
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
     return path
+
+
+def evaluate_and_save_job(job_id: str) -> dict[str, Any]:
+    job_dir = ensure_artifact_paths(job_id)['source_pdf'].parent
+    if not (job_dir / 'job.json').exists():
+        raise FileNotFoundError(f'job.json missing under {job_dir}')
+    result = evaluate_job_dir(job_dir)
+    save_job_evaluation(job_dir, result)
+    return result

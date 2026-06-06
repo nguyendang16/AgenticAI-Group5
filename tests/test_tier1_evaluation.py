@@ -7,6 +7,7 @@ from pathlib import Path
 from deepreview.evaluation.tier1 import (
     aggregate_verdict,
     check_annotation_grounding,
+    evaluate_and_save_job,
     evaluate_job_dir,
     sample_grounding_checks,
     write_evaluation_report,
@@ -87,22 +88,67 @@ class Tier1EvaluationTests(unittest.TestCase):
         result = evaluate_job_dir(target)
         self.assertEqual(result['status'], 'completed')
         self.assertTrue(result['reliability']['completed'])
+        self.assertIn('framework', result)
+        self.assertIn('system_metrics', result)
+        self.assertIn('M1_sr', result['system_metrics'])
+        self.assertIn('system_verdict', result)
+        self.assertIn(result['system_verdict']['verdict'], {'pass', 'fail'})
         self.assertIsNotNone(result['oqi'])
         self.assertGreaterEqual(int(result['oqi']['total']), 0)
+
+        saved = evaluate_and_save_job(target.name)
+        self.assertTrue((target / 'evaluation.json').exists())
+        self.assertEqual(saved['job_id'], target.name)
+
+    def test_aggregate_verdict_system_only(self) -> None:
+        good_row = {
+            'reliability': {'completed': True, 'tier1_pass': True},
+            'efficiency': {'wall_clock_minutes': 20, 'tokens_total': 100000, 'tool_calls_total': 12},
+            'system_verdict': {'verdict': 'pass'},
+            'root_cause_bucket': None,
+        }
+        bad_row = {
+            'reliability': {'completed': False, 'tier1_pass': False},
+            'efficiency': {'wall_clock_minutes': None, 'tokens_total': 0, 'tool_calls_total': 0},
+            'system_verdict': {'verdict': 'fail'},
+            'root_cause_bucket': 'R2',
+        }
+        rows = [
+            {**good_row, 'job_id': 'a'},
+            {**good_row, 'job_id': 'b'},
+            {**good_row, 'job_id': 'c'},
+            {**bad_row, 'job_id': 'd'},
+        ]
+        summary = aggregate_verdict(rows)
+        self.assertEqual(summary['verdict'], 'go-with-fixes')
+        self.assertEqual(summary['job_count'], 4)
+        self.assertEqual(summary['completion_rate'], 0.75)
+        self.assertEqual(summary['deliverable_rate'], 0.75)
+        self.assertNotIn('median_oqi', summary)
 
     def test_aggregate_verdict_and_report(self) -> None:
         rows = [
             {
                 'job_id': 'a',
-                'reliability': {'completed': True},
-                'oqi': {'total': 8, 'q4_grounding': {'pass_rate': 1.0}},
+                'title': 'Paper A',
+                'status': 'completed',
+                'reliability': {'completed': True, 'tier1_pass': True},
+                'efficiency': {'wall_clock_minutes': 30, 'tokens_total': 200000, 'tool_calls_total': 15},
+                'system_metrics': {'M4_multi_round': {'pass': True}, 'M7_trace': {'pass': True}},
+                'system_verdict': {'verdict': 'pass'},
                 'root_cause_bucket': None,
+                'tier2_needed': False,
             },
             {
                 'job_id': 'b',
-                'reliability': {'completed': False},
-                'oqi': None,
+                'title': 'Paper B',
+                'status': 'failed',
+                'reliability': {'completed': False, 'tier1_pass': False},
+                'efficiency': {'wall_clock_minutes': 5, 'tokens_total': 10000, 'tool_calls_total': 2},
+                'system_metrics': {'M4_multi_round': {'pass': False}, 'M7_trace': {'pass': True}},
+                'system_verdict': {'verdict': 'fail'},
                 'root_cause_bucket': 'R2',
+                'tier2_needed': True,
             },
         ]
         summary = aggregate_verdict(rows)
@@ -114,6 +160,9 @@ class Tier1EvaluationTests(unittest.TestCase):
         self.assertTrue(paths['json'].exists())
         self.assertTrue(paths['csv'].exists())
         self.assertTrue(paths['markdown'].exists())
+        md_text = paths['markdown'].read_text(encoding='utf-8')
+        self.assertIn('MINT', md_text)
+        self.assertIn('AgentBoard', md_text)
 
 
 if __name__ == '__main__':

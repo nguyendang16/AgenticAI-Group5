@@ -2,32 +2,72 @@
   "jobs": [
     {
       "job_id": "a",
+      "title": "Paper A",
+      "status": "completed",
       "reliability": {
-        "completed": true
+        "completed": true,
+        "tier1_pass": true
       },
-      "oqi": {
-        "total": 8,
-        "q4_grounding": {
-          "pass_rate": 1.0
+      "efficiency": {
+        "wall_clock_minutes": 30,
+        "tokens_total": 200000,
+        "tool_calls_total": 15
+      },
+      "system_metrics": {
+        "M4_multi_round": {
+          "pass": true
+        },
+        "M7_trace": {
+          "pass": true
         }
       },
-      "root_cause_bucket": null
+      "system_verdict": {
+        "verdict": "pass"
+      },
+      "root_cause_bucket": null,
+      "tier2_needed": false
     },
     {
       "job_id": "b",
+      "title": "Paper B",
+      "status": "failed",
       "reliability": {
-        "completed": false
+        "completed": false,
+        "tier1_pass": false
       },
-      "oqi": null,
-      "root_cause_bucket": "R2"
+      "efficiency": {
+        "wall_clock_minutes": 5,
+        "tokens_total": 10000,
+        "tool_calls_total": 2
+      },
+      "system_metrics": {
+        "M4_multi_round": {
+          "pass": false
+        },
+        "M7_trace": {
+          "pass": true
+        }
+      },
+      "system_verdict": {
+        "verdict": "fail"
+      },
+      "root_cause_bucket": "R2",
+      "tier2_needed": true
     }
   ],
   "aggregate": {
+    "framework": "MINT–AgentBoard System Performance Evaluation Framework",
+    "scope": "system_performance_only",
     "job_count": 2,
     "completed_count": 1,
     "completion_rate": 0.5,
-    "median_oqi": 8,
-    "grounding_pass_rate_mean": 1.0,
+    "deliverable_count": 1,
+    "deliverable_rate": 0.5,
+    "system_pass_count": 1,
+    "system_pass_rate": 0.5,
+    "median_wall_clock_minutes": 30.0,
+    "median_tokens_total": 200000,
+    "median_tool_calls_total": 15,
     "root_cause_counts": {
       "R2": 1
     },
@@ -37,6 +77,12 @@
         "count": 1
       }
     ],
-    "verdict": "no-go"
+    "verdict": "no-go",
+    "thresholds": {
+      "completion_rate_min": 0.85,
+      "deliverable_rate_min": 0.8,
+      "median_wall_clock_max_minutes": 45
+    },
+    "note": "Corpus verdict uses system metrics only (SR, deliverable, wall-clock). OQI excluded."
   }
 }

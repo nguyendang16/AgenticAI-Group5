@@ -103,6 +103,12 @@ class Settings(BaseSettings):
     force_english_output: bool = True
     ui_language: str = 'en'
 
+    # Tier-1 evaluation: run automatically when a job reaches a terminal state.
+    auto_evaluate_on_job_finish: bool = Field(
+        default=True,
+        validation_alias=AliasChoices('AUTO_EVALUATE_ON_JOB_FINISH', 'AUTO_EVALUATE'),
+    )
+
     # Neo4j review-criteria knowledge graph
     review_criteria_enabled: bool = True
     review_venue: str | None = Field(default=None, validation_alias='REVIEW_VENUE')
