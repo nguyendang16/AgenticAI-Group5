@@ -181,7 +181,23 @@ def _quality_checks(session: Any) -> dict[str, Any]:
     )
 
     return {
-        'framework': 'Zaveri et al. Linked Data quality dimensions',
+        'framework': 'Xu, Gao & Yu AI-based KG quality evaluation model (IEEE ICNLP, 2021)',
+        'reference': {
+            'title': 'Quality Evaluation Model of AI-based Knowledge Graph System',
+            'authors': 'ZhenHao Xu, Yan Gao, and Fei Yu',
+            'venue': '2021 3rd International Conference on Natural Language Processing (ICNLP), IEEE',
+            'year': 2021,
+            'pages': '73-78',
+            'ieee_xplore_document': '9537861',
+            'url': 'https://ieeexplore.ieee.org/document/9537861',
+        },
+        'adaptation_note': (
+            'The IEEE paper proposes evaluating an AI-based KG system with quality-model '
+            'dimensions rather than a single graph-size number. For this review-agent KG, '
+            'the operational quality dimensions are required-field completeness, evidence '
+            'coverage, domain/article applicability, provenance, duplicate consistency, '
+            'and Neo4j availability.'
+        ),
         'node_counts': node_counts,
         'relation_counts': relation_counts,
         'accuracy_consistency': {
@@ -511,7 +527,7 @@ def _pykeen_transe_eval(
 
 
 def _markdown_report(payload: dict[str, Any]) -> str:
-    q = payload['zaveri_quality']
+    q = payload['user_needs_quality']
     p = payload['pykeen_style_link_prediction']
     real = payload.get('pykeen_transe')
     counts = q['node_counts']
@@ -520,9 +536,11 @@ def _markdown_report(payload: dict[str, Any]) -> str:
 
 Generated: {payload['generated_at']}
 
-## Framework 1: Zaveri et al. Linked Data Quality Dimensions
+## Framework 1: Xu, Gao & Yu AI-Based KG Quality Evaluation Model
 
-Applied dimensions: completeness, consistency, provenance, conciseness, and availability.
+Reference: Xu, Z., Gao, Y. & Yu, F. *Quality Evaluation Model of AI-based Knowledge Graph System*. 2021 3rd International Conference on Natural Language Processing (ICNLP), IEEE, pp. 73-78. https://ieeexplore.ieee.org/document/9537861
+
+Applied adaptation: the IEEE paper treats KG evaluation as a quality model for an AI-based KG system. For this project, the benchmark maps that idea to measurable local Neo4j checks: required-field completeness, evidence coverage, domain/article applicability, provenance, duplicate consistency, and Neo4j availability.
 
 ### Graph Size
 
@@ -618,6 +636,8 @@ def main() -> int:
 
     payload = {
         'generated_at': datetime.now(timezone.utc).isoformat(),
+        'user_needs_quality': quality,
+        # Backward-compatible alias for older benchmark-page builds.
         'zaveri_quality': quality,
         'pykeen_transe': _pykeen_transe_eval(triples),
         'pykeen_style_link_prediction': _pykeen_style_eval(triples),

@@ -20,6 +20,89 @@
     </header>
 
     <main class="layout benchmark-layout">
+      <section class="panel benchmark-state" id="benchmark-state">
+        <h2>Benchmark Status</h2>
+        <div class="benchmark-status-row">
+          <span class="status-pill status-loading" id="evaluation-status-pill">
+            <span class="status-spinner" aria-hidden="true"></span>
+            Loading
+          </span>
+          <p id="benchmark-status-message">Loading latest graph benchmark result...</p>
+        </div>
+        <div class="benchmark-paper-title">
+          <span class="metric-label">Evaluated paper title</span>
+          <strong id="benchmark-paper-title">Loading paper title...</strong>
+        </div>
+        <div class="benchmark-waiting-banner" id="benchmark-waiting-banner" hidden>
+          <span class="status-spinner" aria-hidden="true"></span>
+          <div>
+            <strong>Evaluation is still running</strong>
+            <p>
+              The page will refresh the status automatically. Final result tables remain marked as
+              waiting until the review job is completed.
+            </p>
+          </div>
+        </div>
+        <p class="benchmark-version" id="benchmark-version">
+          Framework version: IEEE ICNLP 2021 quality model + PyKEEN TransE link prediction
+        </p>
+        <p class="benchmark-note">
+          Run this after rebuilding Neo4j:
+          <code>python -m src.kg_evaluation --output-json outputs/kg_evaluation.json --output-md docs/kg_evaluation_report.md</code>
+        </p>
+      </section>
+
+      <section class="panel benchmark-summary">
+        <h2>Latest Paper Input</h2>
+        <p class="benchmark-note">
+          This section shows the newest review job detected under <code>data/jobs</code>, so the
+          benchmark page is tied back to the actual paper input used by the local system.
+        </p>
+        <div class="paper-input-grid">
+          <div class="paper-input-card paper-input-card-wide">
+            <span class="metric-label">Evaluated paper title</span>
+            <strong id="paper-title">Loading paper title...</strong>
+          </div>
+          <div class="paper-input-card">
+            <span class="metric-label">Source PDF</span>
+            <strong id="paper-source-pdf">--</strong>
+          </div>
+          <div class="paper-input-card">
+            <span class="metric-label">Job status</span>
+            <strong id="paper-status">--</strong>
+          </div>
+          <div class="paper-input-card">
+            <span class="metric-label">Venue</span>
+            <strong id="paper-venue">--</strong>
+          </div>
+          <div class="paper-input-card">
+            <span class="metric-label">Domain</span>
+            <strong id="paper-domain">--</strong>
+          </div>
+          <div class="paper-input-card">
+            <span class="metric-label">Criteria source</span>
+            <strong id="paper-criteria-source">--</strong>
+          </div>
+          <div class="paper-input-card">
+            <span class="metric-label">Criteria used</span>
+            <strong id="paper-criteria-count">--</strong>
+          </div>
+          <div class="paper-input-card">
+            <span class="metric-label">Annotations</span>
+            <strong id="paper-annotations">--</strong>
+          </div>
+          <div class="paper-input-card">
+            <span class="metric-label">Updated</span>
+            <strong id="paper-updated">--</strong>
+          </div>
+          <div class="paper-input-card">
+            <span class="metric-label">Final report</span>
+            <strong id="paper-final-report">--</strong>
+          </div>
+        </div>
+        <p class="benchmark-note" id="completed-paper-note"></p>
+      </section>
+
       <section class="panel benchmark-summary">
         <h2>Current KG Snapshot</h2>
         <p class="benchmark-note">
@@ -30,36 +113,38 @@
         <div class="benchmark-grid">
           <div class="metric-card">
             <span class="metric-label">Source documents</span>
-            <strong>10</strong>
+            <strong id="metric-source-documents">--</strong>
           </div>
           <div class="metric-card">
             <span class="metric-label">Review criteria</span>
-            <strong>55</strong>
+            <strong id="metric-review-criteria">--</strong>
           </div>
           <div class="metric-card">
             <span class="metric-label">Evidence requirements</span>
-            <strong>115</strong>
+            <strong id="metric-evidence-requirements">--</strong>
           </div>
           <div class="metric-card">
             <span class="metric-label">Triples</span>
-            <strong>332</strong>
+            <strong id="metric-triples">--</strong>
           </div>
         </div>
       </section>
 
       <section class="panel">
-        <h2>Framework 1: KG Quality</h2>
+        <h2>Framework 1: AI-Based KG Quality Evaluation Model</h2>
         <p class="benchmark-note">
-          Based on Zaveri et al. Linked Data quality dimensions: completeness, consistency,
-          provenance, conciseness, and availability.
+          Based on Xu, Gao & Yu's IEEE ICNLP 2021 paper on quality evaluation for
+          AI-based knowledge graph systems.
         </p>
         <div class="explanation-block">
           <h3>What this checks</h3>
           <p>
-            This evaluation asks whether the graph is usable as a reliable knowledge source. For
-            this project, that means each review criterion should have a stable ID, name, group,
-            description, evidence requirement, article/domain applicability, and source document
-            provenance.
+            Xu, Gao & Yu evaluate a knowledge graph as part of an AI system, so the
+            benchmark should check whether the graph is complete, consistent, usable, and
+            available for the system task. For this project, that task is reliable
+            review-criteria retrieval and grounding. That means each review criterion should
+            have a stable ID, name, group, description, evidence requirement, article/domain
+            applicability, and source document provenance.
           </p>
           <p>
             These checks matter more than link prediction for the current system because the review
@@ -75,14 +160,8 @@
               <th>Result</th>
             </tr>
           </thead>
-          <tbody>
-            <tr><td>Required property completeness</td><td>1.0</td></tr>
-            <tr><td>Criteria with evidence</td><td>1.0</td></tr>
-            <tr><td>Criteria with domain</td><td>1.0</td></tr>
-            <tr><td>Criteria with article type</td><td>1.0</td></tr>
-            <tr><td>Criteria with source provenance</td><td>1.0</td></tr>
-            <tr><td>Duplicate criterion IDs</td><td>0</td></tr>
-            <tr><td>Neo4j reachable</td><td>True</td></tr>
+          <tbody id="quality-results">
+            <tr><td colspan="2">Waiting for benchmark result...</td></tr>
           </tbody>
         </table>
       </section>
@@ -119,23 +198,8 @@
               <th>Hits@10</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>TransE, 30 epochs</td>
-              <td>0.0394</td>
-              <td>86.3881</td>
-              <td>0.0</td>
-              <td>0.0299</td>
-              <td>0.1045</td>
-            </tr>
-            <tr>
-              <td>Typed tail-popularity baseline</td>
-              <td>0.0641</td>
-              <td>50.0</td>
-              <td>0.0</td>
-              <td>0.0455</td>
-              <td>0.2273</td>
-            </tr>
+          <tbody id="link-prediction-results">
+            <tr><td colspan="6">Waiting for benchmark result...</td></tr>
           </tbody>
         </table>
       </section>
@@ -216,8 +280,8 @@
             prediction.
           </li>
           <li>
-            Practical conclusion: use Zaveri-style KG quality as the main evaluation, and treat
-            PyKEEN as an exploratory secondary benchmark.
+            Practical conclusion: use the IEEE quality model as the main evaluation, and
+            treat PyKEEN as an exploratory secondary benchmark.
           </li>
         </ul>
       </section>
@@ -233,11 +297,75 @@
       </section>
 
       <section class="panel">
+        <h2>Feedback to Improve Results</h2>
+        <p>
+          The current benchmark shows that the KG is reliable for curated retrieval, but weak for
+          embedding-based link prediction. The most useful improvements are not only model tuning;
+          the graph itself needs richer, more repeated structure.
+        </p>
+        <div class="feedback-grid">
+          <div class="feedback-item">
+            <h3>1. Add paper-level nodes</h3>
+            <p>
+              Add <code>Paper</code>, <code>Claim</code>, <code>Method</code>,
+              <code>Dataset</code>, <code>Experiment</code>, <code>Metric</code>,
+              <code>Result</code>, <code>Limitation</code>, and <code>EvidenceSpan</code> nodes.
+              This lets the KG evaluate the submitted paper, not only retrieve venue criteria.
+            </p>
+          </div>
+          <div class="feedback-item">
+            <h3>2. Link paper evidence to criteria</h3>
+            <p>
+              Create relations such as <code>CLAIM_EVALUATED_BY</code>,
+              <code>EVIDENCE_SUPPORTS_CRITERION</code>, and <code>MISSING_EVIDENCE_FOR</code>.
+              This will make the review output more explainable and improve graph structure.
+            </p>
+          </div>
+          <div class="feedback-item">
+            <h3>3. Add more source documents</h3>
+            <p>
+              The current graph has 10 source documents and 55 criteria. For stronger PyKEEN
+              results, expand to at least 50-100 CFPs, reviewer forms, author guides, ethics
+              policies, and reproducibility checklists.
+            </p>
+          </div>
+          <div class="feedback-item">
+            <h3>4. Reduce vague criterion groups</h3>
+            <p>
+              Replace broad <code>OTHER</code> groups with task-specific categories such as
+              <code>SCOPE_FIT</code>, <code>EVALUATION_VALIDITY</code>,
+              <code>METHODOLOGICAL_RIGOR</code>, <code>IMPLEMENTATION_CLARITY</code>, and
+              <code>PRESENTATION_COMPLIANCE</code>.
+            </p>
+          </div>
+          <div class="feedback-item">
+            <h3>5. Add cross-venue alignment</h3>
+            <p>
+              Link similar criteria across venues using <code>SIMILAR_TO</code>,
+              <code>SPECIALIZES</code>, or <code>GENERALIZES</code>. This gives embedding models
+              repeated patterns to learn and helps retrieval reuse criteria across venues.
+            </p>
+          </div>
+          <div class="feedback-item">
+            <h3>6. Add retrieval benchmark queries</h3>
+            <p>
+              Build a small gold set of queries and expected criteria. Track
+              <code>Precision@K</code>, <code>Recall@K</code>, and retrieval <code>MRR</code>.
+              This is more aligned with the actual review-agent use case than link prediction.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
         <h2>References</h2>
         <ul class="reference-list">
           <li>
-            Zaveri et al. Quality assessment for Linked Data: A Survey.
-            <a href="https://doi.org/10.3233/SW-150175">https://doi.org/10.3233/SW-150175</a>
+            Xu, Gao & Yu. Quality Evaluation Model of AI-based Knowledge Graph System.
+            2021 3rd International Conference on Natural Language Processing (ICNLP), IEEE.
+            <a href="https://ieeexplore.ieee.org/document/9537861">
+              https://ieeexplore.ieee.org/document/9537861
+            </a>
           </li>
           <li>
             Ali et al. PyKEEN 1.0: A Python Library for Training and Evaluating Knowledge Graph
@@ -249,5 +377,186 @@
         </ul>
       </section>
     </main>
+    <script>
+      const text = (value) => value == null ? '--' : String(value);
+      const fixed = (value) => typeof value === 'number' ? value.toFixed(4) : text(value);
+      const runningStatuses = new Set([
+        'queued',
+        'pdf_uploading_to_mineru',
+        'pdf_parsing',
+        'agent_running',
+        'final_report_persisting',
+        'pdf_exporting',
+      ]);
+      let refreshTimer = null;
+      const timeText = (value) => {
+        if (!value) return '--';
+        const date = new Date(value);
+        return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString();
+      };
+
+      function setText(id, value) {
+        const element = document.getElementById(id);
+        if (element) element.textContent = text(value);
+      }
+
+      function row(cells) {
+        return `<tr>${cells.map((cell) => `<td>${cell}</td>`).join('')}</tr>`;
+      }
+
+      function setStatusPill(state, label) {
+        const pill = document.getElementById('evaluation-status-pill');
+        if (!pill) return;
+        pill.className = `status-pill status-${state}`;
+        const spinner = state === 'loading' || state === 'running'
+          ? '<span class="status-spinner" aria-hidden="true"></span>'
+          : '';
+        pill.innerHTML = `${spinner}${label}`;
+      }
+
+      function setWaitingRows(message) {
+        const qualityBody = document.getElementById('quality-results');
+        const linkBody = document.getElementById('link-prediction-results');
+        if (qualityBody) qualityBody.innerHTML = row([message, 'Waiting']);
+        if (linkBody) linkBody.innerHTML = `<tr><td colspan="6">${message}</td></tr>`;
+      }
+
+      function scheduleRefresh(shouldRefresh) {
+        if (refreshTimer) {
+          clearTimeout(refreshTimer);
+          refreshTimer = null;
+        }
+        if (shouldRefresh) {
+          refreshTimer = setTimeout(loadBenchmark, 8000);
+        }
+      }
+
+      async function loadBenchmark() {
+        const status = document.getElementById('benchmark-status-message');
+        setStatusPill('loading', 'Loading');
+        try {
+          const response = await fetch(`/api/kg-benchmark?ts=${Date.now()}`, { cache: 'no-store' });
+          const payload = await response.json();
+          if (!response.ok) throw new Error(payload.detail || 'Failed to load benchmark result');
+          if (!payload.ready) {
+            status.textContent = payload.message || 'Benchmark result is not available yet.';
+            setStatusPill('waiting', 'Waiting');
+            setWaitingRows('Benchmark result is not available yet.');
+            scheduleRefresh(false);
+            return;
+          }
+
+          const quality = payload.user_needs_quality || payload.zaveri_quality || {};
+          const counts = quality.node_counts || {};
+          const pykeen = payload.pykeen_transe || {};
+          const baseline = payload.pykeen_style_link_prediction || {};
+          const paper = payload.paper_input || {};
+          const completedPaper = payload.latest_completed_paper_input || {};
+          const displayPaper = paper.title ? paper : completedPaper;
+          const isRunning = Boolean(paper.is_running) || runningStatuses.has(paper.status);
+          const isFinished = Boolean(paper.is_finished) || paper.status === 'completed';
+          const isFailed = Boolean(paper.is_failed) || paper.status === 'failed';
+          const waitingBanner = document.getElementById('benchmark-waiting-banner');
+
+          if (waitingBanner) waitingBanner.hidden = !isRunning;
+          if (isRunning) {
+            setStatusPill('running', 'Running');
+            status.textContent = `Review evaluation is running for "${displayPaper.title || displayPaper.source_pdf_name}". Auto-refreshing every 8 seconds.`;
+          } else if (isFailed) {
+            setStatusPill('failed', 'Failed');
+            status.textContent = `Latest review job failed for "${displayPaper.title || displayPaper.source_pdf_name}". Showing the latest available graph benchmark.`;
+          } else if (isFinished) {
+            setStatusPill('ready', 'Finished');
+            status.textContent = `Evaluation finished. Showing benchmark generated at ${payload.generated_at}.`;
+          } else {
+            setStatusPill('ready', 'Ready');
+            status.textContent = `Showing benchmark generated at ${payload.generated_at}.`;
+          }
+
+          setText('benchmark-version', `Framework version: ${quality.framework || 'IEEE ICNLP 2021 quality model'} + PyKEEN TransE`);
+          setText('benchmark-paper-title', displayPaper.title || displayPaper.source_pdf_name);
+          setText('paper-title', displayPaper.title);
+          setText('paper-source-pdf', displayPaper.source_pdf_name);
+          setText('paper-status', displayPaper.status);
+          setText('paper-venue', displayPaper.venue || displayPaper.journal);
+          setText('paper-domain', displayPaper.domain);
+          setText('paper-criteria-source', displayPaper.criteria_source);
+          setText('paper-criteria-count', displayPaper.criteria_count);
+          setText('paper-annotations', displayPaper.annotation_count);
+          setText('paper-updated', timeText(displayPaper.updated_at));
+          setText('paper-final-report', displayPaper.final_report_ready ? 'Ready' : 'Waiting');
+          const completedNote = document.getElementById('completed-paper-note');
+          if (completedNote && completedPaper.job_id && completedPaper.job_id !== paper.job_id) {
+            completedNote.textContent = `Latest completed review: ${completedPaper.title || completedPaper.source_pdf_name} (${completedPaper.status}, ${completedPaper.annotation_count || 0} annotations).`;
+          } else if (completedNote) {
+            completedNote.textContent = isRunning
+              ? 'The current paper review is still running. Final benchmark result tables will appear after this job completes.'
+              : '';
+          }
+
+          if (isRunning) {
+            setText('metric-source-documents', '--');
+            setText('metric-review-criteria', '--');
+            setText('metric-evidence-requirements', '--');
+            setText('metric-triples', '--');
+            setWaitingRows('Current evaluation is running for this paper.');
+            scheduleRefresh(true);
+            return;
+          }
+
+          setText('metric-source-documents', counts.SourceDocument);
+          setText('metric-review-criteria', counts.ReviewCriterion);
+          setText('metric-evidence-requirements', counts.EvidenceRequirement);
+          setText('metric-triples', pykeen.triple_count || baseline.triple_count);
+
+          const qualityBody = document.getElementById('quality-results');
+          const consistency = quality.accuracy_consistency || {};
+          const completeness = quality.completeness || {};
+          const provenance = quality.provenance || {};
+          const duplicates = consistency.duplicate_criterion_ids || [];
+          const sourceDuplicates = consistency.duplicate_source_ids || [];
+          qualityBody.innerHTML = [
+            row(['Required property completeness', fixed(consistency.required_property_completeness)]),
+            row(['Criteria with evidence', fixed(completeness.criteria_with_evidence_ratio)]),
+            row(['Criteria with domain', fixed(completeness.criteria_with_domain_ratio)]),
+            row(['Criteria with article type', fixed(completeness.criteria_with_article_type_ratio)]),
+            row(['Criteria with source provenance', fixed(provenance.criteria_with_source_ratio)]),
+            row(['Duplicate criterion IDs', text(duplicates.length)]),
+            row(['Duplicate source IDs', text(sourceDuplicates.length)]),
+            row(['Neo4j reachable', text(quality.availability?.neo4j_reachable)]),
+          ].join('');
+
+          const linkBody = document.getElementById('link-prediction-results');
+          const pykeenMetrics = pykeen.metrics || {};
+          const baselineMetrics = baseline.metrics || {};
+          linkBody.innerHTML = [
+            row([
+              `${pykeen.model || 'TransE'}, ${pykeen.epochs || '--'} epochs`,
+              fixed(pykeenMetrics.MRR),
+              fixed(pykeenMetrics.MR),
+              fixed(pykeenMetrics['Hits@1']),
+              fixed(pykeenMetrics['Hits@3']),
+              fixed(pykeenMetrics['Hits@10']),
+            ]),
+            row([
+              'Typed tail-popularity baseline',
+              fixed(baselineMetrics.MRR),
+              fixed(baselineMetrics.MR),
+              fixed(baselineMetrics['Hits@1']),
+              fixed(baselineMetrics['Hits@3']),
+              fixed(baselineMetrics['Hits@10']),
+            ]),
+          ].join('');
+          scheduleRefresh(isRunning);
+        } catch (error) {
+          setStatusPill('failed', 'Error');
+          status.textContent = error.message || String(error);
+          setWaitingRows('Could not load benchmark result.');
+          scheduleRefresh(false);
+        }
+      }
+
+      loadBenchmark();
+    </script>
   </body>
 </html>

@@ -2,7 +2,7 @@
 
 This benchmark evaluates the local Neo4j knowledge graph for review criteria using two complementary frameworks:
 
-1. Zaveri et al. Linked Data / KG quality dimensions
+1. Xu, Gao & Yu AI-based KG quality evaluation model from IEEE ICNLP 2021
 2. PyKEEN link-prediction evaluation
 
 ## Graph Snapshot
@@ -21,9 +21,11 @@ This benchmark evaluates the local Neo4j knowledge graph for review criteria usi
 | REQUIRES_EVIDENCE | 115 |
 | SUPPORTED_BY_SOURCE | 55 |
 
-## Framework 1: KG Quality Evaluation
+## Framework 1: AI-Based KG Quality Evaluation Model
 
-Reference: Zaveri et al., *Quality assessment for Linked Data: A Survey*.
+Reference: Xu, Gao & Yu, *Quality Evaluation Model of AI-based Knowledge Graph System*, 2021 3rd International Conference on Natural Language Processing (ICNLP), IEEE, pp. 73-78.
+
+This framework is suitable because it evaluates a knowledge graph as part of an AI-based system, not only as a collection of triples. In this project, the KG supports review-criteria retrieval and grounding for the review agent. Therefore, we evaluate whether the KG has complete criterion fields, evidence requirements, domain/article applicability, source provenance, duplicate consistency, and Neo4j availability.
 
 | Dimension | Result |
 |---|---:|
@@ -78,5 +80,5 @@ The current KG is suitable for the review system because it is complete, consist
 
 ## References
 
-- Zaveri, A., et al. (2016). *Quality assessment for Linked Data: A Survey*. Semantic Web. https://doi.org/10.3233/SW-150175
+- Xu, Z., Gao, Y., & Yu, F. (2021). *Quality Evaluation Model of AI-based Knowledge Graph System*. 2021 3rd International Conference on Natural Language Processing (ICNLP), IEEE, pp. 73-78. https://ieeexplore.ieee.org/document/9537861
 - Ali, M., et al. (2021). *PyKEEN 1.0: A Python Library for Training and Evaluating Knowledge Graph Embeddings*. JMLR. https://www.jmlr.org/papers/v22/20-825.html

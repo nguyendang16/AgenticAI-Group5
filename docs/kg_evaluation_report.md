@@ -1,10 +1,12 @@
 # Knowledge Graph Evaluation Report
 
-Generated: 2026-06-05T00:23:52.760765+00:00
+Generated: 2026-06-06T06:23:25.190441+00:00
 
-## Framework 1: Zaveri et al. Linked Data Quality Dimensions
+## Framework 1: Xu, Gao & Yu AI-Based KG Quality Evaluation Model
 
-Applied dimensions: completeness, consistency, provenance, conciseness, and availability.
+Reference: Xu, Z., Gao, Y. & Yu, F. *Quality Evaluation Model of AI-based Knowledge Graph System*. 2021 3rd International Conference on Natural Language Processing (ICNLP), IEEE, pp. 73-78. https://ieeexplore.ieee.org/document/9537861
+
+Applied adaptation: the IEEE paper treats KG evaluation as a quality model for an AI-based KG system. For this project, the benchmark maps that idea to measurable local Neo4j checks: required-field completeness, evidence coverage, domain/article applicability, provenance, duplicate consistency, and Neo4j availability.
 
 ### Graph Size
 

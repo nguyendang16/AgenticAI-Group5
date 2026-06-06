@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+import json
 import tempfile
+from html import escape
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, PlainTextResponse
+from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
 from deepreview.job_service import (
@@ -45,9 +48,166 @@ app.add_middleware(
 )
 
 
+@app.middleware('http')
+async def add_no_cache_for_benchmark(request: Request, call_next):
+    response = await call_next(request)
+    if request.url.path.startswith('/api/kg-benchmark') or request.url.path.endswith(
+        'benchmark-graph-evaluation.html'
+    ):
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+    return response
+
+
+def _parse_dt(value: Any) -> datetime:
+    if not isinstance(value, str):
+        return datetime.min
+    try:
+        return datetime.fromisoformat(value.replace('Z', '+00:00')).replace(tzinfo=None)
+    except ValueError:
+        return datetime.min
+
+
+def _paper_input_from_job(payload: dict[str, Any]) -> dict[str, Any]:
+    metadata = payload.get('metadata') if isinstance(payload.get('metadata'), dict) else {}
+    criteria_query = metadata.get('review_criteria_query')
+    if not isinstance(criteria_query, dict):
+        criteria_query = {}
+    criteria_graph = metadata.get('review_criteria_graph_evaluation')
+    if not isinstance(criteria_graph, dict):
+        criteria_graph = {}
+    usage = payload.get('usage') if isinstance(payload.get('usage'), dict) else {}
+    tool_usage = usage.get('tool') if isinstance(usage.get('tool'), dict) else {}
+    per_tool = tool_usage.get('per_tool') if isinstance(tool_usage.get('per_tool'), dict) else {}
+    return {
+        'job_id': payload.get('id'),
+        'title': payload.get('title'),
+        'source_pdf_name': payload.get('source_pdf_name'),
+        'status': payload.get('status'),
+        'created_at': payload.get('created_at'),
+        'updated_at': payload.get('updated_at'),
+        'venue': criteria_query.get('venue') or metadata.get('review_venue'),
+        'journal': criteria_query.get('journal') or metadata.get('review_journal'),
+        'domain': criteria_query.get('domain') or metadata.get('review_domain'),
+        'article_type': criteria_query.get('article_type') or metadata.get('review_article_type'),
+        'criteria_source': metadata.get('review_criteria_source'),
+        'criteria_count': metadata.get('review_criteria_count') or criteria_graph.get('criteria_count'),
+        'active_criteria_count': criteria_graph.get('active_criteria_count'),
+        'evidence_requirements_count': criteria_graph.get('evidence_requirements_count'),
+        'annotation_count': payload.get('annotation_count'),
+        'pdf_search_calls': per_tool.get('pdf_search'),
+        'pdf_annotate_calls': per_tool.get('pdf_annotate'),
+        'final_report_ready': payload.get('final_report_ready'),
+        'pdf_ready': payload.get('pdf_ready'),
+    }
+
+
+def _latest_paper_inputs() -> dict[str, Any]:
+    jobs_root = _REPO_ROOT / 'data' / 'jobs'
+    if not jobs_root.exists():
+        return {}
+    jobs: list[dict[str, Any]] = []
+    for path in jobs_root.glob('*/job.json'):
+        try:
+            payload = json.loads(path.read_text(encoding='utf-8'))
+        except Exception:
+            continue
+        if isinstance(payload, dict):
+            jobs.append(payload)
+    jobs.sort(key=lambda item: _parse_dt(item.get('updated_at')), reverse=True)
+    latest = jobs[0] if jobs else None
+    latest_completed = next(
+        (
+            job
+            for job in jobs
+            if job.get('status') == 'completed'
+            and (job.get('final_report_ready') or job.get('pdf_ready'))
+        ),
+        None,
+    )
+    result: dict[str, Any] = {}
+    if latest:
+        paper_input = _paper_input_from_job(latest)
+        paper_status = str(paper_input.get('status') or '')
+        paper_input['is_running'] = paper_status in {
+            'queued',
+            'pdf_uploading_to_mineru',
+            'pdf_parsing',
+            'agent_running',
+            'final_report_persisting',
+            'pdf_exporting',
+        }
+        paper_input['is_finished'] = paper_status == 'completed'
+        paper_input['is_failed'] = paper_status == 'failed'
+        result['paper_input'] = paper_input
+    if latest_completed:
+        result['latest_completed_paper_input'] = _paper_input_from_job(latest_completed)
+    return result
+
+
 @app.get('/api/health')
 def health() -> dict[str, str]:
     return {'status': 'ok'}
+
+
+@app.get('/api/kg-benchmark')
+def get_kg_benchmark() -> dict[str, Any]:
+    return _kg_benchmark_payload()
+
+
+def _kg_benchmark_payload() -> dict[str, Any]:
+    path = _REPO_ROOT / 'outputs' / 'kg_evaluation.json'
+    if not path.exists():
+        return {
+            'ready': False,
+            'message': 'Benchmark result not found. Rebuild the KG and run src.kg_evaluation first.',
+        }
+    try:
+        payload = json.loads(path.read_text(encoding='utf-8'))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f'Failed to read benchmark result: {exc}') from exc
+    if not isinstance(payload, dict):
+        raise HTTPException(status_code=500, detail='Benchmark result has invalid format')
+    payload['ready'] = True
+    payload.update(_latest_paper_inputs())
+    return payload
+
+
+@app.get('/benchmark-graph-evaluation.html', response_class=HTMLResponse)
+def benchmark_graph_evaluation_page() -> HTMLResponse:
+    path = _WEB_DIR / 'benchmark-graph-evaluation.html'
+    if not path.exists():
+        raise HTTPException(status_code=404, detail='benchmark page not found')
+    html = path.read_text(encoding='utf-8')
+    try:
+        payload = _kg_benchmark_payload()
+    except Exception:
+        payload = {}
+    paper = payload.get('paper_input') if isinstance(payload.get('paper_input'), dict) else {}
+    completed = (
+        payload.get('latest_completed_paper_input')
+        if isinstance(payload.get('latest_completed_paper_input'), dict)
+        else {}
+    )
+    display = paper if paper.get('title') else completed
+    title = escape(str(display.get('title') or display.get('source_pdf_name') or 'No evaluated paper yet'))
+    html = html.replace(
+        '<strong id="benchmark-paper-title">Loading paper title...</strong>',
+        f'<strong id="benchmark-paper-title">{title}</strong>',
+    )
+    html = html.replace(
+        '<strong id="paper-title">Loading paper title...</strong>',
+        f'<strong id="paper-title">{title}</strong>',
+    )
+    return HTMLResponse(
+        html,
+        headers={
+            'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+        },
+    )
 
 
 @app.get('/logo.png')
