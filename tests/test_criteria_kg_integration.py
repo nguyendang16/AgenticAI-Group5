@@ -3,6 +3,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 from deepreview.criteria_kg import (
+    _criteria_query_variants,
     format_criteria_bundle_for_prompt,
     infer_venue_journal_from_markdown,
     merge_criteria_query,
@@ -55,6 +56,19 @@ def test_merge_query_uses_job_title_when_markdown_silent():
         extra_inference_text='TWELF2026_Proposal_Dang_Khoi_Nguyen',
     )
     assert query['venue'] == 'TWELF'
+
+
+def test_query_variants_reties_journal_when_venue_is_twelf2026():
+    variants = _criteria_query_variants(
+        {
+            'venue': 'TWELF2026',
+            'journal': '',
+            'domain': 'Educational Technology',
+            'article_type': '',
+        }
+    )
+    assert variants[0]['venue'] == 'TWELF2026'
+    assert any(v['venue'] == '' and v['journal'] == 'TWELF2026' for v in variants)
 
 
 def test_merge_query_prefers_job_metadata():
