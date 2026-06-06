@@ -292,6 +292,13 @@ body {
   max-width: 1080px;
 }
 
+.benchmark-header-paper {
+  color: var(--text);
+  font-weight: 700;
+  margin-top: 0.25rem;
+  overflow-wrap: anywhere;
+}
+
 .benchmark-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

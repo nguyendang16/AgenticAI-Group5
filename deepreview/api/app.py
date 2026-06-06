@@ -193,6 +193,10 @@ def benchmark_graph_evaluation_page() -> HTMLResponse:
     display = paper if paper.get('title') else completed
     title = escape(str(display.get('title') or display.get('source_pdf_name') or 'No evaluated paper yet'))
     html = html.replace(
+        'Evaluated paper: Loading paper title...',
+        f'Evaluated paper: {title}',
+    )
+    html = html.replace(
         '<strong id="benchmark-paper-title">Loading paper title...</strong>',
         f'<strong id="benchmark-paper-title">{title}</strong>',
     )
