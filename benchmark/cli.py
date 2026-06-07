@@ -5,11 +5,24 @@ import logging
 import sys
 from typing import Callable
 
+from benchmark.progress import ProgressReporter, phase_banner, pipeline_exit, warn_if_live
 
-def _cmd_build_manifest(_args: argparse.Namespace) -> int:
+PIPELINE_REVIEWS_STEPS: tuple[str, ...] = ('build-manifest', 'run')
+PIPELINE_EVAL_STEPS: tuple[str, ...] = (
+    'collect',
+    'check',
+    'judge',
+    'faithfulness',
+    'compare',
+    'report',
+)
+
+
+def _cmd_build_manifest(args: argparse.Namespace) -> int:
     from benchmark.build_manifest import build_manifest
 
-    rows = build_manifest()
+    local_only = getattr(args, 'local_only', False)
+    rows = build_manifest(local_only=local_only)
     print(f'Wrote {len(rows)} papers to benchmark/manifest.jsonl')
     return 0
 
@@ -45,6 +58,14 @@ def _cmd_judge(args: argparse.Namespace) -> int:
 
     scores = judge_all(job_id=args.job_id)
     print(f'Wrote {len(scores)} rows to {REVIEW_QUALITY_SCORES_PATH}')
+    return 0
+
+
+def _cmd_faithfulness(args: argparse.Namespace) -> int:
+    from benchmark.faithfulness import FAITHFULNESS_RUN_SCORES_PATH, faithfulness_all
+
+    rows = faithfulness_all(job_id=args.job_id)
+    print(f'Wrote {len(rows)} rows to {FAITHFULNESS_RUN_SCORES_PATH}')
     return 0
 
 
@@ -85,6 +106,61 @@ def _cmd_report(_args: argparse.Namespace) -> int:
     return 0
 
 
+def _dispatch_step(name: str, args: argparse.Namespace) -> int:
+    handlers: dict[str, Callable[[argparse.Namespace], int]] = {
+        'build-manifest': _cmd_build_manifest,
+        'run': _cmd_run,
+        'collect': _cmd_collect,
+        'check': _cmd_check,
+        'judge': _cmd_judge,
+        'faithfulness': _cmd_faithfulness,
+        'decision-metrics': _cmd_decision_metrics,
+        'compare': _cmd_compare,
+        'report': _cmd_report,
+    }
+    handler = handlers.get(name)
+    if handler is None:
+        print(f'Unknown pipeline step: {name}', file=sys.stderr)
+        return 1
+    warn_if_live(name)
+    return handler(args)
+
+
+def _cmd_pipeline(args: argparse.Namespace) -> int:
+    if args.phase == 'reviews':
+        steps = PIPELINE_REVIEWS_STEPS
+        phase_banner('reviews', detail='OpenAI reviews only — gap-fill missing papers')
+    elif args.phase == 'eval':
+        steps = PIPELINE_EVAL_STEPS
+        phase_banner('eval', detail='Gemma judge + RAGAS — run ≥60 min after reviews')
+    else:
+        print(f'Unknown phase: {args.phase}', file=sys.stderr)
+        return 1
+
+    if args.phase == 'reviews' and not args.dry_run:
+        print('Reminder: kill orphan review workers before starting.', flush=True)
+
+    progress = ProgressReporter(label=args.phase, total=len(steps))
+    progress.start()
+
+    for step in steps:
+        progress.advance(step)
+        if args.dry_run and step == 'build-manifest':
+            print(
+                'DRY-RUN: skip build-manifest (use existing benchmark/manifest.jsonl).',
+                flush=True,
+            )
+            continue
+        rc = _dispatch_step(step, args)
+        if rc != 0:
+            return pipeline_exit(rc, step)
+
+    progress.finish('success')
+    if args.phase == 'reviews' and not args.dry_run:
+        print('Wait ≥60 minutes before: python -m benchmark pipeline --phase eval', flush=True)
+    return 0
+
+
 def _cmd_all(args: argparse.Namespace) -> int:
     steps: list[tuple[str, Callable[[argparse.Namespace], int]]] = [
         ('build-manifest', _cmd_build_manifest),
@@ -109,11 +185,28 @@ def _cmd_all(args: argparse.Namespace) -> int:
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format='%(levelname)s %(name)s: %(message)s')
 
-    parser = argparse.ArgumentParser(prog='benchmark', description='KG benchmark harness')
+    epilog = (
+        'Operator rerun (production): use explicit phases, not "all".\n'
+        '  python -m benchmark pipeline --phase reviews\n'
+        '  # wait ≥60 min\n'
+        '  python -m benchmark pipeline --phase eval\n'
+        'See docs/operator-benchmark-rerun.md'
+    )
+    parser = argparse.ArgumentParser(
+        prog='benchmark',
+        description='KG benchmark harness',
+        epilog=epilog,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     subparsers = parser.add_subparsers(dest='command')
 
     build_parser = subparsers.add_parser('build-manifest', help='Build benchmark/manifest.jsonl')
-    build_parser.set_defaults(func=_cmd_build_manifest)
+    build_parser.add_argument(
+        '--local-only',
+        action='store_true',
+        help='Use existing benchmark/papers only (no OpenReview/journal fetch)',
+    )
+    build_parser.set_defaults(func=_cmd_build_manifest, local_only=False)
 
     run_parser = subparsers.add_parser('run', help='Run paired KG_ON/KG_OFF benchmark')
     run_parser.add_argument('--dry-run', action='store_true', help='Print planned commands only')
@@ -129,7 +222,30 @@ def main(argv: list[str] | None = None) -> int:
 
     judge_parser = subparsers.add_parser('judge', help='DeepEval report-level quality scoring')
     judge_parser.add_argument('--job-id', default=None, help='Judge a single benchmark job')
-    judge_parser.set_defaults(func=_cmd_judge)
+    judge_parser.set_defaults(func=_cmd_judge, local_only=False)
+
+    faithfulness_parser = subparsers.add_parser(
+        'faithfulness',
+        help='RAGAS claim-level faithfulness scoring',
+    )
+    faithfulness_parser.add_argument('--job-id', default=None, help='Score a single benchmark job')
+    faithfulness_parser.set_defaults(func=_cmd_faithfulness, local_only=False)
+
+    pipeline_parser = subparsers.add_parser(
+        'pipeline',
+        help='Run operator phases with terminal progress (see docs/operator-benchmark-rerun.md)',
+    )
+    pipeline_parser.add_argument(
+        '--phase',
+        required=True,
+        choices=('reviews', 'eval'),
+        help='reviews=gap-fill OpenAI; eval=Gemma judge+RAGAS+report',
+    )
+    pipeline_parser.add_argument('--dry-run', action='store_true', help='Pass --dry-run to review run step')
+    pipeline_parser.add_argument('--paper-id', default=None, help='Run a single paper (reviews phase)')
+    pipeline_parser.add_argument('--timeout', type=int, default=3600, help='Watch timeout for review run')
+    pipeline_parser.add_argument('--job-id', default=None, help='Single job for judge/faithfulness in eval phase')
+    pipeline_parser.set_defaults(func=_cmd_pipeline, local_only=True)
 
     decision_metrics_parser = subparsers.add_parser(
         'decision-metrics',
@@ -145,7 +261,7 @@ def main(argv: list[str] | None = None) -> int:
 
     all_parser = subparsers.add_parser(
         'all',
-        help='Run build-manifest through report (full benchmark pipeline)',
+        help='Run build-manifest through report (full benchmark pipeline; not for production reruns)',
     )
     all_parser.add_argument('--dry-run', action='store_true', help='Print planned run commands only')
     all_parser.add_argument('--paper-id', default=None, help='Run a single paper from the manifest')
