@@ -151,7 +151,7 @@ def _cmd_pipeline(args: argparse.Namespace) -> int:
         steps = PIPELINE_EVAL_STEPS
         phase_banner(
             'eval',
-            detail='OpenAI judge + pairwise + Gemma RAGAS — run ≥60 min after reviews',
+            detail='OpenAI judge + pairwise + Gemma RAGAS — run >=60 min after reviews',
         )
     else:
         print(f'Unknown phase: {args.phase}', file=sys.stderr)
