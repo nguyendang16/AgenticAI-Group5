@@ -79,6 +79,19 @@ def build_benchmark_summary(
     helps = _top_venues_by_metric(venue, 'rubric_alignment', ascending=False)
     hurts = _top_venues_by_metric(venue, 'rubric_alignment', ascending=True)
 
+    pairwise_n = len(paired)
+    if pairwise_n and 'pairwise_winner' in paired.columns:
+        winner_counts = paired['pairwise_winner'].fillna('').astype(str).str.strip().value_counts()
+        kg_on_wins = int(winner_counts.get('KG_ON', 0))
+        kg_off_wins = int(winner_counts.get('KG_OFF', 0))
+        ties = int(winner_counts.get('tie', 0))
+        kg_on_pct = (kg_on_wins / pairwise_n) * 100
+        kg_off_pct = (kg_off_wins / pairwise_n) * 100
+        ties_pct = (ties / pairwise_n) * 100
+    else:
+        kg_on_wins = kg_off_wins = ties = 0
+        kg_on_pct = kg_off_pct = ties_pct = 0.0
+
     lines = [
         '# KG Benchmark Summary',
         '',
@@ -90,6 +103,12 @@ def build_benchmark_summary(
         f'- Median Δ rubric_alignment (KG_ON − KG_OFF): **{_fmt(rubric.get("median_delta") if rubric is not None else None)}**',
         f'- Median Δ factual_correctness: **{_fmt(factual.get("median_delta") if factual is not None else None)}**',
         f'- Median Δ faithfulness_mean: **{_fmt(faithfulness.get("median_delta") if faithfulness is not None else None)}**',
+        '',
+        '## Pairwise judge (KG_ON vs KG_OFF)',
+        '',
+        f'- KG_ON wins: **{kg_on_wins}** / {pairwise_n} ({_fmt(kg_on_pct, digits=1)}%)',
+        f'- KG_OFF wins: **{kg_off_wins}** / {pairwise_n} ({_fmt(kg_off_pct, digits=1)}%)',
+        f'- Ties: **{ties}** / {pairwise_n} ({_fmt(ties_pct, digits=1)}%)',
         '',
         '## Per-venue rubric alignment',
         '',

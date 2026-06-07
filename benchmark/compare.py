@@ -12,7 +12,7 @@ from benchmark.checks import DETERMINISTIC_SCORES_PATH
 from benchmark.decision_metrics import SUMMARY_PAPER_ID
 from benchmark.faithfulness import FAITHFULNESS_RUN_SCORES_PATH
 from benchmark.judge import METRIC_NAMES, REVIEW_QUALITY_SCORES_PATH
-from benchmark.paths import RESULTS_DIR
+from benchmark.paths import PAIRWISE_JUDGE_SCORES_PATH, RESULTS_DIR
 
 PAIRED_COMPARISON_PATH = RESULTS_DIR / 'paired_comparison.csv'
 OVERALL_SUMMARY_PATH = RESULTS_DIR / 'overall_summary.csv'
@@ -205,6 +205,35 @@ def _numeric_delta_columns() -> tuple[str, ...]:
     return (*_DETERMINISTIC_NUMERIC, *METRIC_NAMES, 'faithfulness_mean', 'decision_correct')
 
 
+def _merge_pairwise_judge(
+    paired: pd.DataFrame,
+    pairwise: pd.DataFrame,
+) -> pd.DataFrame:
+    if paired.empty:
+        return paired
+
+    output = paired.copy()
+    if pairwise.empty or 'paper_id' not in pairwise.columns:
+        for col in ('pairwise_winner', 'pairwise_rubric_winner', 'pairwise_confidence'):
+            output[col] = pd.NA
+        return output
+
+    pairwise_cols = [
+        col
+        for col in ('paper_id', 'winner', 'rubric_alignment_winner', 'confidence')
+        if col in pairwise.columns
+    ]
+    subset = pairwise[pairwise_cols].copy()
+    subset = subset.rename(
+        columns={
+            'winner': 'pairwise_winner',
+            'rubric_alignment_winner': 'pairwise_rubric_winner',
+            'confidence': 'pairwise_confidence',
+        }
+    )
+    return output.merge(subset, on='paper_id', how='left')
+
+
 def _compute_pair_deltas(pairs: pd.DataFrame) -> pd.DataFrame:
     if pairs.empty:
         return pairs
@@ -384,6 +413,7 @@ def build_paired_comparison(
     deterministic_path: Path | None = None,
     judge_path: Path | None = None,
     decision_path: Path | None = None,
+    pairwise_path: Path | None = None,
     paired_output_path: Path | None = None,
     overall_output_path: Path | None = None,
     venue_output_path: Path | None = None,
@@ -392,10 +422,12 @@ def build_paired_comparison(
     judge = _read_csv(judge_path or REVIEW_QUALITY_SCORES_PATH)
     decision = _read_csv(decision_path or DECISION_METRICS_PATH)
     faithfulness = _read_csv(FAITHFULNESS_RUN_SCORES_PATH)
+    pairwise = _read_csv(pairwise_path or PAIRWISE_JUDGE_SCORES_PATH)
 
     merged = _merge_run_tables(deterministic, judge, decision, faithfulness)
     pairs_raw, excluded_pairs = _build_valid_pairs(merged)
     paired = _compute_pair_deltas(pairs_raw)
+    paired = _merge_pairwise_judge(paired, pairwise)
     paired, overall_decision_deltas, venue_decision_deltas = _append_decision_metric_deltas(paired, merged)
 
     overall = _summarize_deltas(paired)

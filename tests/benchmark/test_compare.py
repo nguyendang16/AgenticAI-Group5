@@ -117,3 +117,124 @@ def test_build_paired_comparison_writes_outputs(tmp_path):
     assert paired['delta_rubric_alignment'].tolist() == pytest.approx([1.0, 1.0])
     assert 'rubric_alignment' in overall['metric'].values
     assert len(venue) == 2
+
+
+def test_paired_comparison_includes_pairwise_columns(tmp_path):
+    deterministic = tmp_path / 'deterministic_scores.csv'
+    judge = tmp_path / 'review_quality_scores.csv'
+    decision = tmp_path / 'decision_metrics.csv'
+    pairwise = tmp_path / 'pairwise_judge_scores.csv'
+
+    det_rows = []
+    judge_rows = []
+    for paper_id, venue in (('p1', 'ICLR'), ('p2', 'NeurIPS')):
+        for condition, criteria_count, rubric in (
+            ('KG_ON', 5, 4.0),
+            ('KG_OFF', 0, 3.0),
+        ):
+            det_rows.append(
+                {
+                    'paper_id': paper_id,
+                    'job_id': f'{paper_id}-{condition}',
+                    'venue': venue,
+                    'condition': condition,
+                    'completion_valid': True,
+                    'condition_valid': True,
+                    'completion_errors': '',
+                    'condition_errors': '',
+                    'runtime_seconds': 100 if condition == 'KG_ON' else 90,
+                    'total_tokens': 1000 if condition == 'KG_ON' else 900,
+                    'criteria_count': criteria_count,
+                    'input_tokens': 700,
+                    'output_tokens': 300,
+                    'tool_calls': 1,
+                    'annotation_count': 2,
+                    'paper_search_calls': 0,
+                    'final_md_bytes': 4096,
+                }
+            )
+            judge_rows.append(
+                {
+                    'paper_id': paper_id,
+                    'job_id': f'{paper_id}-{condition}',
+                    'venue': venue,
+                    'condition': condition,
+                    'rubric_alignment': rubric,
+                    'factual_correctness': rubric,
+                    'evidence_support': rubric,
+                    'specificity': rubric,
+                    'actionability': rubric,
+                    'unsupported_critique_rate': rubric,
+                    'criterion_grounded_valid_critique': rubric,
+                }
+            )
+
+    pd.DataFrame(det_rows).to_csv(deterministic, index=False)
+    pd.DataFrame(judge_rows).to_csv(judge, index=False)
+    pd.DataFrame(
+        [
+            {
+                'paper_id': 'p1',
+                'condition': 'KG_ON',
+                'expected_decision': 'accept',
+                'predicted_decision': 'accept',
+                'decision_correct': 1,
+            },
+            {
+                'paper_id': 'p1',
+                'condition': 'KG_OFF',
+                'expected_decision': 'accept',
+                'predicted_decision': 'reject',
+                'decision_correct': 0,
+            },
+        ]
+    ).to_csv(decision, index=False)
+    pd.DataFrame(
+        [
+            {
+                'paper_id': 'p1',
+                'venue': 'ICLR',
+                'winner': 'KG_ON',
+                'rubric_alignment_winner': 'KG_ON',
+                'confidence': 'high',
+                'reason': 'KG_ON cites more evidence',
+                'job_id_kg_on': 'p1-KG_ON',
+                'job_id_kg_off': 'p1-KG_OFF',
+            },
+            {
+                'paper_id': 'p2',
+                'venue': 'NeurIPS',
+                'winner': 'tie',
+                'rubric_alignment_winner': 'KG_OFF',
+                'confidence': 'low',
+                'reason': 'Comparable quality',
+                'job_id_kg_on': 'p2-KG_ON',
+                'job_id_kg_off': 'p2-KG_OFF',
+            },
+        ]
+    ).to_csv(pairwise, index=False)
+
+    build_paired_comparison(
+        deterministic_path=deterministic,
+        judge_path=judge,
+        decision_path=decision,
+        pairwise_path=pairwise,
+        paired_output_path=tmp_path / 'paired_comparison.csv',
+        overall_output_path=tmp_path / 'overall_summary.csv',
+        venue_output_path=tmp_path / 'venue_summary.csv',
+    )
+
+    paired = pd.read_csv(tmp_path / 'paired_comparison.csv')
+    assert 'pairwise_winner' in paired.columns
+    assert 'pairwise_rubric_winner' in paired.columns
+    assert 'pairwise_confidence' in paired.columns
+
+    p1 = paired[paired['paper_id'] == 'p1'].iloc[0]
+    assert p1['pairwise_winner'] == 'KG_ON'
+    assert p1['pairwise_rubric_winner'] == 'KG_ON'
+    assert p1['pairwise_confidence'] == 'high'
+
+    p2 = paired[paired['paper_id'] == 'p2'].iloc[0]
+    assert p2['pairwise_winner'] == 'tie'
+    assert p2['pairwise_rubric_winner'] == 'KG_OFF'
+    assert p2['pairwise_confidence'] == 'low'
