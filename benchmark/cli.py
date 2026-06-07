@@ -115,6 +115,13 @@ def _cmd_report(_args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_archive_results(args: argparse.Namespace) -> int:
+    from benchmark.archive_results import archive_eval_results
+
+    archive_eval_results(tag=args.tag)
+    return 0
+
+
 def _dispatch_step(name: str, args: argparse.Namespace) -> int:
     handlers: dict[str, Callable[[argparse.Namespace], int]] = {
         'build-manifest': _cmd_build_manifest,
@@ -278,6 +285,17 @@ def main(argv: list[str] | None = None) -> int:
 
     report_parser = subparsers.add_parser('report', help='Generate benchmark_summary.md')
     report_parser.set_defaults(func=_cmd_report)
+
+    archive_parser = subparsers.add_parser(
+        'archive-results',
+        help='Copy active eval result files to benchmark/results/archive/{tag}/',
+    )
+    archive_parser.add_argument(
+        '--tag',
+        default='pre-v2',
+        help='Archive subdirectory name (default: pre-v2)',
+    )
+    archive_parser.set_defaults(func=_cmd_archive_results)
 
     all_parser = subparsers.add_parser(
         'all',
