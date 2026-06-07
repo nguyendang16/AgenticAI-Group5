@@ -12,7 +12,7 @@
       <img src="/logo.png" alt="Logo" class="logo" onerror="this.style.display='none'" />
       <div>
         <h1>Evidence-Verified Agentic Peer Review</h1>
-        <p class="subtitle">Upload a PDF · watch tool progress · system performance evaluation</p>
+        <p class="subtitle">Upload a PDF · watch tool progress · pipeline evaluation</p>
       </div>
     </header>
 
@@ -52,33 +52,59 @@
 
       <section class="panel eval-panel" id="eval-panel" hidden>
         <div class="eval-header">
-          <h2>System performance evaluation</h2>
+          <h2>Pipeline evaluation</h2>
           <button type="button" id="evaluate-btn" class="link-btn" hidden>Run evaluation</button>
         </div>
         <p class="eval-intro">
-          MINT–AgentBoard framework: system reliability, efficiency, and traceability only (not review quality).
+          Demo checklist: verify the pipeline completes, deliverables exist, and highlights match parsed paper text (≥2/3 grounding). Not review quality.
         </p>
-        <div id="eval-framework" class="eval-framework"></div>
-        <div id="eval-verdict" class="eval-verdict"></div>
-        <div id="eval-summary" class="eval-summary"></div>
-        <div id="eval-checklist-wrap" class="eval-checklist-wrap" hidden>
-          <h3 class="eval-subheading">AgentBoard checklist</h3>
-          <table id="eval-checklist" class="eval-checklist">
+
+        <div id="eval-demo-verdict" class="eval-verdict"></div>
+        <div id="eval-demo-summary" class="eval-summary"></div>
+
+        <div id="eval-demo-checklist-wrap" class="eval-checklist-wrap" hidden>
+          <h3 class="eval-subheading">7 checks per job</h3>
+          <table id="eval-demo-checklist" class="eval-checklist">
             <thead>
               <tr>
                 <th>Check</th>
                 <th>Result</th>
-                <th>Source</th>
+                <th>Value</th>
                 <th>Evidence</th>
               </tr>
             </thead>
-            <tbody id="eval-checklist-body"></tbody>
+            <tbody id="eval-demo-checklist-body"></tbody>
           </table>
         </div>
+
+        <div id="eval-artifacts" class="eval-artifacts" hidden></div>
+
+        <details id="eval-system-details" class="eval-details" hidden>
+          <summary>MINT–AgentBoard system metrics (paper-grounded)</summary>
+          <div id="eval-framework" class="eval-framework"></div>
+          <div id="eval-system-verdict" class="eval-verdict"></div>
+          <div id="eval-summary" class="eval-summary"></div>
+          <div id="eval-checklist-wrap" class="eval-checklist-wrap" hidden>
+            <h3 class="eval-subheading">AgentBoard checklist</h3>
+            <table id="eval-checklist" class="eval-checklist">
+              <thead>
+                <tr>
+                  <th>Check</th>
+                  <th>Result</th>
+                  <th>Source</th>
+                  <th>Evidence</th>
+                </tr>
+              </thead>
+              <tbody id="eval-checklist-body"></tbody>
+            </table>
+          </div>
+        </details>
+
         <details id="eval-oqi-details" class="eval-details" hidden>
-          <summary>Review quality (OQI — informational only, excluded from verdict)</summary>
+          <summary>Review quality proxy (OQI — optional, excluded from demo verdict)</summary>
           <div id="eval-oqi" class="eval-oqi"></div>
         </details>
+
         <details id="eval-details" class="eval-details" hidden>
           <summary>Full evaluation JSON</summary>
           <pre id="eval-json" class="eval-json"></pre>

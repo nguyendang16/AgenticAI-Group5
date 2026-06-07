@@ -4,6 +4,14 @@
       "job_id": "a",
       "title": "Paper A",
       "status": "completed",
+      "annotation_count": 10,
+      "demo_grounding": {
+        "pass": true,
+        "display": "3/3"
+      },
+      "demo_verdict": {
+        "verdict": "pass"
+      },
       "reliability": {
         "completed": true,
         "tier1_pass": true
@@ -31,6 +39,14 @@
       "job_id": "b",
       "title": "Paper B",
       "status": "failed",
+      "annotation_count": 2,
+      "demo_grounding": {
+        "pass": false,
+        "display": "0/0"
+      },
+      "demo_verdict": {
+        "verdict": "fail"
+      },
       "reliability": {
         "completed": false,
         "tier1_pass": false
@@ -63,6 +79,18 @@
     "completion_rate": 0.5,
     "deliverable_count": 1,
     "deliverable_rate": 0.5,
+    "demo_pass_count": 1,
+    "demo_pass_rate": 0.5,
+    "avg_annotations": 10,
+    "avg_wall_clock_minutes": 30.0,
+    "grounding_pass_jobs": 1,
+    "grounding_job_pass_rate": 1.0,
+    "demo_verdict": "fail",
+    "demo_thresholds": {
+      "success_rate_min": 0.8,
+      "grounding_job_pass_rate_min": 0.8,
+      "annotations_min": 8
+    },
     "system_pass_count": 1,
     "system_pass_rate": 0.5,
     "median_wall_clock_minutes": 30.0,

@@ -13,8 +13,14 @@ const toolCalls = document.getElementById('tool-calls');
 const toolTimeline = document.getElementById('tool-timeline');
 const evaluateBtn = document.getElementById('evaluate-btn');
 const evalPanel = document.getElementById('eval-panel');
+const evalDemoVerdict = document.getElementById('eval-demo-verdict');
+const evalDemoSummary = document.getElementById('eval-demo-summary');
+const evalDemoChecklistWrap = document.getElementById('eval-demo-checklist-wrap');
+const evalDemoChecklistBody = document.getElementById('eval-demo-checklist-body');
+const evalArtifacts = document.getElementById('eval-artifacts');
+const evalSystemDetails = document.getElementById('eval-system-details');
 const evalFramework = document.getElementById('eval-framework');
-const evalVerdict = document.getElementById('eval-verdict');
+const evalSystemVerdict = document.getElementById('eval-system-verdict');
 const evalSummary = document.getElementById('eval-summary');
 const evalChecklistWrap = document.getElementById('eval-checklist-wrap');
 const evalChecklistBody = document.getElementById('eval-checklist-body');
@@ -84,6 +90,8 @@ function startJob(jobId) {
   if (evalPanel) evalPanel.hidden = true;
   if (evaluateBtn) evaluateBtn.hidden = true;
   if (evalError) evalError.hidden = true;
+  if (evalDemoChecklistWrap) evalDemoChecklistWrap.hidden = true;
+  if (evalArtifacts) evalArtifacts.hidden = true;
   if (evalChecklistWrap) evalChecklistWrap.hidden = true;
   if (evalOqiDetails) evalOqiDetails.hidden = true;
   statusBadge.textContent = 'queued';
@@ -226,7 +234,7 @@ async function loadJobEvaluation(jobId) {
     const getRes = await fetch(`${API}/api/jobs/${jobId}/evaluation`);
     if (getRes.ok) {
       const data = await getRes.json();
-      renderEvaluation(data);
+      renderEvaluation(data, jobId);
       showEvaluateButton(jobId, { alreadyLoaded: true });
       return data;
     }
@@ -243,10 +251,12 @@ async function loadJobEvaluation(jobId) {
   }
 }
 
-function evalCard(label, value, ok, meta) {
-  const cls = ok === true ? 'pass' : ok === false ? 'fail' : '';
-  const metaHtml = meta ? `<span class="meta">${escapeHtml(meta)}</span>` : '';
-  return `<div class="eval-card ${cls}"><span class="label">${escapeHtml(label)}</span><span class="value">${escapeHtml(value)}</span>${metaHtml}</div>`;
+function evalCard(label, value, ok, description) {
+  const cls = ok === true ? 'pass' : ok === false ? 'fail' : ok === 'flag' ? 'flag' : '';
+  const descHtml = description
+    ? `<span class="desc">${escapeHtml(description)}</span>`
+    : '';
+  return `<div class="eval-card ${cls}"><span class="label">${escapeHtml(label)}</span><span class="value">${escapeHtml(value)}</span>${descHtml}</div>`;
 }
 
 function formatMetricValue(value) {
@@ -255,6 +265,81 @@ function formatMetricValue(value) {
   if (value == null) return 'n/a';
   if (typeof value === 'number' && value >= 1000) return value.toLocaleString();
   return String(value);
+}
+
+function renderVerdictBadge(container, { label, verdict, note }) {
+  if (!container) return;
+  const pass = verdict === 'pass';
+  const cls = pass ? 'pass' : 'fail';
+  container.innerHTML = `
+    <div class="eval-verdict-badge ${cls}">
+      <span class="eval-verdict-label">${escapeHtml(label)}</span>
+      <span class="eval-verdict-value">${pass ? 'PASS' : 'FAIL'}</span>
+    </div>
+    ${note ? `<p class="eval-verdict-note">${escapeHtml(note)}</p>` : ''}
+  `;
+}
+
+function renderDemoEvaluation(data) {
+  const demoVerdict = data.demo_verdict || {};
+  const demoGrounding = data.demo_grounding || {};
+  const eff = data.efficiency || {};
+
+  renderVerdictBadge(evalDemoVerdict, {
+    label: 'Demo verdict',
+    verdict: demoVerdict.verdict,
+    note: `${demoVerdict.note || ''} Scored ${demoVerdict.checks_passed ?? 0}/${demoVerdict.checks_scored ?? 0}.`,
+  });
+
+  if (evalDemoSummary) {
+    evalDemoSummary.innerHTML = [
+      evalCard('Grounding', demoGrounding.display || 'n/a', demoGrounding.pass),
+      evalCard('Annotations', String(data.annotation_count ?? 'n/a'), (data.annotation_count ?? 0) >= 8),
+      evalCard('Runtime', eff.wall_clock_minutes != null ? `${eff.wall_clock_minutes} min` : 'n/a', eff.flags?.includes('slow_fast_mode') ? 'flag' : null),
+      evalCard('Tokens', formatMetricValue(eff.tokens_total), null),
+    ].join('');
+  }
+
+  if (evalDemoChecklistWrap && evalDemoChecklistBody && data.demo_checklist?.length) {
+    evalDemoChecklistBody.innerHTML = data.demo_checklist
+      .map((item) => {
+        let result;
+        let cls = '';
+        if (item.pass === true) {
+          result = '✓ Pass';
+          cls = 'pass';
+        } else if (item.pass === false) {
+          result = '✗ Fail';
+          cls = 'fail';
+        } else if (item.flag) {
+          result = '⚠ Flag';
+          cls = 'flag';
+        } else {
+          result = '— Record';
+          cls = 'record';
+        }
+        return `<tr class="${cls}">
+          <td>${escapeHtml(item.label)}</td>
+          <td class="check-result">${result}</td>
+          <td>${escapeHtml(item.value ?? '')}</td>
+          <td class="evidence">${escapeHtml(item.evidence ?? '')}</td>
+        </tr>`;
+      })
+      .join('');
+    evalDemoChecklistWrap.hidden = false;
+  }
+}
+
+function renderArtifacts(jobId) {
+  if (!evalArtifacts || !jobId) return;
+  evalArtifacts.innerHTML = `
+    <h3 class="eval-subheading">Job artifacts</h3>
+    <div class="eval-artifact-links">
+      <a class="link-btn" href="${API}/api/jobs/${encodeURIComponent(jobId)}/report.md" target="_blank" rel="noopener">Open report (Markdown)</a>
+      <a class="link-btn" href="${API}/api/jobs/${encodeURIComponent(jobId)}/report.pdf" target="_blank" rel="noopener">Open annotated PDF</a>
+    </div>
+  `;
+  evalArtifacts.hidden = false;
 }
 
 function renderFramework(framework) {
@@ -276,20 +361,6 @@ function renderFramework(framework) {
   `;
 }
 
-function renderSystemVerdict(systemVerdict) {
-  if (!evalVerdict || !systemVerdict) return;
-  const pass = systemVerdict.verdict === 'pass';
-  const cls = pass ? 'pass' : 'fail';
-  const checklist = `${systemVerdict.checklist_passed ?? 0}/${systemVerdict.checklist_total ?? 0} checks`;
-  evalVerdict.innerHTML = `
-    <div class="eval-verdict-badge ${cls}">
-      <span class="eval-verdict-label">System verdict</span>
-      <span class="eval-verdict-value">${pass ? 'PASS' : 'FAIL'}</span>
-    </div>
-    <p class="eval-verdict-note">${escapeHtml(systemVerdict.note || '')} Checklist: ${escapeHtml(checklist)}.</p>
-  `;
-}
-
 function renderSystemMetrics(systemMetrics) {
   if (!evalSummary || !systemMetrics) return;
   const order = ['M1_sr', 'M2_k_proxy', 'M3_deliverable', 'M4_multi_round', 'M5_wall_clock', 'M6_tokens', 'M7_trace'];
@@ -302,12 +373,13 @@ function renderSystemMetrics(systemMetrics) {
         `${id}: ${metric.label}`,
         formatMetricValue(metric.value),
         metric.pass,
+        metric.description || metric.calculation,
       );
     })
     .join('');
 }
 
-function renderChecklist(checklist) {
+function renderSystemChecklist(checklist) {
   if (!evalChecklistWrap || !evalChecklistBody || !checklist?.length) return;
   evalChecklistBody.innerHTML = checklist
     .map((item) => {
@@ -331,30 +403,35 @@ function renderOqi(oqi) {
     return;
   }
   const q4 = oqi.q4_grounding || {};
+  const groundingPass = q4.sample_size ? (q4.passed ?? 0) >= 2 : null;
   evalOqi.innerHTML = [
-    evalCard('OQI total', `${oqi.total}/${oqi.max}`, oqi.tier1_quality_pass, 'informational'),
-    evalCard('Q1 structure', `${(oqi.q1_structure || {}).score}/2`, null, null),
-    evalCard('Q2 coverage', `${(oqi.q2_coverage || {}).score}/2`, null, null),
-    evalCard('Q3 specificity', `${(oqi.q3_specificity || {}).score}/2`, null, null),
-    evalCard(
-      'Q4 grounding sample',
-      q4.sample_size ? `${q4.passed}/${q4.sample_size}` : 'n/a',
-      q4.sample_size ? q4.passed === q4.sample_size : null,
-      null,
-    ),
-    evalCard('Q5 actionability', `${(oqi.q5_actionability || {}).score}/2`, null, null),
+    evalCard('OQI total', `${oqi.total}/${oqi.max}`, oqi.tier1_quality_pass),
+    evalCard('Q1 structure', `${(oqi.q1_structure || {}).score}/2`, null),
+    evalCard('Q2 coverage', `${(oqi.q2_coverage || {}).score}/2`, null),
+    evalCard('Q3 specificity', `${(oqi.q3_specificity || {}).score}/2`, null),
+    evalCard('Q4 grounding sample', q4.sample_size ? `${q4.passed}/${q4.sample_size}` : 'n/a', groundingPass),
+    evalCard('Q5 actionability', `${(oqi.q5_actionability || {}).score}/2`, null),
   ].join('');
   evalOqiDetails.hidden = false;
 }
 
-function renderEvaluation(data) {
+function renderEvaluation(data, jobId) {
   evalPanel.hidden = false;
   evalError.hidden = true;
 
+  const resolvedJobId = jobId || data.job_id || currentJobId;
+  renderDemoEvaluation(data);
+  renderArtifacts(resolvedJobId);
+
+  if (evalSystemDetails) evalSystemDetails.hidden = false;
   renderFramework(data.framework);
-  renderSystemVerdict(data.system_verdict);
+  renderVerdictBadge(evalSystemVerdict, {
+    label: 'System verdict',
+    verdict: (data.system_verdict || {}).verdict,
+    note: (data.system_verdict || {}).note,
+  });
   renderSystemMetrics(data.system_metrics);
-  renderChecklist(data.system_checklist);
+  renderSystemChecklist(data.system_checklist);
   renderOqi(data.oqi);
 
   evalDetails.hidden = false;
@@ -375,7 +452,7 @@ async function runEvaluation(jobId, { silent = false } = {}) {
     if (!res.ok) {
       throw new Error(data.detail || data.message || 'Evaluation failed');
     }
-    renderEvaluation(data);
+    renderEvaluation(data, jobId);
     showEvaluateButton(jobId, { alreadyLoaded: true });
     return data;
   } catch (err) {

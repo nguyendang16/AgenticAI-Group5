@@ -419,52 +419,59 @@ def _build_system_metrics(
     return {
         'M1_sr': {
             'label': 'Success Rate (SR)',
+            'description': 'Did the review job finish with status completed (no fatal pipeline error)?',
             'value': bool(reliability.get('completed')),
             'pass': reliability.get('completed') is True,
             'source': 'MINT Table 2',
-            'calculation': 'status == completed',
+            'calculation': 'job.json → status == completed',
         },
         'M2_k_proxy': {
             'label': 'Interaction depth (k proxy)',
+            'description': 'How many tool/LLM rounds the agent ran — proxy for MINT interaction limit k.',
             'value': tool_calls,
             'pass': tool_calls >= 1,
             'source': 'MINT Table 2',
-            'calculation': 'efficiency.tool_calls_total',
+            'calculation': 'job.json → usage.tool.total_calls',
         },
         'M3_deliverable': {
             'label': 'Deliverable (tier1 pass)',
+            'description': 'Job completed and produced final_report.md (>2 KB) plus final PDF when expected.',
             'value': bool(reliability.get('tier1_pass')),
             'pass': reliability.get('tier1_pass') is True,
             'source': 'AgentBoard §2',
-            'calculation': 'completed AND final_report.md > 2 KB',
+            'calculation': 'completed AND final_report.md > 2048 bytes AND final_report.pdf exists',
         },
         'M4_multi_round': {
             'label': 'Multi-round interaction',
+            'description': 'Agent used a real tool loop (≥5 calls), not a single-shot or noop run.',
             'value': tool_calls >= 5,
             'pass': tool_calls >= 5,
             'source': 'AgentBoard Table 1',
-            'calculation': 'tool_calls_total >= 5',
+            'calculation': 'usage.tool.total_calls >= 5',
         },
         'M5_wall_clock': {
             'label': 'Wall-clock latency (min)',
+            'description': 'Real elapsed minutes from job start to terminal event. Flag if >45 min (fast mode).',
             'value': wall_min,
             'pass': wall_min is None or float(wall_min) <= 45,
             'source': 'AgentBoard Table 1',
-            'calculation': 'efficiency.wall_clock_minutes',
+            'calculation': 'events.jsonl: created → completed/failed timestamp',
         },
         'M6_tokens': {
             'label': 'Token cost (total)',
+            'description': 'Total LLM tokens used (input + output). Cost proxy — recorded, not pass/fail.',
             'value': tokens_total,
             'pass': True,
             'source': 'AgentBoard Table 1',
-            'calculation': 'efficiency.tokens_total',
+            'calculation': 'job.json → usage.token.total_tokens',
         },
         'M7_trace': {
             'label': 'Traceable process',
+            'description': 'events.jsonl logs a terminal event so the run is auditable end-to-end.',
             'value': _is_traceable(events),
             'pass': _is_traceable(events),
             'source': 'AgentBoard Table 1',
-            'calculation': 'terminal event in events.jsonl',
+            'calculation': 'completed / failed / evaluation_completed in events.jsonl',
         },
     }
 
@@ -489,6 +496,118 @@ def _system_verdict_per_job(
         'wall_clock_minutes': wall_min,
         'wall_clock_within_target': wall_min is None or float(wall_min) <= 45,
         'note': 'System performance only; OQI/review quality excluded from verdict.',
+    }
+
+
+_DEMO_ANNOTATION_MIN = 8
+_DEMO_GROUNDING_SAMPLE_SIZE = 3
+_DEMO_GROUNDING_MIN_PASSED = 2
+_DEMO_RUNTIME_FLAG_MINUTES = 45
+_DEMO_SUCCESS_RATE_MIN = 0.80
+_DEMO_GROUNDING_JOB_PASS_RATE_MIN = 0.80
+
+
+def _demo_grounding_from_sample(q4: dict[str, Any]) -> dict[str, Any]:
+    passed = int(q4.get('passed') or 0)
+    sample_size = int(q4.get('sample_size') or 0)
+    display = f'{passed}/{sample_size}' if sample_size else 'n/a'
+    return {
+        'passed': passed,
+        'sample_size': sample_size,
+        'display': display,
+        'pass': sample_size > 0 and passed >= _DEMO_GROUNDING_MIN_PASSED,
+        'rule': f'At least {_DEMO_GROUNDING_MIN_PASSED} of {_DEMO_GROUNDING_SAMPLE_SIZE} sampled annotations appear in mineru_full.md',
+        'checks': q4.get('checks') or [],
+    }
+
+
+def _build_demo_checklist(
+    *,
+    job: JobState,
+    reliability: dict[str, Any],
+    efficiency: dict[str, Any],
+    demo_grounding: dict[str, Any],
+    has_report_file: bool,
+    has_pdf_file: bool,
+    has_annotations_file: bool,
+    annotation_count: int,
+) -> list[dict[str, Any]]:
+    wall_min = efficiency.get('wall_clock_minutes')
+    runtime_flag = wall_min is not None and float(wall_min) > _DEMO_RUNTIME_FLAG_MINUTES
+    tokens_total = int(efficiency.get('tokens_total') or 0)
+    return [
+        {
+            'id': 'job_completed',
+            'label': '1. Job finished successfully',
+            'pass': reliability.get('completed') is True,
+            'value': job.status.value,
+            'evidence': 'job.json → status == completed',
+        },
+        {
+            'id': 'report_exists',
+            'label': '2. Report was generated',
+            'pass': has_report_file,
+            'value': 'Yes' if has_report_file else 'No',
+            'evidence': 'final_report.md exists',
+        },
+        {
+            'id': 'annotations_ge_8',
+            'label': f'3. Annotations created (≥ {_DEMO_ANNOTATION_MIN})',
+            'pass': has_annotations_file and annotation_count >= _DEMO_ANNOTATION_MIN,
+            'value': str(annotation_count),
+            'evidence': 'annotations.json exists; annotation_count >= 8',
+        },
+        {
+            'id': 'pdf_exists',
+            'label': '4. PDF export worked',
+            'pass': has_pdf_file,
+            'value': 'Yes' if has_pdf_file else 'No',
+            'evidence': 'final_report.pdf exists',
+        },
+        {
+            'id': 'runtime_reasonable',
+            'label': '5. Runtime is reasonable',
+            'pass': not runtime_flag if wall_min is not None else None,
+            'value': f'{wall_min} min' if wall_min is not None else 'n/a',
+            'evidence': f'Flag if > {_DEMO_RUNTIME_FLAG_MINUTES} min (record only)',
+            'flag': runtime_flag,
+        },
+        {
+            'id': 'tokens_recorded',
+            'label': '6. Token usage',
+            'pass': None,
+            'value': str(tokens_total),
+            'evidence': 'job.json → usage.token.total_tokens',
+        },
+        {
+            'id': 'grounding_2_of_3',
+            'label': '7. Highlights are real (grounding)',
+            'pass': demo_grounding.get('pass'),
+            'value': demo_grounding.get('display', 'n/a'),
+            'evidence': demo_grounding.get('rule', ''),
+        },
+    ]
+
+
+def _demo_verdict_per_job(*, checklist: list[dict[str, Any]]) -> dict[str, Any]:
+    scored = [item for item in checklist if item.get('pass') is not None]
+    passed = sum(1 for item in scored if item.get('pass'))
+    critical_ids = {
+        'job_completed',
+        'report_exists',
+        'annotations_ge_8',
+        'pdf_exists',
+        'grounding_2_of_3',
+    }
+    critical_pass = all(
+        item.get('pass') for item in checklist if item['id'] in critical_ids and item.get('pass') is not None
+    )
+    return {
+        'verdict': 'pass' if critical_pass else 'fail',
+        'checks_passed': passed,
+        'checks_scored': len(scored),
+        'checks_total': len(checklist),
+        'note': 'Demo checklist: pipeline reliability and span grounding only (not review quality).',
     }
 
 
@@ -554,7 +673,24 @@ def evaluate_job_dir(job_dir: Path, *, repo_root: Path | None = None) -> dict[st
     annotations = _load_annotations(job_dir)
 
     has_md = final_md_path.exists() and final_md_path.stat().st_size > 2048
+    has_report_file = final_md_path.exists()
     has_pdf = final_pdf_path.exists()
+    annotations_path = job_dir / 'annotations.json'
+    has_annotations_file = annotations_path.exists()
+    annotation_count = int(job.annotation_count or len(annotations))
+    page_index = _load_page_index(job_dir) if annotations else {}
+    q4_sample = (
+        sample_grounding_checks(
+            annotations,
+            page_index,
+            sample_size=_DEMO_GROUNDING_SAMPLE_SIZE,
+            seed=str(job.id),
+        )
+        if annotations
+        else {'sample_size': 0, 'passed': 0, 'pass_rate': None, 'checks': [], 'score': 0}
+    )
+    demo_grounding = _demo_grounding_from_sample(q4_sample)
+
     final_write_event = any(
         str(row.get('event') or '') in {'final_report_persisted', 'review_final_markdown_write'}
         for row in events
@@ -594,13 +730,7 @@ def evaluate_job_dir(job_dir: Path, *, repo_root: Path | None = None) -> dict[st
         q1_score, q1_detail = _score_q1_structure(report_text)
         q2_score, q2_detail = _score_q2_coverage(report_text)
         q3_score, q3_detail = _score_q3_specificity(annotations)
-        page_index = _load_page_index(job_dir) if annotations else {}
-        q4 = sample_grounding_checks(
-            annotations,
-            page_index,
-            sample_size=3,
-            seed=str(job.id),
-        )
+        q4 = q4_sample
         q5_score, q5_detail = _score_q5_actionability(report_text)
         total = q1_score + q2_score + q3_score + int(q4['score']) + q5_score
         oqi = {
@@ -645,6 +775,17 @@ def evaluate_job_dir(job_dir: Path, *, repo_root: Path | None = None) -> dict[st
         efficiency=efficiency,
         checklist=system_checklist,
     )
+    demo_checklist = _build_demo_checklist(
+        job=job,
+        reliability=reliability,
+        efficiency=efficiency,
+        demo_grounding=demo_grounding,
+        has_report_file=has_report_file,
+        has_pdf_file=has_pdf,
+        has_annotations_file=has_annotations_file,
+        annotation_count=annotation_count,
+    )
+    demo_verdict = _demo_verdict_per_job(checklist=demo_checklist)
 
     return {
         'job_id': str(job.id),
@@ -652,7 +793,10 @@ def evaluate_job_dir(job_dir: Path, *, repo_root: Path | None = None) -> dict[st
         'source_pdf_name': job.source_pdf_name,
         'status': job.status.value,
         'error': job.error,
-        'annotation_count': int(job.annotation_count or len(annotations)),
+        'annotation_count': annotation_count,
+        'demo_checklist': demo_checklist,
+        'demo_grounding': demo_grounding,
+        'demo_verdict': demo_verdict,
         'framework': _FRAMEWORK,
         'system_metrics': system_metrics,
         'system_checklist': system_checklist,
@@ -737,6 +881,26 @@ def aggregate_verdict(rows: list[dict[str, Any]]) -> dict[str, Any]:
     )
     system_pass_rate = (system_pass_count / total) if total else 0.0
 
+    demo_pass_count = sum(
+        1 for row in rows if (row.get('demo_verdict') or {}).get('verdict') == 'pass'
+    )
+    demo_pass_rate = (demo_pass_count / total) if total else 0.0
+
+    annotation_counts = [
+        int(row.get('annotation_count') or 0)
+        for row in completed_rows
+        if row.get('annotation_count') is not None
+    ]
+    avg_annotations = round(statistics.mean(annotation_counts), 2) if annotation_counts else None
+    avg_wall_clock = round(statistics.mean(wall_clocks), 2) if wall_clocks else None
+
+    grounding_pass_jobs = sum(
+        1
+        for row in completed_rows
+        if (row.get('demo_grounding') or {}).get('pass') is True
+    )
+    grounding_job_pass_rate = (grounding_pass_jobs / completed) if completed else 0.0
+
     bucket_counts: dict[str, int] = {}
     for row in rows:
         bucket = row.get('root_cause_bucket')
@@ -757,6 +921,14 @@ def aggregate_verdict(rows: list[dict[str, Any]]) -> dict[str, Any]:
     elif completion_rate >= 0.70 and deliverable_rate >= 0.70:
         verdict = 'go-with-fixes'
 
+    demo_verdict = 'pass'
+    if completion_rate < _DEMO_SUCCESS_RATE_MIN:
+        demo_verdict = 'fail'
+    elif grounding_job_pass_rate < _DEMO_GROUNDING_JOB_PASS_RATE_MIN:
+        demo_verdict = 'fail'
+    elif demo_pass_rate < _DEMO_SUCCESS_RATE_MIN:
+        demo_verdict = 'needs-fixes'
+
     top_buckets = sorted(bucket_counts.items(), key=lambda item: (-item[1], item[0]))[:3]
     return {
         'framework': _FRAMEWORK['name'],
@@ -766,6 +938,18 @@ def aggregate_verdict(rows: list[dict[str, Any]]) -> dict[str, Any]:
         'completion_rate': round(completion_rate, 3),
         'deliverable_count': len(deliverable_rows),
         'deliverable_rate': round(deliverable_rate, 3),
+        'demo_pass_count': demo_pass_count,
+        'demo_pass_rate': round(demo_pass_rate, 3),
+        'avg_annotations': avg_annotations,
+        'avg_wall_clock_minutes': avg_wall_clock,
+        'grounding_pass_jobs': grounding_pass_jobs,
+        'grounding_job_pass_rate': round(grounding_job_pass_rate, 3),
+        'demo_verdict': demo_verdict,
+        'demo_thresholds': {
+            'success_rate_min': _DEMO_SUCCESS_RATE_MIN,
+            'grounding_job_pass_rate_min': _DEMO_GROUNDING_JOB_PASS_RATE_MIN,
+            'annotations_min': _DEMO_ANNOTATION_MIN,
+        },
         'system_pass_count': system_pass_count,
         'system_pass_rate': round(system_pass_rate, 3),
         'median_wall_clock_minutes': median_wall_clock,
@@ -798,15 +982,16 @@ def write_evaluation_report(
         'job_id',
         'title',
         'status',
+        'demo_pass',
+        'demo_verdict',
+        'grounding',
+        'annotations',
+        'runtime_min',
+        'total_tokens',
         'system_verdict',
         'completed',
         'tier1_pass',
-        'wall_clock_min',
-        'tokens_total',
         'tool_calls_total',
-        'M4_multi_round',
-        'M7_trace',
-        'annotation_count',
         'tier2_needed',
         'root_cause_bucket',
         'error',
@@ -817,22 +1002,24 @@ def write_evaluation_report(
         for row in rows:
             rel = row.get('reliability') or {}
             eff = row.get('efficiency') or {}
-            sm = row.get('system_metrics') or {}
             sv = row.get('system_verdict') or {}
+            dv = row.get('demo_verdict') or {}
+            dg = row.get('demo_grounding') or {}
             writer.writerow(
                 {
                     'job_id': row.get('job_id'),
                     'title': row.get('title'),
                     'status': row.get('status'),
+                    'demo_pass': dv.get('verdict'),
+                    'demo_verdict': dv.get('verdict'),
+                    'grounding': dg.get('display'),
+                    'annotations': row.get('annotation_count'),
+                    'runtime_min': eff.get('wall_clock_minutes'),
+                    'total_tokens': eff.get('tokens_total'),
                     'system_verdict': sv.get('verdict'),
                     'completed': rel.get('completed'),
                     'tier1_pass': rel.get('tier1_pass'),
-                    'wall_clock_min': eff.get('wall_clock_minutes'),
-                    'tokens_total': eff.get('tokens_total'),
                     'tool_calls_total': eff.get('tool_calls_total'),
-                    'M4_multi_round': (sm.get('M4_multi_round') or {}).get('pass'),
-                    'M7_trace': (sm.get('M7_trace') or {}).get('pass'),
-                    'annotation_count': row.get('annotation_count'),
                     'tier2_needed': row.get('tier2_needed'),
                     'root_cause_bucket': row.get('root_cause_bucket'),
                     'error': row.get('error'),
@@ -840,13 +1027,32 @@ def write_evaluation_report(
             )
 
     md_lines = [
-        '# MINT–AgentBoard System Performance Summary',
+        '# Evaluation Summary',
         '',
-        f'Framework: **{_FRAMEWORK["name"]}**',
+        '## Demo checklist (corpus)',
+        '',
         f'- Jobs evaluated: **{summary["job_count"]}**',
-        f'- Success rate (M1): **{summary["completed_count"]}/{summary["job_count"]}** ({summary["completion_rate"]:.0%})',
-        f'- Deliverable rate (M3): **{summary["deliverable_count"]}/{summary["job_count"]}** ({summary["deliverable_rate"]:.0%})',
+        f'- Success rate: **{summary["completed_count"]}/{summary["job_count"]}** ({summary["completion_rate"]:.0%})',
+        f'- Demo pass rate: **{summary["demo_pass_count"]}/{summary["job_count"]}** ({summary["demo_pass_rate"]:.0%})',
     ]
+    if summary.get('avg_wall_clock_minutes') is not None:
+        md_lines.append(f'- Avg runtime: **{summary["avg_wall_clock_minutes"]:.1f} min**')
+    if summary.get('avg_annotations') is not None:
+        md_lines.append(f'- Avg annotations: **{summary["avg_annotations"]:.1f}**')
+    md_lines.append(
+        f'- Grounding pass rate (≥2/3): **{summary["grounding_pass_jobs"]}/{summary["completed_count"]}** '
+        f'({summary["grounding_job_pass_rate"]:.0%})'
+    )
+    md_lines.append(f'- Demo verdict: **{summary["demo_verdict"].upper()}**')
+    md_lines.extend(
+        [
+            '',
+            '## MINT–AgentBoard (system performance)',
+            '',
+            f'- Framework: **{summary["framework"]}**',
+            f'- Deliverable rate (M3): **{summary["deliverable_count"]}/{summary["job_count"]}** ({summary["deliverable_rate"]:.0%})',
+        ]
+    )
     if summary['median_wall_clock_minutes'] is not None:
         md_lines.append(
             f'- Median wall-clock (M5): **{summary["median_wall_clock_minutes"]:.1f} min** '
@@ -878,13 +1084,12 @@ def write_evaluation_report(
 
     md_lines.extend(['', '## Per-job results', ''])
     for row in rows:
-        sv = row.get('system_verdict') or {}
-        eff = row.get('efficiency') or {}
+        dg = row.get('demo_grounding') or {}
+        dv = row.get('demo_verdict') or {}
         md_lines.append(
-            f'- `{row.get("job_id")}` · {row.get("status")} · system={sv.get("verdict", "n/a")} · '
-            f'wall={eff.get("wall_clock_minutes", "n/a")} min · tokens={eff.get("tokens_total", "n/a")} · '
-            f'tools={eff.get("tool_calls_total", "n/a")} · tier2={row.get("tier2_needed")} · '
-            f'bucket={row.get("root_cause_bucket") or "-"}'
+            f'- `{row.get("job_id")}` · {row.get("status")} · demo={dv.get("verdict", "n/a")} · '
+            f'grounding={dg.get("display", "n/a")} · ann={row.get("annotation_count", "n/a")} · '
+            f'wall={(row.get("efficiency") or {}).get("wall_clock_minutes", "n/a")} min'
         )
 
     md_path = output_dir / 'eval_summary.md'

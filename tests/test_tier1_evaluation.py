@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 
 from deepreview.evaluation.tier1 import (
+    _demo_grounding_from_sample,
     aggregate_verdict,
     check_annotation_grounding,
     evaluate_and_save_job,
@@ -88,17 +89,31 @@ class Tier1EvaluationTests(unittest.TestCase):
         result = evaluate_job_dir(target)
         self.assertEqual(result['status'], 'completed')
         self.assertTrue(result['reliability']['completed'])
+        self.assertIn('demo_checklist', result)
+        self.assertIn('demo_grounding', result)
+        self.assertIn('demo_verdict', result)
+        self.assertEqual(len(result['demo_checklist']), 7)
+        self.assertIn(result['demo_verdict']['verdict'], {'pass', 'fail'})
         self.assertIn('framework', result)
         self.assertIn('system_metrics', result)
-        self.assertIn('M1_sr', result['system_metrics'])
-        self.assertIn('system_verdict', result)
-        self.assertIn(result['system_verdict']['verdict'], {'pass', 'fail'})
         self.assertIsNotNone(result['oqi'])
         self.assertGreaterEqual(int(result['oqi']['total']), 0)
 
         saved = evaluate_and_save_job(target.name)
         self.assertTrue((target / 'evaluation.json').exists())
         self.assertEqual(saved['job_id'], target.name)
+
+    def test_demo_grounding_pass_at_two_of_three(self) -> None:
+        page_index = {1: ['alpha beta gamma delta'], 2: ['hello world']}
+        annotations = [
+            {'id': '1', 'page': 1, 'start_line': 1, 'end_line': 1, 'text': 'alpha beta gamma delta'},
+            {'id': '2', 'page': 1, 'start_line': 1, 'end_line': 1, 'text': 'alpha beta gamma delta'},
+            {'id': '3', 'page': 2, 'start_line': 1, 'end_line': 1, 'text': 'totally wrong text'},
+        ]
+        q4 = sample_grounding_checks(annotations, page_index, sample_size=3, seed='demo')
+        demo = _demo_grounding_from_sample(q4)
+        self.assertEqual(demo['passed'], 2)
+        self.assertTrue(demo['pass'])
 
     def test_aggregate_verdict_system_only(self) -> None:
         good_row = {
@@ -132,6 +147,9 @@ class Tier1EvaluationTests(unittest.TestCase):
                 'job_id': 'a',
                 'title': 'Paper A',
                 'status': 'completed',
+                'annotation_count': 10,
+                'demo_grounding': {'pass': True, 'display': '3/3'},
+                'demo_verdict': {'verdict': 'pass'},
                 'reliability': {'completed': True, 'tier1_pass': True},
                 'efficiency': {'wall_clock_minutes': 30, 'tokens_total': 200000, 'tool_calls_total': 15},
                 'system_metrics': {'M4_multi_round': {'pass': True}, 'M7_trace': {'pass': True}},
@@ -143,6 +161,9 @@ class Tier1EvaluationTests(unittest.TestCase):
                 'job_id': 'b',
                 'title': 'Paper B',
                 'status': 'failed',
+                'annotation_count': 2,
+                'demo_grounding': {'pass': False, 'display': '0/0'},
+                'demo_verdict': {'verdict': 'fail'},
                 'reliability': {'completed': False, 'tier1_pass': False},
                 'efficiency': {'wall_clock_minutes': 5, 'tokens_total': 10000, 'tool_calls_total': 2},
                 'system_metrics': {'M4_multi_round': {'pass': False}, 'M7_trace': {'pass': True}},
@@ -161,8 +182,8 @@ class Tier1EvaluationTests(unittest.TestCase):
         self.assertTrue(paths['csv'].exists())
         self.assertTrue(paths['markdown'].exists())
         md_text = paths['markdown'].read_text(encoding='utf-8')
-        self.assertIn('MINT', md_text)
-        self.assertIn('AgentBoard', md_text)
+        self.assertIn('Demo checklist', md_text)
+        self.assertIn('grounding', md_text.lower())
 
 
 if __name__ == '__main__':

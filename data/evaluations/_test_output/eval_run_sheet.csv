@@ -1,3 +1,3 @@
-job_id,title,status,system_verdict,completed,tier1_pass,wall_clock_min,tokens_total,tool_calls_total,M4_multi_round,M7_trace,annotation_count,tier2_needed,root_cause_bucket,error
-a,Paper A,completed,pass,True,True,30,200000,15,True,True,,False,,
-b,Paper B,failed,fail,False,False,5,10000,2,False,True,,True,R2,
+job_id,title,status,demo_pass,demo_verdict,grounding,annotations,runtime_min,total_tokens,system_verdict,completed,tier1_pass,tool_calls_total,tier2_needed,root_cause_bucket,error
+a,Paper A,completed,pass,pass,3/3,10,30,200000,pass,True,True,15,False,,
+b,Paper B,failed,fail,fail,0/0,2,5,10000,fail,False,False,2,True,R2,

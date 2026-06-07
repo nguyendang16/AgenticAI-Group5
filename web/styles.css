@@ -473,6 +473,38 @@ body {
   margin-bottom: 0.5rem;
 }
 
+.eval-checklist tr.flag .check-result {
+  color: #d4a017;
+  font-weight: 600;
+}
+
+.eval-checklist tr.record .check-result {
+  color: var(--muted);
+}
+
+.eval-artifacts {
+  margin-bottom: 1rem;
+}
+
+.eval-artifact-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.eval-card.flag .value {
+  color: #d4a017;
+}
+
+.eval-card .desc {
+  display: block;
+  margin-top: 0.4rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
 .eval-card.pass .value {
   color: var(--success);
 }
