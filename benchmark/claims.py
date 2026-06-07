@@ -5,6 +5,8 @@ import re
 import uuid
 from dataclasses import dataclass
 
+from benchmark.evidence_resolve import ResolvedEvidence, resolve_evidence_span
+
 _SECTIONS = ('## Weaknesses', '## Key Issues')
 _BULLET_RE = re.compile(r'^(?:-\s+|\d+\.\s+)(.+)$', re.MULTILINE)
 _EVIDENCE_RE = re.compile(r'\(evidence:\s*["\']?([^"\')]+)', re.IGNORECASE)
@@ -17,6 +19,8 @@ class AtomicClaim:
     text: str
     section: str
     evidence_span: str | None
+    context_source: str = 'legacy'
+    resolved_context_preview: str = ''
 
 
 def _max_claims() -> int:
@@ -45,20 +49,19 @@ def _section_slice(report_md: str, header: str) -> str:
     return part
 
 
-def _evidence_for_bullet(bullet: str, manuscript: str) -> str:
-    match = _EVIDENCE_RE.search(bullet)
-    if match:
-        return match.group(1).strip()
-    ref = _PAREN_REF_RE.search(bullet)
-    if ref:
-        return ref.group(0).strip('()')
-    return manuscript[:_max_context_chars()]
+def _evidence_for_bullet(
+    bullet: str,
+    manuscript: str,
+    annotations: list[dict] | None = None,
+) -> ResolvedEvidence:
+    return resolve_evidence_span(bullet, manuscript=manuscript, annotations=annotations or [])
 
 
 def extract_critique_claims(
     report_md: str,
     *,
     manuscript: str,
+    annotations: list[dict] | None = None,
     max_claims: int | None = None,
 ) -> list[AtomicClaim]:
     cap = max_claims if max_claims is not None else _max_claims()
@@ -68,12 +71,15 @@ def extract_critique_claims(
             text = match.group(1).strip()
             if not text:
                 continue
+            resolved = _evidence_for_bullet(text, manuscript, annotations)
             claims.append(
                 AtomicClaim(
                     claim_id=str(uuid.uuid4()),
                     text=text,
                     section=header.removeprefix('## '),
-                    evidence_span=_evidence_for_bullet(text, manuscript),
+                    evidence_span=resolved.text,
+                    context_source=resolved.source,
+                    resolved_context_preview=resolved.preview,
                 )
             )
             if len(claims) >= cap:

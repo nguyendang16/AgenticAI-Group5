@@ -9,7 +9,7 @@ from benchmark.claims import AtomicClaim, extract_critique_claims
 from benchmark.collect import RUNS_JSONL_PATH, collect_run
 from benchmark.eval_llm import pause_between_eval_calls
 from benchmark.judge import load_judge_artifacts
-from benchmark.paths import RESULTS_DIR
+from benchmark.paths import DATA_JOBS_DIR, RESULTS_DIR
 from benchmark.registry import list_runs
 
 CLAIM_SCORES_PATH = RESULTS_DIR / 'claim_scores.jsonl'
@@ -43,9 +43,9 @@ def score_claims(claims: list[AtomicClaim], *, job_meta: dict[str, Any]) -> dict
     from ragas import evaluate
     from ragas.metrics import Faithfulness
 
-    from benchmark.eval_llm import build_ragas_llm
+    from benchmark.eval_llm import build_faithfulness_llm
 
-    llm = build_ragas_llm()
+    llm = build_faithfulness_llm()
     metric = Faithfulness(llm=llm)
     ds = Dataset.from_list(build_ragas_dataset_rows(claims))
     result = evaluate(ds, metrics=[metric])
@@ -58,10 +58,21 @@ def score_claims(claims: list[AtomicClaim], *, job_meta: dict[str, Any]) -> dict
             'section': claim.section,
             'claim_text': claim.text,
             'faithfulness': float(score),
+            'context_source': claim.context_source,
+            'resolved_context_preview': claim.resolved_context_preview,
+            'eval_version': 'v2',
         })
     valid = [float(s) for s in scores if s is not None]
     mean = sum(valid) / len(valid) if valid else None
     return {'faithfulness_mean': mean, 'faithfulness_n': len(valid), 'claim_rows': claim_rows}
+
+
+def _load_annotations(job_id: str) -> list[dict]:
+    path = DATA_JOBS_DIR / job_id / 'annotations.json'
+    if not path.exists():
+        return []
+    payload = json.loads(path.read_text(encoding='utf-8'))
+    return list(payload.get('annotations') or [])
 
 
 def _existing_scored_job_ids(path: Path) -> set[str]:
@@ -120,7 +131,12 @@ def faithfulness_all(*, job_id: str | None = None) -> list[dict[str, Any]]:
             continue
         artifacts = load_judge_artifacts(jid)
         manuscript = artifacts.get('manuscript_excerpt') or ''
-        claims = extract_critique_claims(artifacts.get('final_markdown') or '', manuscript=manuscript)
+        annotations = _load_annotations(jid)
+        claims = extract_critique_claims(
+            artifacts.get('final_markdown') or '',
+            manuscript=manuscript,
+            annotations=annotations,
+        )
         meta = {
             'job_id': jid,
             'paper_id': row.get('paper_id', ''),
