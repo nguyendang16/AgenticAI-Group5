@@ -70,6 +70,7 @@ def build_benchmark_summary(
 
     rubric = _metric_row(overall, 'rubric_alignment')
     factual = _metric_row(overall, 'factual_correctness')
+    faithfulness = _metric_row(overall, 'faithfulness_mean')
     total_tokens = _metric_row(overall, 'total_tokens')
     runtime = _metric_row(overall, 'runtime_seconds')
     balanced_acc = _metric_row(overall, 'balanced_accuracy')
@@ -88,6 +89,7 @@ def build_benchmark_summary(
         f'- Pair completion rate: **{_fmt(completion_rate * 100, digits=1)}%**',
         f'- Median Δ rubric_alignment (KG_ON − KG_OFF): **{_fmt(rubric.get("median_delta") if rubric is not None else None)}**',
         f'- Median Δ factual_correctness: **{_fmt(factual.get("median_delta") if factual is not None else None)}**',
+        f'- Median Δ faithfulness_mean: **{_fmt(faithfulness.get("median_delta") if faithfulness is not None else None)}**',
         '',
         '## Per-venue rubric alignment',
         '',
@@ -151,11 +153,6 @@ def build_benchmark_summary(
     lines.extend(
         [
             '',
-            '## Cost tradeoff',
-            '',
-            f'- Median Δ total_tokens: **{_fmt(total_tokens.get("median_delta") if total_tokens is not None else None)}**',
-            f'- Median Δ runtime_seconds: **{_fmt(runtime.get("median_delta") if runtime is not None else None)}**',
-            '',
             '## Statistical test',
             '',
         ]
@@ -174,6 +171,11 @@ def build_benchmark_summary(
             '## Data quality',
             '',
             f'- Invalid or incomplete pairs excluded from comparison: **{excluded_pairs}**',
+            '',
+            '## Appendix: Engineering metrics',
+            '',
+            f'- Median Δ total_tokens: **{_fmt(total_tokens.get("median_delta") if total_tokens is not None else None)}**',
+            f'- Median Δ runtime_seconds: **{_fmt(runtime.get("median_delta") if runtime is not None else None)}**',
         ]
     )
 

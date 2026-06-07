@@ -10,6 +10,7 @@ from scipy.stats import wilcoxon
 
 from benchmark.checks import DETERMINISTIC_SCORES_PATH
 from benchmark.decision_metrics import SUMMARY_PAPER_ID
+from benchmark.faithfulness import FAITHFULNESS_RUN_SCORES_PATH
 from benchmark.judge import METRIC_NAMES, REVIEW_QUALITY_SCORES_PATH
 from benchmark.paths import RESULTS_DIR
 
@@ -79,6 +80,7 @@ def _merge_run_tables(
     deterministic: pd.DataFrame,
     judge: pd.DataFrame,
     decision: pd.DataFrame,
+    faithfulness: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     if deterministic.empty:
         return pd.DataFrame()
@@ -88,6 +90,15 @@ def _merge_run_tables(
         judge_cols = ['paper_id', 'condition', *METRIC_NAMES]
         judge_subset = judge[[col for col in judge_cols if col in judge.columns]].copy()
         merged = merged.merge(judge_subset, on=['paper_id', 'condition'], how='left')
+
+    if faithfulness is not None and not faithfulness.empty:
+        faith_cols = [col for col in ('job_id', 'faithfulness_mean', 'faithfulness_n') if col in faithfulness.columns]
+        if 'job_id' in faith_cols and 'job_id' in merged.columns:
+            merged = merged.merge(
+                faithfulness[faith_cols].copy(),
+                on='job_id',
+                how='left',
+            )
 
     if not decision.empty:
         decision = decision[decision['paper_id'] != SUMMARY_PAPER_ID].copy()
@@ -191,7 +202,7 @@ def _build_valid_pairs(merged: pd.DataFrame) -> tuple[pd.DataFrame, int]:
 
 
 def _numeric_delta_columns() -> tuple[str, ...]:
-    return (*_DETERMINISTIC_NUMERIC, *METRIC_NAMES, 'decision_correct')
+    return (*_DETERMINISTIC_NUMERIC, *METRIC_NAMES, 'faithfulness_mean', 'decision_correct')
 
 
 def _compute_pair_deltas(pairs: pd.DataFrame) -> pd.DataFrame:
@@ -380,8 +391,9 @@ def build_paired_comparison(
     deterministic = _read_csv(deterministic_path or DETERMINISTIC_SCORES_PATH)
     judge = _read_csv(judge_path or REVIEW_QUALITY_SCORES_PATH)
     decision = _read_csv(decision_path or DECISION_METRICS_PATH)
+    faithfulness = _read_csv(FAITHFULNESS_RUN_SCORES_PATH)
 
-    merged = _merge_run_tables(deterministic, judge, decision)
+    merged = _merge_run_tables(deterministic, judge, decision, faithfulness)
     pairs_raw, excluded_pairs = _build_valid_pairs(merged)
     paired = _compute_pair_deltas(pairs_raw)
     paired, overall_decision_deltas, venue_decision_deltas = _append_decision_metric_deltas(paired, merged)
