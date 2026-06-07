@@ -68,7 +68,6 @@ def _call_judge_llm(prompt: str) -> str:
         client = OpenAI(api_key=api_key, base_url=base_url)
         response = client.chat.completions.create(
             model=judge_model_name(),
-            temperature=0,
             response_format={'type': 'json_object'},
             messages=[
                 {
