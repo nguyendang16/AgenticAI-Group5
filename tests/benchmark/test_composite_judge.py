@@ -34,7 +34,16 @@ def test_composite_judge_run_mocked(monkeypatch):
             )
 
     monkeypatch.setenv('BENCHMARK_JUDGE_MODE', 'composite')
-    monkeypatch.setattr(judge_module, 'build_composite_metric', lambda: FakeCompositeMetric())
+    monkeypatch.setattr(
+        judge_module,
+        'composite_judge_scores',
+        lambda _row: {
+            'factual_correctness': 4.0,
+            'evidence_support': 4.0,
+            'rubric_alignment': 5.0,
+            'criterion_grounded_valid_critique': 4.0,
+        },
+    )
     monkeypatch.setattr(judge_module, 'pause_between_eval_calls', lambda: None)
     monkeypatch.setattr(
         judge_module,

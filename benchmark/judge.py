@@ -11,13 +11,13 @@ from deepeval.test_case import LLMTestCase, LLMTestCaseParams
 
 from benchmark.checks import validate_run_completion
 from benchmark.collect import RUNS_JSONL_PATH, collect_run
-from benchmark.eval_llm import build_deepeval_model, pause_between_eval_calls
+from benchmark.eval_llm import build_deepeval_model, eval_model_name, pause_between_eval_calls
 from benchmark.paths import DATA_JOBS_DIR, RESULTS_DIR
 from benchmark.registry import list_runs
 
 REVIEW_QUALITY_SCORES_PATH = RESULTS_DIR / 'review_quality_scores.csv'
 DEFAULT_JUDGE_MODEL = 'gpt-5-mini'
-DEFAULT_MANUSCRIPT_MAX_CHARS = 50_000
+DEFAULT_MANUSCRIPT_MAX_CHARS = 8_000
 
 CORE_JUDGE_METRICS = (
     'factual_correctness',
@@ -50,7 +50,14 @@ def _manuscript_max_chars() -> int:
 
 
 def _truncate_report(text: str) -> str:
-    max_chars = int(os.environ.get('BENCHMARK_JUDGE_MAX_REPORT_CHARS', '8000'))
+    max_chars = int(os.environ.get('BENCHMARK_JUDGE_MAX_REPORT_CHARS', '4000'))
+    if len(text) <= max_chars:
+        return text
+    return text[:max_chars] + '\n\n...[truncated]...'
+
+
+def _truncate_criteria(text: str) -> str:
+    max_chars = int(os.environ.get('BENCHMARK_JUDGE_MAX_CRITERIA_CHARS', '2000'))
     if len(text) <= max_chars:
         return text
     return text[:max_chars] + '\n\n...[truncated]...'
@@ -60,8 +67,10 @@ def parse_composite_judge_response(raw: str) -> dict[str, float]:
     text = raw.strip()
     if '```' in text:
         text = text.split('```', 1)[-1]
+        if text.startswith('json'):
+            text = text[4:]
         text = text.split('```', 1)[0]
-    payload = json.loads(text)
+    payload = json.loads(text.strip())
     return {name: float(payload[name]) for name in CORE_JUDGE_METRICS}
 
 
@@ -72,6 +81,44 @@ def build_composite_metric() -> GEval:
         evaluation_params=_EVAL_PARAMS,
         model=build_deepeval_model(),
     )
+
+
+def composite_judge_scores(row: dict[str, Any]) -> dict[str, float]:
+    """Single Gemma call returning JSON with 4 metric scores (1-5)."""
+    import time
+
+    from google import genai
+    from google.genai import errors as genai_errors
+
+    api_key = os.environ.get('GOOGLE_API_KEY', '').strip()
+    if not api_key:
+        raise RuntimeError('GOOGLE_API_KEY is required for composite judge')
+    client = genai.Client(api_key=api_key)
+    venue = str(row.get('venue') or 'unknown')
+    manuscript = str(row.get('manuscript_excerpt') or '')
+    report = str(row.get('final_markdown') or '')
+    criteria = _truncate_criteria(str(row.get('criteria_json') or ''))
+    prompt = (
+        f'Venue: {venue}\n\n'
+        f'Manuscript excerpt:\n{manuscript}\n\n'
+        f'Venue criteria:\n{criteria}\n\n'
+        f'Peer review:\n{report}\n\n'
+        f'{COMPOSITE_JUDGE_CRITERIA}'
+    )
+    last_error: Exception | None = None
+    for attempt in range(3):
+        try:
+            response = client.models.generate_content(
+                model=eval_model_name(),
+                contents=prompt,
+            )
+            return parse_composite_judge_response(response.text or '')
+        except genai_errors.ServerError as exc:
+            last_error = exc
+            time.sleep(5 * (attempt + 1))
+    if last_error is not None:
+        raise last_error
+    raise RuntimeError('composite judge failed without response')
 
 
 def _build_geval_metric(*, name: str, criteria: str) -> GEval:
@@ -194,7 +241,7 @@ def load_judge_artifacts(job_id: str) -> dict[str, str]:
     criteria_json = ''
     criteria_path = job_dir / 'review_criteria_bundle.json'
     if criteria_path.exists():
-        criteria_json = criteria_path.read_text(encoding='utf-8')
+        criteria_json = _truncate_criteria(criteria_path.read_text(encoding='utf-8'))
 
     return {
         'manuscript_excerpt': manuscript_excerpt,
@@ -264,8 +311,7 @@ def judge_run(collected_row: dict[str, Any] | str) -> dict[str, Any]:
         'condition': row.get('condition', ''),
     }
     if _judge_mode() == 'composite':
-        raw = build_composite_metric().measure(test_case)
-        scores.update(parse_composite_judge_response(str(raw)))
+        scores.update(composite_judge_scores(row))
         return scores
     metrics = build_all_metrics()
     for name, metric in metrics.items():
