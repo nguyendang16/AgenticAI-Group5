@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KG Evidence Retrieval Tests</title>
+    <link rel="canonical" href="/kg-evidence-tests.html" />
+    <link rel="icon" href="/favicon.ico" type="image/png" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <img src="/logo.png" alt="Logo" class="logo" onerror="this.style.display='none'" />
+      <div>
+        <h1>KG Evidence Retrieval Tests</h1>
+        <p class="subtitle">Real-world behavior benchmark for KG source, criterion, and evidence retrieval</p>
+      </div>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/">Review App</a>
+        <a href="/benchmark-graph-evaluation.html">Graph Evaluation</a>
+      </nav>
+    </header>
+
+    <main class="layout benchmark-layout">
+      <section class="panel benchmark-state">
+        <h2>Test Runner</h2>
+        <div class="benchmark-status-row">
+          <span class="status-pill status-loading" id="test-status-pill">
+            <span class="status-spinner" aria-hidden="true"></span>
+            Loading
+          </span>
+          <p id="test-status-message">Loading latest test result...</p>
+        </div>
+        <div class="test-actions">
+          <button type="button" id="run-tests-btn" class="primary-action">Run Benchmark</button>
+          <label class="test-filter">
+            <input type="checkbox" id="failures-only" />
+            Show failures only
+          </label>
+        </div>
+        <p class="benchmark-note">
+          Pass means the KG behaved as expected for the scenario: correct evidence retrieval,
+          correct empty result, correct alias handling, or correct conflict resolution. This page
+          does not use an LLM judge yet.
+        </p>
+      </section>
+
+      <section class="panel benchmark-summary">
+        <h2>Summary</h2>
+        <div class="benchmark-grid">
+          <div class="metric-card">
+            <span class="metric-label">Test cases</span>
+            <strong id="metric-case-count">--</strong>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Passed</span>
+            <strong id="metric-passed">--</strong>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Failed</span>
+            <strong id="metric-failed">--</strong>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Pass rate</span>
+            <strong id="metric-pass-rate">--</strong>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Failure rate</span>
+            <strong id="metric-fail-rate">--</strong>
+          </div>
+        </div>
+        <p class="benchmark-note" id="generated-at">Generated: --</p>
+      </section>
+
+      <section class="panel">
+        <h2>Behavior Categories</h2>
+        <table class="benchmark-table evidence-table">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Cases</th>
+              <th>Passed</th>
+              <th>Failed</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody id="category-results">
+            <tr><td colspan="5">Waiting for test result...</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="panel">
+        <h2>Expected KG Source Coverage</h2>
+        <table class="benchmark-table evidence-table">
+          <thead>
+            <tr>
+              <th>KG source</th>
+              <th>Cases</th>
+              <th>Success rate</th>
+            </tr>
+          </thead>
+          <tbody id="source-results">
+            <tr><td colspan="3">Waiting for test result...</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading-row">
+          <h2>Case Results</h2>
+          <span class="metric-label" id="visible-case-count">--</span>
+        </div>
+        <div class="case-category-chips" id="case-category-chips" aria-label="Filter cases by category">
+          <button type="button" class="category-chip active" data-category-chip="">All categories</button>
+        </div>
+        <div class="case-results-list" id="case-results">
+          <p class="benchmark-note">Waiting for test result...</p>
+        </div>
+        <div class="see-more-row" id="see-more-row" hidden>
+          <button type="button" class="detail-action" id="see-more-btn">See more...</button>
+        </div>
+      </section>
+    </main>
+
+    <div class="modal-backdrop" id="case-detail-modal" hidden>
+      <section class="case-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="case-detail-title">
+        <header class="case-detail-header">
+          <div>
+            <span class="metric-label" id="case-detail-category">--</span>
+            <h2 id="case-detail-title">Case detail</h2>
+          </div>
+          <button type="button" class="icon-action" id="case-detail-close" aria-label="Close detail">X</button>
+        </header>
+        <div class="case-detail-status" id="case-detail-status"></div>
+        <div class="case-detail-grid">
+          <section class="case-detail-block">
+            <h3>Input</h3>
+            <pre id="case-detail-input"></pre>
+          </section>
+          <section class="case-detail-block">
+            <h3>Expected</h3>
+            <pre id="case-detail-expected"></pre>
+          </section>
+          <section class="case-detail-block">
+            <h3>Output</h3>
+            <pre id="case-detail-output"></pre>
+          </section>
+          <section class="case-detail-block">
+            <h3>Why It Failed</h3>
+            <div id="case-detail-reason"></div>
+          </section>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      const state = {
+        payload: null,
+        running: false,
+        resultFilter: 'all',
+        categoryFilter: '',
+        visibleLimit: 5,
+      };
+
+      const defaultVisibleLimit = 5;
+      const visibleStep = 5;
+
+      function setText(id, value) {
+        const element = document.getElementById(id);
+        if (element) element.textContent = value == null ? '--' : String(value);
+      }
+
+      function escapeHtml(value) {
+        return String(value == null ? '' : value)
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#39;');
+      }
+
+      function setStatus(stateName, label, message) {
+        const pill = document.getElementById('test-status-pill');
+        if (pill) {
+          pill.className = `status-pill status-${stateName}`;
+          const spinner = stateName === 'loading' || stateName === 'running'
+            ? '<span class="status-spinner" aria-hidden="true"></span>'
+            : '';
+          pill.innerHTML = `${spinner}${escapeHtml(label)}`;
+        }
+        setText('test-status-message', message);
+      }
+
+      function queryLabel(query) {
+        if (!query || typeof query !== 'object' || Object.keys(query).length === 0) return '--';
+        const host = query.venue || query.journal || '--';
+        return [host, query.domain, query.article_type].filter(Boolean).join(' / ');
+      }
+
+      function caseInputLabel(item) {
+        const queryText = queryLabel(item.query);
+        if (queryText !== '--') return queryText;
+        return item.question || '--';
+      }
+
+      function resultBadge(passed) {
+        return passed
+          ? '<span class="status-pill status-ready evidence-mini-pill">Pass</span>'
+          : '<span class="status-pill status-failed evidence-mini-pill">Fail</span>';
+      }
+
+      function compactJson(value) {
+        return JSON.stringify(value ?? {}, null, 2);
+      }
+
+      function expectedSummary(item) {
+        return {
+          expected_source_ids: item.expected_source_ids || [],
+          expected_criterion_ids: item.expected_criterion_ids || [],
+          expected_evidence_ids: item.expected_evidence_ids || [],
+          forbidden_source_ids: item.forbidden_source_ids || [],
+          expected_empty: Boolean(item.expected_empty),
+          min_criteria_count: item.min_criteria_count ?? null,
+          max_criteria_count: item.max_criteria_count ?? null,
+        };
+      }
+
+      function outputSummary(item) {
+        return {
+          retrieved_criteria_count: item.retrieved_criteria_count ?? 0,
+          retrieved_source_ids: item.retrieved_source_ids || [],
+          matched_criterion_ids: item.matched_criterion_ids || [],
+          matched_evidence_ids: item.matched_evidence_ids || [],
+        };
+      }
+
+      function failureReason(item) {
+        if (item.passed) {
+          return '<p class="case-detail-pass">This case passed. The KG output matched the expected behavior.</p>';
+        }
+        const failures = item.failures || [];
+        const failureList = failures.length
+          ? `<ul>${failures.map((failure) => `<li>${escapeHtml(failure)}</li>`).join('')}</ul>`
+          : '<p>No failure reason was recorded.</p>';
+        return `
+          ${failureList}
+          <p class="benchmark-note">
+            Interpretation: this case expects behavior beyond the current retriever, such as fuzzy
+            typo correction, semantic-only routing, or inferring venue/journal from question text.
+          </p>
+        `;
+      }
+
+      function showCaseDetail(caseId) {
+        const item = (state.payload?.cases || []).find((candidate) => candidate.id === caseId);
+        if (!item) return;
+        const modal = document.getElementById('case-detail-modal');
+        document.getElementById('case-detail-category').textContent = String(item.category || '').replaceAll('_', ' ');
+        document.getElementById('case-detail-title').textContent = `${item.id}: ${item.scenario || 'Case detail'}`;
+        document.getElementById('case-detail-status').innerHTML = resultBadge(Boolean(item.passed));
+        document.getElementById('case-detail-input').textContent = compactJson({
+          question: item.question || null,
+          query: item.query || {},
+        });
+        document.getElementById('case-detail-expected').textContent = compactJson(expectedSummary(item));
+        document.getElementById('case-detail-output').textContent = compactJson(outputSummary(item));
+        document.getElementById('case-detail-reason').innerHTML = failureReason(item);
+        modal.hidden = false;
+        document.body.classList.add('modal-open');
+      }
+
+      function closeCaseDetail() {
+        document.getElementById('case-detail-modal').hidden = true;
+        document.body.classList.remove('modal-open');
+      }
+
+      function renderSourceRows(bySource) {
+        const entries = Object.entries(bySource || {}).sort(([a], [b]) => a.localeCompare(b));
+        if (!entries.length) {
+          return '<tr><td colspan="3">No source coverage found.</td></tr>';
+        }
+        return entries.map(([source, row]) => `
+          <tr>
+            <td>${escapeHtml(source)}</td>
+            <td>${row.cases ?? 0}</td>
+            <td>${Number(row.cases || 0) > 0 ? `${((Number(row.passed || 0) / Number(row.cases || 0)) * 100).toFixed(1)}%` : '--'}</td>
+          </tr>
+        `).join('');
+      }
+
+      function renderCategoryRows(byCategory) {
+        const entries = Object.entries(byCategory || {}).sort(([a], [b]) => a.localeCompare(b));
+        if (!entries.length) {
+          return '<tr><td colspan="5">No behavior categories found.</td></tr>';
+        }
+        return entries.map(([category, row]) => `
+          <tr>
+            <td>${escapeHtml(category.replaceAll('_', ' '))}</td>
+            <td>${row.case_count ?? 0}</td>
+            <td>${row.passed ?? 0}</td>
+            <td>${row.failed ?? 0}</td>
+            <td>${resultBadge((row.failed ?? 0) === 0)}</td>
+          </tr>
+        `).join('');
+      }
+
+      function normalize(value) {
+        return String(value == null ? '' : value).toLowerCase();
+      }
+
+      function caseSearchBlob(item) {
+        return normalize([
+          item.id,
+          item.category,
+          item.scenario,
+          item.question,
+          caseInputLabel(item),
+          JSON.stringify(item.query || {}),
+          (item.expected_source_ids || []).join(' '),
+          (item.expected_criterion_ids || []).join(' '),
+          (item.expected_evidence_ids || []).join(' '),
+          (item.retrieved_source_ids || []).join(' '),
+          (item.matched_criterion_ids || []).join(' '),
+          (item.matched_evidence_ids || []).join(' '),
+          (item.failures || []).join(' '),
+        ].join(' '));
+      }
+
+      function rerenderCases(resetLimit = false) {
+        if (!state.payload?.ready) return;
+        if (resetLimit) state.visibleLimit = defaultVisibleLimit;
+        document.getElementById('case-results').innerHTML = renderCaseRows(state.payload.cases);
+      }
+
+      function filteredCases(cases) {
+        const failuresOnlyInput = document.getElementById('failures-only');
+        const search = '';
+        const category = state.categoryFilter || '';
+        const failuresOnly = failuresOnlyInput ? failuresOnlyInput.checked : false;
+        return (cases || []).filter((item) => {
+          if (failuresOnly && item.passed) return false;
+          if (category && item.category !== category) return false;
+          if (state.resultFilter === 'pass' && !item.passed) return false;
+          if (state.resultFilter === 'fail' && item.passed) return false;
+          if (search && !caseSearchBlob(item).includes(search)) return false;
+          return true;
+        });
+      }
+
+      function updateCategoryFilter(payload) {
+        const categories = Object.keys(payload.by_category || {}).sort();
+        if (state.categoryFilter && !categories.includes(state.categoryFilter)) {
+          state.categoryFilter = '';
+        }
+      }
+
+      function renderCaseRows(cases) {
+        const rows = filteredCases(cases);
+        const visibleRows = rows.slice(0, state.visibleLimit);
+        const hiddenCount = Math.max(0, rows.length - visibleRows.length);
+        const seeMoreRow = document.getElementById('see-more-row');
+        const seeMoreBtn = document.getElementById('see-more-btn');
+        setText('visible-case-count', `${visibleRows.length}/${rows.length} shown`);
+        if (seeMoreRow && seeMoreBtn) {
+          seeMoreRow.hidden = hiddenCount === 0;
+          seeMoreBtn.textContent = hiddenCount > 0
+            ? `See more... (${hiddenCount} remaining)`
+            : 'See more...';
+        }
+        if (!rows.length) {
+          return '<p class="benchmark-note">No cases match the current filters.</p>';
+        }
+        return visibleRows.map((item) => {
+          const expectedEvidence = item.expected_evidence_ids || [];
+          const matchedEvidence = item.matched_evidence_ids || [];
+          const evidenceLabel = `${matchedEvidence.length}/${expectedEvidence.length}`;
+          const expectedSource = (item.expected_source_ids || []).join(', ') || '--';
+          const expectedCriteria = (item.expected_criterion_ids || []).join(', ') || '--';
+          const query = caseInputLabel(item);
+          return `
+            <article class="case-card ${item.passed ? 'case-card-pass' : 'case-card-fail'}">
+              <div class="case-card-top">
+                <div class="case-card-title">
+                  <span class="case-id">${escapeHtml(item.id)}</span>
+                  <span class="case-category">${escapeHtml(String(item.category || '').replaceAll('_', ' '))}</span>
+                </div>
+                <div class="case-card-actions">
+                  ${resultBadge(Boolean(item.passed))}
+                  <button type="button" class="detail-action" data-case-id="${escapeHtml(item.id)}">Detail</button>
+                </div>
+              </div>
+              <p class="case-scenario">${escapeHtml(item.scenario || 'No scenario provided.')}</p>
+              <div class="case-card-grid">
+                <div>
+                  <span class="metric-label">Input</span>
+                  <strong>${escapeHtml(query)}</strong>
+                </div>
+                <div>
+                  <span class="metric-label">Expected source</span>
+                  <strong>${escapeHtml(expectedSource)}</strong>
+                </div>
+                <div>
+                  <span class="metric-label">Criterion</span>
+                  <strong>${escapeHtml(expectedCriteria)}</strong>
+                </div>
+                <div>
+                  <span class="metric-label">Evidence</span>
+                  <strong>${escapeHtml(evidenceLabel)}</strong>
+                </div>
+              </div>
+            </article>
+          `;
+        }).join('');
+      }
+
+      function renderCategoryChips(payload) {
+        const container = document.getElementById('case-category-chips');
+        if (!container) return;
+        const current = state.categoryFilter || '';
+        const categories = Object.entries(payload.by_category || {}).sort(([a], [b]) => a.localeCompare(b));
+        container.innerHTML = [
+          `<button type="button" class="category-chip ${current === '' ? 'active' : ''}" data-category-chip="">All categories</button>`,
+          ...categories.map(([category, summary]) => {
+            const label = `${category.replaceAll('_', ' ')} (${summary.case_count || 0})`;
+            return `<button type="button" class="category-chip ${current === category ? 'active' : ''}" data-category-chip="${escapeHtml(category)}">${escapeHtml(label)}</button>`;
+          }),
+        ].join('');
+      }
+
+      function renderPayload(payload) {
+        state.payload = payload;
+        if (!payload.ready) {
+          setStatus('waiting', 'Waiting', payload.message || 'No evidence test result is available yet.');
+          setText('metric-case-count', '--');
+          setText('metric-passed', '--');
+          setText('metric-failed', '--');
+          setText('metric-pass-rate', '--');
+          return;
+        }
+
+        const summary = payload.summary || {};
+        const failed = Number(summary.failed || 0);
+        setStatus(
+          failed === 0 ? 'ready' : 'failed',
+          failed === 0 ? 'Passed' : 'Failed',
+          `Latest run completed with ${summary.passed || 0}/${summary.case_count || 0} cases passing.`
+        );
+        setText('metric-case-count', summary.case_count ?? '--');
+        setText('metric-passed', summary.passed ?? '--');
+        setText('metric-failed', summary.failed ?? '--');
+        setText('metric-pass-rate', typeof summary.pass_rate === 'number' ? `${(summary.pass_rate * 100).toFixed(1)}%` : '--');
+        setText('metric-fail-rate', typeof summary.pass_rate === 'number' ? `${((1 - summary.pass_rate) * 100).toFixed(1)}%` : '--');
+        setText('generated-at', `Generated: ${payload.generated_at || '--'}`);
+        updateCategoryFilter(payload);
+        renderCategoryChips(payload);
+        document.getElementById('category-results').innerHTML = renderCategoryRows(payload.by_category);
+        document.getElementById('source-results').innerHTML = renderSourceRows(payload.by_source);
+        document.getElementById('case-results').innerHTML = renderCaseRows(payload.cases);
+      }
+
+      async function loadResults() {
+        setStatus('loading', 'Loading', 'Loading latest test result...');
+        const response = await fetch(`/api/kg-evidence-tests?ts=${Date.now()}`, { cache: 'no-store' });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.detail || 'Could not load test result');
+        renderPayload(payload);
+      }
+
+      async function runTests() {
+        const button = document.getElementById('run-tests-btn');
+        state.running = true;
+        button.disabled = true;
+        setStatus('running', 'Running', 'Running the KG real-world behavior benchmark...');
+        try {
+          const response = await fetch('/api/kg-evidence-tests/run', {
+            method: 'POST',
+            cache: 'no-store',
+          });
+          const payload = await response.json();
+          if (!response.ok) throw new Error(payload.detail?.message || payload.detail || 'Test run failed');
+          renderPayload(payload);
+        } catch (error) {
+          setStatus('failed', 'Error', error.message || String(error));
+        } finally {
+          state.running = false;
+          button.disabled = false;
+        }
+      }
+
+      document.getElementById('run-tests-btn').addEventListener('click', runTests);
+      document.getElementById('failures-only').addEventListener('change', () => {
+        rerenderCases(true);
+      });
+      document.getElementById('case-category-chips').addEventListener('click', (event) => {
+        const button = event.target.closest('[data-category-chip]');
+        if (!button) return;
+        const category = button.dataset.categoryChip || '';
+        state.categoryFilter = category;
+        renderCategoryChips(state.payload || {});
+        rerenderCases(true);
+      });
+      document.getElementById('see-more-btn').addEventListener('click', () => {
+        if (state.payload?.ready) {
+          state.visibleLimit += visibleStep;
+          rerenderCases(false);
+        }
+      });
+      document.getElementById('case-results').addEventListener('click', (event) => {
+        const button = event.target.closest('[data-case-id]');
+        if (button) showCaseDetail(button.dataset.caseId);
+      });
+      document.getElementById('case-detail-close').addEventListener('click', closeCaseDetail);
+      document.getElementById('case-detail-modal').addEventListener('click', (event) => {
+        if (event.target.id === 'case-detail-modal') closeCaseDetail();
+      });
+      window.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closeCaseDetail();
+      });
+
+      loadResults().catch((error) => setStatus('failed', 'Error', error.message || String(error)));
+    </script>
+  </body>
+</html>

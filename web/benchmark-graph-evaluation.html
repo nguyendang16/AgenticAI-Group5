@@ -13,7 +13,7 @@
       <img src="/logo.png" alt="Logo" class="logo" onerror="this.style.display='none'" />
       <div>
         <h1>Benchmark Graph Evaluation</h1>
-        <p class="subtitle">Neo4j review-criteria KG quality and link-prediction results</p>
+        <p class="subtitle">Local Neo4j KG snapshot and review job status</p>
         <p class="subtitle benchmark-header-paper" id="benchmark-header-paper">
           Evaluated paper: Loading paper title...
         </p>
@@ -31,7 +31,7 @@
             <span class="status-spinner" aria-hidden="true"></span>
             Loading
           </span>
-          <p id="benchmark-status-message">Loading latest graph benchmark result...</p>
+          <p id="benchmark-status-message">Loading latest KG snapshot...</p>
         </div>
         <div class="benchmark-paper-title">
           <span class="metric-label">Evaluated paper title</span>
@@ -40,18 +40,15 @@
         <div class="benchmark-waiting-banner" id="benchmark-waiting-banner" hidden>
           <span class="status-spinner" aria-hidden="true"></span>
           <div>
-            <strong>Evaluation is still running</strong>
-            <p>
-              The page will refresh the status automatically. Final result tables remain marked as
-              waiting until the review job is completed.
-            </p>
+            <strong>Review is still running</strong>
+            <p>The page will refresh while the current review job is still active.</p>
           </div>
         </div>
         <p class="benchmark-version" id="benchmark-version">
-          Framework version: IEEE ICNLP 2021 quality model + PyKEEN TransE link prediction
+          Framework evaluations removed. Showing graph snapshot only.
         </p>
         <p class="benchmark-note">
-          Run this after rebuilding Neo4j:
+          Refresh the snapshot after rebuilding Neo4j:
           <code>python -m src.kg_evaluation --output-json outputs/kg_evaluation.json --output-md docs/kg_evaluation_report.md</code>
         </p>
       </section>
@@ -59,8 +56,7 @@
       <section class="panel benchmark-summary">
         <h2>Latest Paper Input</h2>
         <p class="benchmark-note">
-          This section shows the newest review job detected under <code>data/jobs</code>, so the
-          benchmark page is tied back to the actual paper input used by the local system.
+          This section shows the newest review job detected under <code>data/jobs</code>.
         </p>
         <div class="paper-input-grid">
           <div class="paper-input-card paper-input-card-wide">
@@ -110,9 +106,8 @@
       <section class="panel benchmark-summary">
         <h2>Current KG Snapshot</h2>
         <p class="benchmark-note">
-          This graph is built from curated conference and journal review templates, then loaded
-          into local Neo4j. It is used by the review agent to retrieve venue-specific criteria,
-          evidence requirements, and provenance before reviewing a submitted paper.
+          This is a neutral graph inventory. The previous framework-based evaluation sections have
+          been removed.
         </p>
         <div class="benchmark-grid">
           <div class="metric-card">
@@ -128,257 +123,40 @@
             <strong id="metric-evidence-requirements">--</strong>
           </div>
           <div class="metric-card">
-            <span class="metric-label">Triples</span>
-            <strong id="metric-triples">--</strong>
+            <span class="metric-label">Relations</span>
+            <strong id="metric-relations">--</strong>
           </div>
         </div>
       </section>
 
       <section class="panel">
-        <h2>Framework 1: AI-Based KG Quality Evaluation Model</h2>
-        <p class="benchmark-note">
-          Based on Xu, Gao & Yu's IEEE ICNLP 2021 paper on quality evaluation for
-          AI-based knowledge graph systems.
-        </p>
-        <div class="explanation-block">
-          <h3>What this checks</h3>
-          <p>
-            Xu, Gao & Yu evaluate a knowledge graph as part of an AI system, so the
-            benchmark should check whether the graph is complete, consistent, usable, and
-            available for the system task. For this project, that task is reliable
-            review-criteria retrieval and grounding. That means each review criterion should
-            have a stable ID, name, group, description, evidence requirement, article/domain
-            applicability, and source document provenance.
-          </p>
-          <p>
-            These checks matter more than link prediction for the current system because the review
-            agent uses the KG as a retrieval and grounding layer. If provenance or required
-            properties are missing, the generated review cannot explain where its criteria came
-            from.
-          </p>
-        </div>
+        <h2>Graph Health</h2>
         <table class="benchmark-table">
           <thead>
             <tr>
-              <th>Dimension</th>
+              <th>Check</th>
               <th>Result</th>
             </tr>
           </thead>
-          <tbody id="quality-results">
-            <tr><td colspan="2">Waiting for benchmark result...</td></tr>
+          <tbody id="graph-health-results">
+            <tr><td colspan="2">Waiting for graph snapshot...</td></tr>
           </tbody>
         </table>
       </section>
 
       <section class="panel">
-        <h2>Framework 2: PyKEEN Link Prediction</h2>
-        <p class="benchmark-note">
-          Real PyKEEN TransE evaluation compared against a typed tail-popularity baseline.
-          Higher MRR and Hits@K are better; lower MR is better.
-        </p>
-        <div class="explanation-block">
-          <h3>What this checks</h3>
-          <p>
-            Link prediction tests whether a model can hide one part of a graph triple and predict
-            it back. Example: given <code>ReviewCriterion - REQUIRES_EVIDENCE - ?</code>, the model
-            ranks possible evidence nodes and gets a better score when the correct node is near the
-            top.
-          </p>
-          <p>
-            PyKEEN trains an embedding model, here TransE, on training triples and evaluates it on
-            held-out test triples. This is useful when a KG has enough repeated structure to learn
-            missing links, but it is less informative for a small hand-curated graph with mostly
-            unique criteria and evidence nodes.
-          </p>
-        </div>
+        <h2>Relation Coverage</h2>
         <table class="benchmark-table">
           <thead>
             <tr>
-              <th>Method</th>
-              <th>MRR</th>
-              <th>MR</th>
-              <th>Hits@1</th>
-              <th>Hits@3</th>
-              <th>Hits@10</th>
+              <th>Relation</th>
+              <th>Count</th>
             </tr>
           </thead>
-          <tbody id="link-prediction-results">
-            <tr><td colspan="6">Waiting for benchmark result...</td></tr>
+          <tbody id="relation-results">
+            <tr><td colspan="2">Waiting for relation counts...</td></tr>
           </tbody>
         </table>
-      </section>
-
-      <section class="panel">
-        <h2>How to Read the Metrics</h2>
-        <table class="benchmark-table">
-          <thead>
-            <tr>
-              <th>Metric</th>
-              <th>Meaning</th>
-              <th>Direction</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>MRR</td>
-              <td>Mean reciprocal rank. Rewards putting the correct answer near rank 1.</td>
-              <td>Higher is better</td>
-            </tr>
-            <tr>
-              <td>MR</td>
-              <td>Mean rank of the correct answer among candidates.</td>
-              <td>Lower is better</td>
-            </tr>
-            <tr>
-              <td>Hits@1</td>
-              <td>Fraction of test triples where the correct answer is ranked first.</td>
-              <td>Higher is better</td>
-            </tr>
-            <tr>
-              <td>Hits@3</td>
-              <td>Fraction where the correct answer appears in the top 3.</td>
-              <td>Higher is better</td>
-            </tr>
-            <tr>
-              <td>Hits@10</td>
-              <td>Fraction where the correct answer appears in the top 10.</td>
-              <td>Higher is better</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-
-      <section class="panel">
-        <h2>What the Baseline Means</h2>
-        <p>
-          The typed tail-popularity baseline is a simple non-learning comparison method. It does
-          not train embeddings. Instead, for each relation type, it ranks candidate tail nodes by
-          how frequently they appeared with that relation in the training graph.
-        </p>
-        <p>
-          A baseline is important because it tells us whether the learned model is actually adding
-          value. In this benchmark, the baseline outperforms TransE, which suggests that the current
-          KG does not yet contain enough rich graph structure for embedding learning to beat a
-          simple frequency-based rule.
-        </p>
-      </section>
-
-      <section class="panel">
-        <h2>Interpretation</h2>
-        <p>
-          The KG is strong as a curated retrieval and provenance graph: every criterion has
-          evidence, domain/article metadata, and source provenance. The embedding benchmark is
-          weaker because the graph is small and schema-driven, so TransE does not yet learn useful
-          graph-completion structure.
-        </p>
-        <p>
-          Next improvement: add paper-level nodes such as claims, methods, experiments, datasets,
-          results, limitations, citations, and evidence spans, then link them to review criteria.
-        </p>
-        <ul class="benchmark-list">
-          <li>
-            Strong point: the KG is reliable for retrieving review criteria with provenance.
-          </li>
-          <li>
-            Weak point: the KG is not yet large or relationally rich enough for strong embedding
-            prediction.
-          </li>
-          <li>
-            Practical conclusion: use the IEEE quality model as the main evaluation, and
-            treat PyKEEN as an exploratory secondary benchmark.
-          </li>
-        </ul>
-      </section>
-
-      <section class="panel">
-        <h2>Recommended Next Benchmark</h2>
-        <p>
-          For this review system, retrieval evaluation should be added next. Create test queries
-          such as <code>TWELF educational technology proposal</code> or <code>ICLR ML paper</code>,
-          define the expected criteria, and measure Precision@K, Recall@K, and MRR. This would
-          evaluate the system behavior more directly than link prediction.
-        </p>
-      </section>
-
-      <section class="panel">
-        <h2>Feedback to Improve Results</h2>
-        <p>
-          The current benchmark shows that the KG is reliable for curated retrieval, but weak for
-          embedding-based link prediction. The most useful improvements are not only model tuning;
-          the graph itself needs richer, more repeated structure.
-        </p>
-        <div class="feedback-grid">
-          <div class="feedback-item">
-            <h3>1. Add paper-level nodes</h3>
-            <p>
-              Add <code>Paper</code>, <code>Claim</code>, <code>Method</code>,
-              <code>Dataset</code>, <code>Experiment</code>, <code>Metric</code>,
-              <code>Result</code>, <code>Limitation</code>, and <code>EvidenceSpan</code> nodes.
-              This lets the KG evaluate the submitted paper, not only retrieve venue criteria.
-            </p>
-          </div>
-          <div class="feedback-item">
-            <h3>2. Link paper evidence to criteria</h3>
-            <p>
-              Create relations such as <code>CLAIM_EVALUATED_BY</code>,
-              <code>EVIDENCE_SUPPORTS_CRITERION</code>, and <code>MISSING_EVIDENCE_FOR</code>.
-              This will make the review output more explainable and improve graph structure.
-            </p>
-          </div>
-          <div class="feedback-item">
-            <h3>3. Add more source documents</h3>
-            <p>
-              The current graph has 10 source documents and 55 criteria. For stronger PyKEEN
-              results, expand to at least 50-100 CFPs, reviewer forms, author guides, ethics
-              policies, and reproducibility checklists.
-            </p>
-          </div>
-          <div class="feedback-item">
-            <h3>4. Reduce vague criterion groups</h3>
-            <p>
-              Replace broad <code>OTHER</code> groups with task-specific categories such as
-              <code>SCOPE_FIT</code>, <code>EVALUATION_VALIDITY</code>,
-              <code>METHODOLOGICAL_RIGOR</code>, <code>IMPLEMENTATION_CLARITY</code>, and
-              <code>PRESENTATION_COMPLIANCE</code>.
-            </p>
-          </div>
-          <div class="feedback-item">
-            <h3>5. Add cross-venue alignment</h3>
-            <p>
-              Link similar criteria across venues using <code>SIMILAR_TO</code>,
-              <code>SPECIALIZES</code>, or <code>GENERALIZES</code>. This gives embedding models
-              repeated patterns to learn and helps retrieval reuse criteria across venues.
-            </p>
-          </div>
-          <div class="feedback-item">
-            <h3>6. Add retrieval benchmark queries</h3>
-            <p>
-              Build a small gold set of queries and expected criteria. Track
-              <code>Precision@K</code>, <code>Recall@K</code>, and retrieval <code>MRR</code>.
-              This is more aligned with the actual review-agent use case than link prediction.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section class="panel">
-        <h2>References</h2>
-        <ul class="reference-list">
-          <li>
-            Xu, Gao & Yu. Quality Evaluation Model of AI-based Knowledge Graph System.
-            2021 3rd International Conference on Natural Language Processing (ICNLP), IEEE.
-            <a href="https://ieeexplore.ieee.org/document/9537861">
-              https://ieeexplore.ieee.org/document/9537861
-            </a>
-          </li>
-          <li>
-            Ali et al. PyKEEN 1.0: A Python Library for Training and Evaluating Knowledge Graph
-            Embeddings.
-            <a href="https://www.jmlr.org/papers/v22/20-825.html">
-              https://www.jmlr.org/papers/v22/20-825.html
-            </a>
-          </li>
-        </ul>
       </section>
     </main>
     <script>
@@ -454,10 +232,10 @@
       }
 
       function setWaitingRows(message) {
-        const qualityBody = document.getElementById('quality-results');
-        const linkBody = document.getElementById('link-prediction-results');
-        if (qualityBody) qualityBody.innerHTML = row([message, 'Waiting']);
-        if (linkBody) linkBody.innerHTML = `<tr><td colspan="6">${message}</td></tr>`;
+        const graphHealth = document.getElementById('graph-health-results');
+        const relations = document.getElementById('relation-results');
+        if (graphHealth) graphHealth.innerHTML = row([message, 'Waiting']);
+        if (relations) relations.innerHTML = row([message, 'Waiting']);
       }
 
       function scheduleRefresh(shouldRefresh, delayMs = 8000) {
@@ -477,19 +255,19 @@
         try {
           const response = await fetch(`/api/kg-benchmark?ts=${Date.now()}`, { cache: 'no-store' });
           const payload = await response.json();
-          if (!response.ok) throw new Error(payload.detail || 'Failed to load benchmark result');
+          if (!response.ok) throw new Error(payload.detail || 'Failed to load graph snapshot');
           if (!payload.ready) {
-            status.textContent = payload.message || 'Benchmark result is not available yet.';
+            status.textContent = payload.message || 'Graph snapshot is not available yet.';
             setStatusPill('waiting', 'Waiting');
-            setWaitingRows('Benchmark result is not available yet.');
+            setWaitingRows('Graph snapshot is not available yet.');
             scheduleRefresh(false);
             return;
           }
 
-          const quality = payload.user_needs_quality || payload.zaveri_quality || {};
-          const counts = quality.node_counts || {};
-          const pykeen = payload.pykeen_transe || {};
-          const baseline = payload.pykeen_style_link_prediction || {};
+          const snapshot = payload.graph_summary || {};
+          const counts = snapshot.node_counts || {};
+          const relationCounts = snapshot.relation_counts || {};
+          const health = snapshot.health || {};
           const paper = payload.paper_input || {};
           const completedPaper = payload.latest_completed_paper_input || {};
           const displayPaper = paper.title ? paper : completedPaper;
@@ -501,87 +279,53 @@
           if (waitingBanner) waitingBanner.hidden = !isRunning;
           if (isRunning) {
             setStatusPill('running', 'Running');
-            status.textContent = `Review evaluation is running for "${displayPaper.title || displayPaper.source_pdf_name}". Auto-refreshing every 8 seconds.`;
+            status.textContent = `Review is running for "${displayPaper.title || displayPaper.source_pdf_name}". Auto-refreshing every 8 seconds.`;
           } else if (isFailed) {
             setStatusPill('failed', 'Failed');
-            status.textContent = `Latest review job failed for "${displayPaper.title || displayPaper.source_pdf_name}". Showing the latest available graph benchmark.`;
+            status.textContent = `Latest review job failed for "${displayPaper.title || displayPaper.source_pdf_name}". Showing the latest graph snapshot.`;
           } else if (isFinished) {
             setStatusPill('ready', 'Finished');
-            status.textContent = `Evaluation finished. Showing benchmark generated at ${payload.generated_at}.`;
+            status.textContent = `Review finished. Showing graph snapshot generated at ${payload.generated_at}.`;
           } else {
             setStatusPill('ready', 'Ready');
-            status.textContent = `Showing benchmark generated at ${payload.generated_at}.`;
+            status.textContent = `Showing graph snapshot generated at ${payload.generated_at}.`;
           }
 
-          setText('benchmark-version', `Framework version: ${quality.framework || 'IEEE ICNLP 2021 quality model'} + PyKEEN TransE`);
           setPaperDisplay(displayPaper);
           const completedNote = document.getElementById('completed-paper-note');
           if (completedNote && completedPaper.job_id && completedPaper.job_id !== paper.job_id) {
             completedNote.textContent = `Latest completed review: ${completedPaper.title || completedPaper.source_pdf_name} (${completedPaper.status}, ${completedPaper.annotation_count || 0} annotations).`;
           } else if (completedNote) {
-            completedNote.textContent = isRunning
-              ? 'The current paper review is still running. Final benchmark result tables will appear after this job completes.'
-              : '';
-          }
-
-          if (isRunning) {
-            setText('metric-source-documents', '--');
-            setText('metric-review-criteria', '--');
-            setText('metric-evidence-requirements', '--');
-            setText('metric-triples', '--');
-            setWaitingRows('Current evaluation is running for this paper.');
-            scheduleRefresh(true);
-            return;
+            completedNote.textContent = '';
           }
 
           setText('metric-source-documents', counts.SourceDocument);
           setText('metric-review-criteria', counts.ReviewCriterion);
           setText('metric-evidence-requirements', counts.EvidenceRequirement);
-          setText('metric-triples', pykeen.triple_count || baseline.triple_count);
+          setText('metric-relations', snapshot.total_relations);
 
-          const qualityBody = document.getElementById('quality-results');
-          const consistency = quality.accuracy_consistency || {};
-          const completeness = quality.completeness || {};
-          const provenance = quality.provenance || {};
-          const duplicates = consistency.duplicate_criterion_ids || [];
-          const sourceDuplicates = consistency.duplicate_source_ids || [];
-          qualityBody.innerHTML = [
-            row(['Required property completeness', fixed(consistency.required_property_completeness)]),
-            row(['Criteria with evidence', fixed(completeness.criteria_with_evidence_ratio)]),
-            row(['Criteria with domain', fixed(completeness.criteria_with_domain_ratio)]),
-            row(['Criteria with article type', fixed(completeness.criteria_with_article_type_ratio)]),
-            row(['Criteria with source provenance', fixed(provenance.criteria_with_source_ratio)]),
-            row(['Duplicate criterion IDs', text(duplicates.length)]),
-            row(['Duplicate source IDs', text(sourceDuplicates.length)]),
-            row(['Neo4j reachable', text(quality.availability?.neo4j_reachable)]),
+          const graphHealth = document.getElementById('graph-health-results');
+          graphHealth.innerHTML = [
+            row(['Required property completeness', fixed(health.required_property_completeness)]),
+            row(['Criteria with evidence', fixed(health.criteria_with_evidence_ratio)]),
+            row(['Criteria with source provenance', fixed(health.criteria_with_source_ratio)]),
+            row(['Source documents describing host', fixed(health.source_documents_describing_host_ratio)]),
+            row(['Duplicate criterion IDs', text((health.duplicate_criterion_ids || []).length)]),
+            row(['Duplicate source IDs', text((health.duplicate_source_ids || []).length)]),
+            row(['Neo4j reachable', text(health.neo4j_reachable)]),
           ].join('');
 
-          const linkBody = document.getElementById('link-prediction-results');
-          const pykeenMetrics = pykeen.metrics || {};
-          const baselineMetrics = baseline.metrics || {};
-          linkBody.innerHTML = [
-            row([
-              `${pykeen.model || 'TransE'}, ${pykeen.epochs || '--'} epochs`,
-              fixed(pykeenMetrics.MRR),
-              fixed(pykeenMetrics.MR),
-              fixed(pykeenMetrics['Hits@1']),
-              fixed(pykeenMetrics['Hits@3']),
-              fixed(pykeenMetrics['Hits@10']),
-            ]),
-            row([
-              'Typed tail-popularity baseline',
-              fixed(baselineMetrics.MRR),
-              fixed(baselineMetrics.MR),
-              fixed(baselineMetrics['Hits@1']),
-              fixed(baselineMetrics['Hits@3']),
-              fixed(baselineMetrics['Hits@10']),
-            ]),
-          ].join('');
-          scheduleRefresh(false);
+          const relationBody = document.getElementById('relation-results');
+          relationBody.innerHTML = Object.entries(relationCounts)
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([relation, count]) => row([relation, text(count)]))
+            .join('') || '<tr><td colspan="2">No relations found.</td></tr>';
+
+          scheduleRefresh(isRunning);
         } catch (error) {
           setStatusPill('failed', 'Error');
           status.textContent = error.message || String(error);
-          setWaitingRows('Could not load benchmark result.');
+          setWaitingRows('Could not load graph snapshot.');
           scheduleRefresh(false);
         }
       }

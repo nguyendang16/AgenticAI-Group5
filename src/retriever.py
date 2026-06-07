@@ -17,6 +17,31 @@ def _slug(text: str) -> str:
     return re.sub(r'[^a-zA-Z0-9]+', '_', str(text or '').lower()).strip('_')
 
 
+def _alias_slugs(text: str) -> list[str]:
+    import re
+
+    slug = _slug(text)
+    aliases = [slug] if slug else []
+    phrase_aliases = {
+        'international conference on machine learning': 'icml',
+        'international conference on learning representations': 'iclr',
+        'conference on neural information processing systems': 'neurips',
+        'neural information processing systems': 'neurips',
+        'association for computational linguistics': 'acl',
+        'acm conference on human factors in computing systems': 'chi',
+    }
+    lowered = str(text or '').lower()
+    for phrase, alias in phrase_aliases.items():
+        if phrase in lowered and alias not in aliases:
+            aliases.append(alias)
+    short_year = re.sub(r'(^|_)20(\d{2})(_|$)', r'\1\2\3', slug)
+    long_year = re.sub(r'(^|_)(\d{2})(_|$)', r'\g<1>20\2\3', slug)
+    for alias in (short_year, long_year):
+        if alias and alias not in aliases:
+            aliases.append(alias)
+    return aliases
+
+
 def _normalize_source_docs(raw: Any) -> list[dict[str, str]]:
     docs: list[dict[str, str]] = []
     seen: set[str] = set()
@@ -73,27 +98,29 @@ def retrieve_criteria_bundle(
 
     venue_slug = _slug(venue) if venue else ''
     journal_slug = _slug(journal) if journal else ''
+    venue_slug_aliases = _alias_slugs(venue or '')
+    journal_slug_aliases = _alias_slugs(journal or '')
     domain_name = (domain or '').strip()
     article_type_name = (article_type or '').strip()
 
     query = """
     OPTIONAL MATCH (v_direct:Venue)
-    WHERE ($venue_slug <> '' AND v_direct.venue_id = $venue_slug)
+    WHERE ($venue_slug <> '' AND v_direct.venue_id IN $venue_slug_aliases)
        OR ($venue <> '' AND toLower(v_direct.name) CONTAINS toLower($venue))
     OPTIONAL MATCH (venue_doc:SourceDocument)-[:DESCRIBES]->(v_from_source:Venue)
     WHERE $venue <> ''
       AND (
-        toLower(venue_doc.source_id) CONTAINS toLower($venue_slug)
+        ANY(alias IN $venue_slug_aliases WHERE toLower(venue_doc.source_id) CONTAINS toLower(alias))
         OR toLower(venue_doc.file_name) CONTAINS toLower($venue)
         OR toLower(venue_doc.source_title) CONTAINS toLower($venue)
       )
     OPTIONAL MATCH (j_direct:Journal)
-    WHERE ($journal_slug <> '' AND j_direct.journal_id = $journal_slug)
+    WHERE ($journal_slug <> '' AND j_direct.journal_id IN $journal_slug_aliases)
        OR ($journal <> '' AND toLower(j_direct.name) CONTAINS toLower($journal))
     OPTIONAL MATCH (journal_doc:SourceDocument)-[:DESCRIBES]->(j_from_source:Journal)
     WHERE $journal <> ''
       AND (
-        toLower(journal_doc.source_id) CONTAINS toLower($journal_slug)
+        ANY(alias IN $journal_slug_aliases WHERE toLower(journal_doc.source_id) CONTAINS toLower(alias))
         OR toLower(journal_doc.file_name) CONTAINS toLower($journal)
         OR toLower(journal_doc.source_title) CONTAINS toLower($journal)
       )
@@ -109,11 +136,13 @@ def retrieve_criteria_bundle(
            {source_id: doc.source_id, file_name: doc.file_name}] AS source_docs
     WHERE c IS NOT NULL
       AND (
-        $domain_name = '' OR $domain_name IN coalesce(c.applies_to_domain, [])
-        OR EXISTS { MATCH (host)-[:BELONGS_TO_DOMAIN]->(dom:Domain) WHERE dom.name = $domain_name }
+        $domain_name = ''
+        OR ANY(domain IN coalesce(c.applies_to_domain, []) WHERE toLower(domain) = toLower($domain_name))
+        OR EXISTS { MATCH (host)-[:BELONGS_TO_DOMAIN]->(dom:Domain) WHERE toLower(dom.name) = toLower($domain_name) }
       )
       AND (
-        $article_type_name = '' OR $article_type_name IN coalesce(c.applies_to_article_type, [])
+        $article_type_name = ''
+        OR ANY(article_type IN coalesce(c.applies_to_article_type, []) WHERE toLower(article_type) = toLower($article_type_name))
       )
     RETURN host, host_label,
            c.criterion_id AS criterion_id,
@@ -138,8 +167,10 @@ def retrieve_criteria_bundle(
             query,
             venue=venue or '',
             venue_slug=venue_slug,
+            venue_slug_aliases=venue_slug_aliases,
             journal=journal or '',
             journal_slug=journal_slug,
+            journal_slug_aliases=journal_slug_aliases,
             domain_name=domain_name,
             article_type_name=article_type_name,
         )

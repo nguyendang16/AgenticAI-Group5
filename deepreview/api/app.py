@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 import tempfile
 from html import escape
 from datetime import datetime
@@ -51,8 +53,11 @@ app.add_middleware(
 @app.middleware('http')
 async def add_no_cache_for_benchmark(request: Request, call_next):
     response = await call_next(request)
-    if request.url.path.startswith('/api/kg-benchmark') or request.url.path.endswith(
-        'benchmark-graph-evaluation.html'
+    if (
+        request.url.path.startswith('/api/kg-benchmark')
+        or request.url.path.startswith('/api/kg-evidence-tests')
+        or request.url.path.endswith('benchmark-graph-evaluation.html')
+        or request.url.path.endswith('kg-evidence-tests.html')
     ):
         response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
         response.headers['Pragma'] = 'no-cache'
@@ -154,6 +159,83 @@ def health() -> dict[str, str]:
 @app.get('/api/kg-benchmark')
 def get_kg_benchmark() -> dict[str, Any]:
     return _kg_benchmark_payload()
+
+
+def _kg_evidence_tests_payload() -> dict[str, Any]:
+    path = _REPO_ROOT / 'outputs' / 'kg_evidence_retrieval_test_results.json'
+    if not path.exists():
+        return {
+            'ready': False,
+            'message': 'Evidence retrieval test result not found. Run the test suite first.',
+        }
+    try:
+        payload = json.loads(path.read_text(encoding='utf-8'))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f'Failed to read evidence test result: {exc}') from exc
+    if not isinstance(payload, dict):
+        raise HTTPException(status_code=500, detail='Evidence test result has invalid format')
+
+    by_source: dict[str, dict[str, int]] = {}
+    for case in payload.get('cases', []):
+        if not isinstance(case, dict):
+            continue
+        source_ids = case.get('expected_source_ids') if isinstance(case.get('expected_source_ids'), list) else []
+        for source_id in source_ids:
+            key = str(source_id or '').strip()
+            if not key:
+                continue
+            row = by_source.setdefault(key, {'cases': 0, 'passed': 0, 'failed': 0})
+            row['cases'] += 1
+            if case.get('passed'):
+                row['passed'] += 1
+            else:
+                row['failed'] += 1
+
+    payload['ready'] = True
+    payload['by_source'] = by_source
+    return payload
+
+
+@app.get('/api/kg-evidence-tests')
+def get_kg_evidence_tests() -> dict[str, Any]:
+    return _kg_evidence_tests_payload()
+
+
+@app.post('/api/kg-evidence-tests/run')
+def run_kg_evidence_tests() -> dict[str, Any]:
+    command = [
+        sys.executable,
+        '-m',
+        'src.kg_evidence_retrieval_tests',
+        '--cases',
+        'data/kg_evidence_retrieval_test_cases.json',
+        '--output-json',
+        'outputs/kg_evidence_retrieval_test_results.json',
+        '--output-md',
+        'docs/kg_evidence_retrieval_test_results.md',
+    ]
+    completed = subprocess.run(
+        command,
+        cwd=str(_REPO_ROOT),
+        capture_output=True,
+        text=True,
+        timeout=120,
+        check=False,
+    )
+    if completed.returncode != 0:
+        result_path = _REPO_ROOT / 'outputs' / 'kg_evidence_retrieval_test_results.json'
+        if not result_path.exists():
+            raise HTTPException(
+                status_code=500,
+                detail={
+                    'message': 'Evidence retrieval tests failed before writing results',
+                    'stdout': completed.stdout[-4000:],
+                    'stderr': completed.stderr[-4000:],
+                },
+            )
+    payload = _kg_evidence_tests_payload()
+    payload['run_return_code'] = completed.returncode
+    return payload
 
 
 def _kg_benchmark_payload() -> dict[str, Any]:

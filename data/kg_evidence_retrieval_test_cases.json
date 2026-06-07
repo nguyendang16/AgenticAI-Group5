@@ -1,0 +1,2899 @@
+[
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for TWELF: Format and presentation compliance.",
+    "query": {
+      "venue": "TWELF",
+      "domain": "Educational Technology",
+      "article_type": "Long paper 3-5 pages"
+    },
+    "expected_source_ids": [
+      "conference_twelf2026_call_for_papers"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_twelf2026_call_for_papers:c05",
+        "evidence_ids": [
+          "conference_twelf2026_call_for_papers_c05_ev4",
+          "conference_twelf2026_call_for_papers_c05_ev3"
+        ]
+      }
+    ],
+    "id": "kg-real-001"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for TWELF: Topic classification for SIG/session routing.",
+    "query": {
+      "venue": "TWELF",
+      "domain": "Educational Technology",
+      "article_type": "Long paper 3-5 pages"
+    },
+    "expected_source_ids": [
+      "conference_twelf2026_call_for_papers"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_twelf2026_call_for_papers:c04",
+        "evidence_ids": [
+          "conference_twelf2026_call_for_papers_c04_ev3",
+          "conference_twelf2026_call_for_papers_c04_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-002"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for TWELF: Research/application outcome clarity.",
+    "query": {
+      "venue": "TWELF",
+      "domain": "Educational Technology",
+      "article_type": "Long paper 3-5 pages"
+    },
+    "expected_source_ids": [
+      "conference_twelf2026_call_for_papers"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_twelf2026_call_for_papers:c03",
+        "evidence_ids": [
+          "conference_twelf2026_call_for_papers_c03_ev4",
+          "conference_twelf2026_call_for_papers_c03_ev3"
+        ]
+      }
+    ],
+    "id": "kg-real-003"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for TWELF: Fit to digital learning innovation.",
+    "query": {
+      "venue": "TWELF",
+      "domain": "Educational Technology",
+      "article_type": "Long paper 3-5 pages"
+    },
+    "expected_source_ids": [
+      "conference_twelf2026_call_for_papers"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_twelf2026_call_for_papers:c01",
+        "evidence_ids": [
+          "conference_twelf2026_call_for_papers_c01_ev3",
+          "conference_twelf2026_call_for_papers_c01_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-004"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for TWELF: Educational application and practice relevance.",
+    "query": {
+      "venue": "TWELF",
+      "domain": "Educational Technology",
+      "article_type": "Long paper 3-5 pages"
+    },
+    "expected_source_ids": [
+      "conference_twelf2026_call_for_papers"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_twelf2026_call_for_papers:c02",
+        "evidence_ids": [
+          "conference_twelf2026_call_for_papers_c02_ev4",
+          "conference_twelf2026_call_for_papers_c02_ev3"
+        ]
+      }
+    ],
+    "id": "kg-real-005"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Taiwan E-Learning Forum: Format and presentation compliance.",
+    "query": {
+      "venue": "Taiwan E-Learning Forum",
+      "domain": "E-Learning",
+      "article_type": "Poster paper 1-2 pages"
+    },
+    "expected_source_ids": [
+      "conference_twelf2026_call_for_papers"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_twelf2026_call_for_papers:c05",
+        "evidence_ids": [
+          "conference_twelf2026_call_for_papers_c05_ev4",
+          "conference_twelf2026_call_for_papers_c05_ev3"
+        ]
+      }
+    ],
+    "id": "kg-real-006"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Taiwan E-Learning Forum: Topic classification for SIG/session routing.",
+    "query": {
+      "venue": "Taiwan E-Learning Forum",
+      "domain": "E-Learning",
+      "article_type": "Poster paper 1-2 pages"
+    },
+    "expected_source_ids": [
+      "conference_twelf2026_call_for_papers"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_twelf2026_call_for_papers:c04",
+        "evidence_ids": [
+          "conference_twelf2026_call_for_papers_c04_ev3",
+          "conference_twelf2026_call_for_papers_c04_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-007"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Taiwan E-Learning Forum: Research/application outcome clarity.",
+    "query": {
+      "venue": "Taiwan E-Learning Forum",
+      "domain": "E-Learning",
+      "article_type": "Poster paper 1-2 pages"
+    },
+    "expected_source_ids": [
+      "conference_twelf2026_call_for_papers"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_twelf2026_call_for_papers:c03",
+        "evidence_ids": [
+          "conference_twelf2026_call_for_papers_c03_ev4",
+          "conference_twelf2026_call_for_papers_c03_ev3"
+        ]
+      }
+    ],
+    "id": "kg-real-008"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Taiwan E-Learning Forum: Fit to digital learning innovation.",
+    "query": {
+      "venue": "Taiwan E-Learning Forum",
+      "domain": "E-Learning",
+      "article_type": "Poster paper 1-2 pages"
+    },
+    "expected_source_ids": [
+      "conference_twelf2026_call_for_papers"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_twelf2026_call_for_papers:c01",
+        "evidence_ids": [
+          "conference_twelf2026_call_for_papers_c01_ev3",
+          "conference_twelf2026_call_for_papers_c01_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-009"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Taiwan E-Learning Forum: Educational application and practice relevance.",
+    "query": {
+      "venue": "Taiwan E-Learning Forum",
+      "domain": "E-Learning",
+      "article_type": "Poster paper 1-2 pages"
+    },
+    "expected_source_ids": [
+      "conference_twelf2026_call_for_papers"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_twelf2026_call_for_papers:c02",
+        "evidence_ids": [
+          "conference_twelf2026_call_for_papers_c02_ev4",
+          "conference_twelf2026_call_for_papers_c02_ev3"
+        ]
+      }
+    ],
+    "id": "kg-real-010"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ICLR: Low-quality review avoidance.",
+    "query": {
+      "venue": "ICLR",
+      "domain": "Machine Learning",
+      "article_type": "Full conference paper"
+    },
+    "expected_source_ids": [
+      "conference_iclr_2026_reviewer_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "ICLR_C05",
+        "evidence_ids": [
+          "ICLR_C05:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-011"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ICLR: Constructive author discussion.",
+    "query": {
+      "venue": "ICLR",
+      "domain": "Machine Learning",
+      "article_type": "Full conference paper"
+    },
+    "expected_source_ids": [
+      "conference_iclr_2026_reviewer_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "ICLR_C04",
+        "evidence_ids": [
+          "ICLR_C04:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-012"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ICLR: Responsible LLM-assisted reviewing.",
+    "query": {
+      "venue": "ICLR",
+      "domain": "Machine Learning",
+      "article_type": "Full conference paper"
+    },
+    "expected_source_ids": [
+      "conference_iclr_2026_reviewer_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "ICLR_C03",
+        "evidence_ids": [
+          "ICLR_C03:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-013"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ICLR: Code of Ethics vigilance.",
+    "query": {
+      "venue": "ICLR",
+      "domain": "Machine Learning",
+      "article_type": "Full conference paper"
+    },
+    "expected_source_ids": [
+      "conference_iclr_2026_reviewer_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "ICLR_C02",
+        "evidence_ids": [
+          "ICLR_C02:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-014"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ICLR: Timely and substantive review.",
+    "query": {
+      "venue": "ICLR",
+      "domain": "Machine Learning",
+      "article_type": "Full conference paper"
+    },
+    "expected_source_ids": [
+      "conference_iclr_2026_reviewer_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "ICLR_C01",
+        "evidence_ids": [
+          "ICLR_C01:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-015"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for International Conference on Learning Representations: Low-quality review avoidance.",
+    "query": {
+      "venue": "International Conference on Learning Representations",
+      "domain": "Artificial Intelligence",
+      "article_type": "Full conference paper"
+    },
+    "expected_source_ids": [
+      "conference_iclr_2026_reviewer_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "ICLR_C05",
+        "evidence_ids": [
+          "ICLR_C05:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-016"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for International Conference on Learning Representations: Constructive author discussion.",
+    "query": {
+      "venue": "International Conference on Learning Representations",
+      "domain": "Artificial Intelligence",
+      "article_type": "Full conference paper"
+    },
+    "expected_source_ids": [
+      "conference_iclr_2026_reviewer_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "ICLR_C04",
+        "evidence_ids": [
+          "ICLR_C04:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-017"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for International Conference on Learning Representations: Responsible LLM-assisted reviewing.",
+    "query": {
+      "venue": "International Conference on Learning Representations",
+      "domain": "Artificial Intelligence",
+      "article_type": "Full conference paper"
+    },
+    "expected_source_ids": [
+      "conference_iclr_2026_reviewer_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "ICLR_C03",
+        "evidence_ids": [
+          "ICLR_C03:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-018"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for International Conference on Learning Representations: Code of Ethics vigilance.",
+    "query": {
+      "venue": "International Conference on Learning Representations",
+      "domain": "Artificial Intelligence",
+      "article_type": "Full conference paper"
+    },
+    "expected_source_ids": [
+      "conference_iclr_2026_reviewer_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "ICLR_C02",
+        "evidence_ids": [
+          "ICLR_C02:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-019"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for International Conference on Learning Representations: Timely and substantive review.",
+    "query": {
+      "venue": "International Conference on Learning Representations",
+      "domain": "Artificial Intelligence",
+      "article_type": "Full conference paper"
+    },
+    "expected_source_ids": [
+      "conference_iclr_2026_reviewer_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "ICLR_C01",
+        "evidence_ids": [
+          "ICLR_C01:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-020"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for NeurIPS: Author response engagement.",
+    "query": {
+      "venue": "NeurIPS",
+      "domain": "Machine Learning",
+      "article_type": "Conference full paper"
+    },
+    "expected_source_ids": [
+      "conference_neurips_2025_reviewer_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_neurips_2025_reviewer_guidelines:c05",
+        "evidence_ids": [
+          "conference_neurips_2025_reviewer_guidelines_c05_ev3",
+          "conference_neurips_2025_reviewer_guidelines_c05_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-021"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for NeurIPS: Ethics and societal impact flagging.",
+    "query": {
+      "venue": "NeurIPS",
+      "domain": "Machine Learning",
+      "article_type": "Conference full paper"
+    },
+    "expected_source_ids": [
+      "conference_neurips_2025_reviewer_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_neurips_2025_reviewer_guidelines:c04",
+        "evidence_ids": [
+          "conference_neurips_2025_reviewer_guidelines_c04_ev3",
+          "conference_neurips_2025_reviewer_guidelines_c04_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-022"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for NeurIPS: Novelty and related work grounding.",
+    "query": {
+      "venue": "NeurIPS",
+      "domain": "Machine Learning",
+      "article_type": "Conference full paper"
+    },
+    "expected_source_ids": [
+      "conference_neurips_2025_reviewer_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_neurips_2025_reviewer_guidelines:c03",
+        "evidence_ids": [
+          "conference_neurips_2025_reviewer_guidelines_c03_ev2",
+          "conference_neurips_2025_reviewer_guidelines_c03_ev1"
+        ]
+      }
+    ],
+    "id": "kg-real-023"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for NeurIPS: Substantiated review quality.",
+    "query": {
+      "venue": "NeurIPS",
+      "domain": "Machine Learning",
+      "article_type": "Conference full paper"
+    },
+    "expected_source_ids": [
+      "conference_neurips_2025_reviewer_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_neurips_2025_reviewer_guidelines:c02",
+        "evidence_ids": [
+          "conference_neurips_2025_reviewer_guidelines_c02_ev3",
+          "conference_neurips_2025_reviewer_guidelines_c02_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-024"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for NeurIPS: Technical soundness.",
+    "query": {
+      "venue": "NeurIPS",
+      "domain": "Machine Learning",
+      "article_type": "Conference full paper"
+    },
+    "expected_source_ids": [
+      "conference_neurips_2025_reviewer_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_neurips_2025_reviewer_guidelines:c01",
+        "evidence_ids": [
+          "conference_neurips_2025_reviewer_guidelines_c01_ev4",
+          "conference_neurips_2025_reviewer_guidelines_c01_ev3"
+        ]
+      }
+    ],
+    "id": "kg-real-025"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for NeurIPS 2025: Author response engagement.",
+    "query": {
+      "venue": "NeurIPS 2025",
+      "domain": "Artificial Intelligence",
+      "article_type": "Conference full paper"
+    },
+    "expected_source_ids": [
+      "conference_neurips_2025_reviewer_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_neurips_2025_reviewer_guidelines:c05",
+        "evidence_ids": [
+          "conference_neurips_2025_reviewer_guidelines_c05_ev3",
+          "conference_neurips_2025_reviewer_guidelines_c05_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-026"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for NeurIPS 2025: Ethics and societal impact flagging.",
+    "query": {
+      "venue": "NeurIPS 2025",
+      "domain": "Artificial Intelligence",
+      "article_type": "Conference full paper"
+    },
+    "expected_source_ids": [
+      "conference_neurips_2025_reviewer_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_neurips_2025_reviewer_guidelines:c04",
+        "evidence_ids": [
+          "conference_neurips_2025_reviewer_guidelines_c04_ev3",
+          "conference_neurips_2025_reviewer_guidelines_c04_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-027"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for NeurIPS 2025: Novelty and related work grounding.",
+    "query": {
+      "venue": "NeurIPS 2025",
+      "domain": "Artificial Intelligence",
+      "article_type": "Conference full paper"
+    },
+    "expected_source_ids": [
+      "conference_neurips_2025_reviewer_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_neurips_2025_reviewer_guidelines:c03",
+        "evidence_ids": [
+          "conference_neurips_2025_reviewer_guidelines_c03_ev2",
+          "conference_neurips_2025_reviewer_guidelines_c03_ev1"
+        ]
+      }
+    ],
+    "id": "kg-real-028"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for NeurIPS 2025: Substantiated review quality.",
+    "query": {
+      "venue": "NeurIPS 2025",
+      "domain": "Artificial Intelligence",
+      "article_type": "Conference full paper"
+    },
+    "expected_source_ids": [
+      "conference_neurips_2025_reviewer_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_neurips_2025_reviewer_guidelines:c02",
+        "evidence_ids": [
+          "conference_neurips_2025_reviewer_guidelines_c02_ev3",
+          "conference_neurips_2025_reviewer_guidelines_c02_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-029"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for NeurIPS 2025: Technical soundness.",
+    "query": {
+      "venue": "NeurIPS 2025",
+      "domain": "Artificial Intelligence",
+      "article_type": "Conference full paper"
+    },
+    "expected_source_ids": [
+      "conference_neurips_2025_reviewer_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_neurips_2025_reviewer_guidelines:c01",
+        "evidence_ids": [
+          "conference_neurips_2025_reviewer_guidelines_c01_ev4",
+          "conference_neurips_2025_reviewer_guidelines_c01_ev3"
+        ]
+      }
+    ],
+    "id": "kg-real-030"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ICML: Reviewer AI-use compliance.",
+    "query": {
+      "venue": "ICML",
+      "domain": "Machine Learning",
+      "article_type": "Main track full paper"
+    },
+    "expected_source_ids": [
+      "conference_icml_2025_reviewer_instructions"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_icml_2025_reviewer_instructions:c05",
+        "evidence_ids": [
+          "conference_icml_2025_reviewer_instructions_c05_ev2",
+          "conference_icml_2025_reviewer_instructions_c05_ev1"
+        ]
+      }
+    ],
+    "id": "kg-real-031"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ICML: Ethics review concern.",
+    "query": {
+      "venue": "ICML",
+      "domain": "Machine Learning",
+      "article_type": "Main track full paper"
+    },
+    "expected_source_ids": [
+      "conference_icml_2025_reviewer_instructions"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_icml_2025_reviewer_instructions:c04",
+        "evidence_ids": [
+          "conference_icml_2025_reviewer_instructions_c04_ev3",
+          "conference_icml_2025_reviewer_instructions_c04_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-032"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ICML: Relation to prior work.",
+    "query": {
+      "venue": "ICML",
+      "domain": "Machine Learning",
+      "article_type": "Main track full paper"
+    },
+    "expected_source_ids": [
+      "conference_icml_2025_reviewer_instructions"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_icml_2025_reviewer_instructions:c03",
+        "evidence_ids": [
+          "conference_icml_2025_reviewer_instructions_c03_ev3",
+          "conference_icml_2025_reviewer_instructions_c03_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-033"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ICML: Appropriate methods and benchmarks.",
+    "query": {
+      "venue": "ICML",
+      "domain": "Machine Learning",
+      "article_type": "Main track full paper"
+    },
+    "expected_source_ids": [
+      "conference_icml_2025_reviewer_instructions"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_icml_2025_reviewer_instructions:c02",
+        "evidence_ids": [
+          "conference_icml_2025_reviewer_instructions_c02_ev4",
+          "conference_icml_2025_reviewer_instructions_c02_ev3"
+        ]
+      }
+    ],
+    "id": "kg-real-034"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ICML: Claims supported by evidence.",
+    "query": {
+      "venue": "ICML",
+      "domain": "Machine Learning",
+      "article_type": "Main track full paper"
+    },
+    "expected_source_ids": [
+      "conference_icml_2025_reviewer_instructions"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_icml_2025_reviewer_instructions:c01",
+        "evidence_ids": [
+          "conference_icml_2025_reviewer_instructions_c01_ev4",
+          "conference_icml_2025_reviewer_instructions_c01_ev3"
+        ]
+      }
+    ],
+    "id": "kg-real-035"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ICML 2025: Reviewer AI-use compliance.",
+    "query": {
+      "venue": "ICML 2025",
+      "domain": "Machine Learning",
+      "article_type": "position paper"
+    },
+    "expected_source_ids": [
+      "conference_icml_2025_reviewer_instructions"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_icml_2025_reviewer_instructions:c05",
+        "evidence_ids": [
+          "conference_icml_2025_reviewer_instructions_c05_ev2",
+          "conference_icml_2025_reviewer_instructions_c05_ev1"
+        ]
+      }
+    ],
+    "id": "kg-real-036"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ICML 2025: Ethics review concern.",
+    "query": {
+      "venue": "ICML 2025",
+      "domain": "Machine Learning",
+      "article_type": "position paper"
+    },
+    "expected_source_ids": [
+      "conference_icml_2025_reviewer_instructions"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_icml_2025_reviewer_instructions:c04",
+        "evidence_ids": [
+          "conference_icml_2025_reviewer_instructions_c04_ev3",
+          "conference_icml_2025_reviewer_instructions_c04_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-037"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ICML 2025: Relation to prior work.",
+    "query": {
+      "venue": "ICML 2025",
+      "domain": "Machine Learning",
+      "article_type": "position paper"
+    },
+    "expected_source_ids": [
+      "conference_icml_2025_reviewer_instructions"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_icml_2025_reviewer_instructions:c03",
+        "evidence_ids": [
+          "conference_icml_2025_reviewer_instructions_c03_ev3",
+          "conference_icml_2025_reviewer_instructions_c03_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-038"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ICML 2025: Appropriate methods and benchmarks.",
+    "query": {
+      "venue": "ICML 2025",
+      "domain": "Machine Learning",
+      "article_type": "position paper"
+    },
+    "expected_source_ids": [
+      "conference_icml_2025_reviewer_instructions"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_icml_2025_reviewer_instructions:c02",
+        "evidence_ids": [
+          "conference_icml_2025_reviewer_instructions_c02_ev4",
+          "conference_icml_2025_reviewer_instructions_c02_ev3"
+        ]
+      }
+    ],
+    "id": "kg-real-039"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ICML 2025: Claims supported by evidence.",
+    "query": {
+      "venue": "ICML 2025",
+      "domain": "Machine Learning",
+      "article_type": "position paper"
+    },
+    "expected_source_ids": [
+      "conference_icml_2025_reviewer_instructions"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_icml_2025_reviewer_instructions:c01",
+        "evidence_ids": [
+          "conference_icml_2025_reviewer_instructions_c01_ev4",
+          "conference_icml_2025_reviewer_instructions_c01_ev3"
+        ]
+      }
+    ],
+    "id": "kg-real-040"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ACL: Reviewer confidence.",
+    "query": {
+      "venue": "ACL",
+      "domain": "Natural Language Processing",
+      "article_type": "Long paper"
+    },
+    "expected_source_ids": [
+      "conference_acl_arr_review_form"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "ARR_C06",
+        "evidence_ids": [
+          "ARR_C06:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-041"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ACL: Limitations and societal impact.",
+    "query": {
+      "venue": "ACL",
+      "domain": "Natural Language Processing",
+      "article_type": "Long paper"
+    },
+    "expected_source_ids": [
+      "conference_acl_arr_review_form"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "ARR_C05",
+        "evidence_ids": [
+          "ARR_C05:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-042"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ACL: Exposition and organization.",
+    "query": {
+      "venue": "ACL",
+      "domain": "Natural Language Processing",
+      "article_type": "Long paper"
+    },
+    "expected_source_ids": [
+      "conference_acl_arr_review_form"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "ARR_C04",
+        "evidence_ids": [
+          "ARR_C04:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-043"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ACL: Scientific soundness.",
+    "query": {
+      "venue": "ACL",
+      "domain": "Natural Language Processing",
+      "article_type": "Long paper"
+    },
+    "expected_source_ids": [
+      "conference_acl_arr_review_form"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "ARR_C03",
+        "evidence_ids": [
+          "ARR_C03:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-044"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ACL: Strengths and publishability.",
+    "query": {
+      "venue": "ACL",
+      "domain": "Natural Language Processing",
+      "article_type": "Long paper"
+    },
+    "expected_source_ids": [
+      "conference_acl_arr_review_form"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "ARR_C02",
+        "evidence_ids": [
+          "ARR_C02:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-045"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ACL: Paper understanding.",
+    "query": {
+      "venue": "ACL",
+      "domain": "Natural Language Processing",
+      "article_type": "Long paper"
+    },
+    "expected_source_ids": [
+      "conference_acl_arr_review_form"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "ARR_C01",
+        "evidence_ids": [
+          "ARR_C01:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-046"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ACL Rolling Review: Reviewer confidence.",
+    "query": {
+      "venue": "ACL Rolling Review",
+      "domain": "Computational Linguistics",
+      "article_type": "Resource paper"
+    },
+    "expected_source_ids": [
+      "conference_acl_arr_review_form"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "ARR_C06",
+        "evidence_ids": [
+          "ARR_C06:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-047"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ACL Rolling Review: Limitations and societal impact.",
+    "query": {
+      "venue": "ACL Rolling Review",
+      "domain": "Computational Linguistics",
+      "article_type": "Resource paper"
+    },
+    "expected_source_ids": [
+      "conference_acl_arr_review_form"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "ARR_C05",
+        "evidence_ids": [
+          "ARR_C05:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-048"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ACL Rolling Review: Exposition and organization.",
+    "query": {
+      "venue": "ACL Rolling Review",
+      "domain": "Computational Linguistics",
+      "article_type": "Resource paper"
+    },
+    "expected_source_ids": [
+      "conference_acl_arr_review_form"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "ARR_C04",
+        "evidence_ids": [
+          "ARR_C04:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-049"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ACL Rolling Review: Scientific soundness.",
+    "query": {
+      "venue": "ACL Rolling Review",
+      "domain": "Computational Linguistics",
+      "article_type": "Resource paper"
+    },
+    "expected_source_ids": [
+      "conference_acl_arr_review_form"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "ARR_C03",
+        "evidence_ids": [
+          "ARR_C03:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-050"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for CHI: Prior publication and originality.",
+    "query": {
+      "venue": "CHI",
+      "domain": "Human-Computer Interaction",
+      "article_type": "CHI full paper"
+    },
+    "expected_source_ids": [
+      "conference_chi_2025_reviewing_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "CHI_C06",
+        "evidence_ids": [
+          "CHI_C06:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-051"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for CHI: Length and conciseness.",
+    "query": {
+      "venue": "CHI",
+      "domain": "Human-Computer Interaction",
+      "article_type": "CHI full paper"
+    },
+    "expected_source_ids": [
+      "conference_chi_2025_reviewing_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "CHI_C05",
+        "evidence_ids": [
+          "CHI_C05:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-052"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for CHI: Confidentiality in review.",
+    "query": {
+      "venue": "CHI",
+      "domain": "Human-Computer Interaction",
+      "article_type": "CHI full paper"
+    },
+    "expected_source_ids": [
+      "conference_chi_2025_reviewing_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "CHI_C04",
+        "evidence_ids": [
+          "CHI_C04:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-053"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for CHI: Reviewer responsibility for AI-assisted content.",
+    "query": {
+      "venue": "CHI",
+      "domain": "Human-Computer Interaction",
+      "article_type": "CHI full paper"
+    },
+    "expected_source_ids": [
+      "conference_chi_2025_reviewing_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "CHI_C03",
+        "evidence_ids": [
+          "CHI_C03:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-054"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for CHI: Detailed written appraisal.",
+    "query": {
+      "venue": "CHI",
+      "domain": "Human-Computer Interaction",
+      "article_type": "CHI full paper"
+    },
+    "expected_source_ids": [
+      "conference_chi_2025_reviewing_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "CHI_C02",
+        "evidence_ids": [
+          "CHI_C02:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-055"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for CHI: Contribution to HCI.",
+    "query": {
+      "venue": "CHI",
+      "domain": "Human-Computer Interaction",
+      "article_type": "CHI full paper"
+    },
+    "expected_source_ids": [
+      "conference_chi_2025_reviewing_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "CHI_C01",
+        "evidence_ids": [
+          "CHI_C01:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-056"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ACM CHI: Prior publication and originality.",
+    "query": {
+      "venue": "ACM CHI",
+      "domain": "Human-Computer Interaction",
+      "article_type": "replication"
+    },
+    "expected_source_ids": [
+      "conference_chi_2025_reviewing_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "CHI_C06",
+        "evidence_ids": [
+          "CHI_C06:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-057"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ACM CHI: Length and conciseness.",
+    "query": {
+      "venue": "ACM CHI",
+      "domain": "Human-Computer Interaction",
+      "article_type": "replication"
+    },
+    "expected_source_ids": [
+      "conference_chi_2025_reviewing_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "CHI_C05",
+        "evidence_ids": [
+          "CHI_C05:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-058"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ACM CHI: Confidentiality in review.",
+    "query": {
+      "venue": "ACM CHI",
+      "domain": "Human-Computer Interaction",
+      "article_type": "replication"
+    },
+    "expected_source_ids": [
+      "conference_chi_2025_reviewing_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "CHI_C04",
+        "evidence_ids": [
+          "CHI_C04:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-059"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ACM CHI: Reviewer responsibility for AI-assisted content.",
+    "query": {
+      "venue": "ACM CHI",
+      "domain": "Human-Computer Interaction",
+      "article_type": "replication"
+    },
+    "expected_source_ids": [
+      "conference_chi_2025_reviewing_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "CHI_C03",
+        "evidence_ids": [
+          "CHI_C03:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-060"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for AAAI: Review-process compliance.",
+    "query": {
+      "venue": "AAAI",
+      "domain": "Artificial Intelligence",
+      "article_type": "AAAI main technical track and related tracks"
+    },
+    "expected_source_ids": [
+      "conference_aaai_26_policies_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_aaai_26_policies_guidelines:c05",
+        "evidence_ids": [
+          "conference_aaai_26_policies_guidelines_c05_ev3",
+          "conference_aaai_26_policies_guidelines_c05_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-061"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for AAAI: AI-assisted peer-review transparency.",
+    "query": {
+      "venue": "AAAI",
+      "domain": "Artificial Intelligence",
+      "article_type": "AAAI main technical track and related tracks"
+    },
+    "expected_source_ids": [
+      "conference_aaai_26_policies_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_aaai_26_policies_guidelines:c04",
+        "evidence_ids": [
+          "conference_aaai_26_policies_guidelines_c04_ev4",
+          "conference_aaai_26_policies_guidelines_c04_ev3"
+        ]
+      }
+    ],
+    "id": "kg-real-062"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for AAAI: Publication ethics and malpractice awareness.",
+    "query": {
+      "venue": "AAAI",
+      "domain": "Artificial Intelligence",
+      "article_type": "AAAI main technical track and related tracks"
+    },
+    "expected_source_ids": [
+      "conference_aaai_26_policies_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_aaai_26_policies_guidelines:c03",
+        "evidence_ids": [
+          "conference_aaai_26_policies_guidelines_c03_ev3",
+          "conference_aaai_26_policies_guidelines_c03_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-063"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for AAAI: Ethical reviewer conduct.",
+    "query": {
+      "venue": "AAAI",
+      "domain": "Artificial Intelligence",
+      "article_type": "AAAI main technical track and related tracks"
+    },
+    "expected_source_ids": [
+      "conference_aaai_26_policies_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_aaai_26_policies_guidelines:c02",
+        "evidence_ids": [
+          "conference_aaai_26_policies_guidelines_c02_ev3",
+          "conference_aaai_26_policies_guidelines_c02_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-064"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for AAAI: AI relevance and scientific exchange.",
+    "query": {
+      "venue": "AAAI",
+      "domain": "Artificial Intelligence",
+      "article_type": "AAAI main technical track and related tracks"
+    },
+    "expected_source_ids": [
+      "conference_aaai_26_policies_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_aaai_26_policies_guidelines:c01",
+        "evidence_ids": [
+          "conference_aaai_26_policies_guidelines_c01_ev3",
+          "conference_aaai_26_policies_guidelines_c01_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-065"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for AAAI 2026: Review-process compliance.",
+    "query": {
+      "venue": "AAAI 2026",
+      "domain": "Artificial Intelligence",
+      "article_type": "AAAI main technical track and related tracks"
+    },
+    "expected_source_ids": [
+      "conference_aaai_26_policies_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_aaai_26_policies_guidelines:c05",
+        "evidence_ids": [
+          "conference_aaai_26_policies_guidelines_c05_ev3",
+          "conference_aaai_26_policies_guidelines_c05_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-066"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for AAAI 2026: AI-assisted peer-review transparency.",
+    "query": {
+      "venue": "AAAI 2026",
+      "domain": "Artificial Intelligence",
+      "article_type": "AAAI main technical track and related tracks"
+    },
+    "expected_source_ids": [
+      "conference_aaai_26_policies_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_aaai_26_policies_guidelines:c04",
+        "evidence_ids": [
+          "conference_aaai_26_policies_guidelines_c04_ev4",
+          "conference_aaai_26_policies_guidelines_c04_ev3"
+        ]
+      }
+    ],
+    "id": "kg-real-067"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for AAAI 2026: Publication ethics and malpractice awareness.",
+    "query": {
+      "venue": "AAAI 2026",
+      "domain": "Artificial Intelligence",
+      "article_type": "AAAI main technical track and related tracks"
+    },
+    "expected_source_ids": [
+      "conference_aaai_26_policies_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_aaai_26_policies_guidelines:c03",
+        "evidence_ids": [
+          "conference_aaai_26_policies_guidelines_c03_ev3",
+          "conference_aaai_26_policies_guidelines_c03_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-068"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for AAAI 2026: Ethical reviewer conduct.",
+    "query": {
+      "venue": "AAAI 2026",
+      "domain": "Artificial Intelligence",
+      "article_type": "AAAI main technical track and related tracks"
+    },
+    "expected_source_ids": [
+      "conference_aaai_26_policies_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_aaai_26_policies_guidelines:c02",
+        "evidence_ids": [
+          "conference_aaai_26_policies_guidelines_c02_ev3",
+          "conference_aaai_26_policies_guidelines_c02_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-069"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for AAAI 2026: AI relevance and scientific exchange.",
+    "query": {
+      "venue": "AAAI 2026",
+      "domain": "Artificial Intelligence",
+      "article_type": "AAAI main technical track and related tracks"
+    },
+    "expected_source_ids": [
+      "conference_aaai_26_policies_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "conference_aaai_26_policies_guidelines:c01",
+        "evidence_ids": [
+          "conference_aaai_26_policies_guidelines_c01_ev3",
+          "conference_aaai_26_policies_guidelines_c01_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-070"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Computers & Education: Clarity of educational claims.",
+    "query": {
+      "journal": "Computers & Education",
+      "domain": "Educational Technology",
+      "article_type": "Research Article"
+    },
+    "expected_source_ids": [
+      "journal_computers_and_education_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_computers_and_education_guide:c06",
+        "evidence_ids": [
+          "journal_computers_and_education_guide:c06:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-071"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Computers & Education: Broader education relevance.",
+    "query": {
+      "journal": "Computers & Education",
+      "domain": "Educational Technology",
+      "article_type": "Research Article"
+    },
+    "expected_source_ids": [
+      "journal_computers_and_education_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_computers_and_education_guide:c05",
+        "evidence_ids": [
+          "journal_computers_and_education_guide:c05:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-072"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Computers & Education: Pedagogical use of technology.",
+    "query": {
+      "journal": "Computers & Education",
+      "domain": "Educational Technology",
+      "article_type": "Research Article"
+    },
+    "expected_source_ids": [
+      "journal_computers_and_education_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_computers_and_education_guide:c03",
+        "evidence_ids": [
+          "journal_computers_and_education_guide:c03:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-073"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Computers & Education: Research quality and evidence.",
+    "query": {
+      "journal": "Computers & Education",
+      "domain": "Educational Technology",
+      "article_type": "Research Article"
+    },
+    "expected_source_ids": [
+      "journal_computers_and_education_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_computers_and_education_guide:c04",
+        "evidence_ids": [
+          "journal_computers_and_education_guide:c04:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-074"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Computers & Education: Theory-practice extension.",
+    "query": {
+      "journal": "Computers & Education",
+      "domain": "Educational Technology",
+      "article_type": "Research Article"
+    },
+    "expected_source_ids": [
+      "journal_computers_and_education_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_computers_and_education_guide:c02",
+        "evidence_ids": [
+          "journal_computers_and_education_guide:c02:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-075"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Computers & Education: Educational technology contribution.",
+    "query": {
+      "journal": "Computers & Education",
+      "domain": "Educational Technology",
+      "article_type": "Research Article"
+    },
+    "expected_source_ids": [
+      "journal_computers_and_education_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_computers_and_education_guide:c01",
+        "evidence_ids": [
+          "journal_computers_and_education_guide:c01:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-076"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Computers and Education: Clarity of educational claims.",
+    "query": {
+      "journal": "Computers and Education",
+      "domain": "Learning Technologies",
+      "article_type": "Review Article"
+    },
+    "expected_source_ids": [
+      "journal_computers_and_education_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_computers_and_education_guide:c06",
+        "evidence_ids": [
+          "journal_computers_and_education_guide:c06:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-077"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Computers and Education: Broader education relevance.",
+    "query": {
+      "journal": "Computers and Education",
+      "domain": "Learning Technologies",
+      "article_type": "Review Article"
+    },
+    "expected_source_ids": [
+      "journal_computers_and_education_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_computers_and_education_guide:c05",
+        "evidence_ids": [
+          "journal_computers_and_education_guide:c05:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-078"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Computers and Education: Pedagogical use of technology.",
+    "query": {
+      "journal": "Computers and Education",
+      "domain": "Learning Technologies",
+      "article_type": "Review Article"
+    },
+    "expected_source_ids": [
+      "journal_computers_and_education_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_computers_and_education_guide:c03",
+        "evidence_ids": [
+          "journal_computers_and_education_guide:c03:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-079"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Computers and Education: Research quality and evidence.",
+    "query": {
+      "journal": "Computers and Education",
+      "domain": "Learning Technologies",
+      "article_type": "Review Article"
+    },
+    "expected_source_ids": [
+      "journal_computers_and_education_guide"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_computers_and_education_guide:c04",
+        "evidence_ids": [
+          "journal_computers_and_education_guide:c04:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-080"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ETRD: Research data transparency.",
+    "query": {
+      "journal": "ETRD",
+      "domain": "Instructional Design",
+      "article_type": "Development Article"
+    },
+    "expected_source_ids": [
+      "journal_etrd_submission_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_etrd_submission_guidelines:c06",
+        "evidence_ids": [
+          "journal_etrd_submission_guidelines:c06:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-081"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ETRD: Ethical and compliance responsibility.",
+    "query": {
+      "journal": "ETRD",
+      "domain": "Instructional Design",
+      "article_type": "Development Article"
+    },
+    "expected_source_ids": [
+      "journal_etrd_submission_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_etrd_submission_guidelines:c05",
+        "evidence_ids": [
+          "journal_etrd_submission_guidelines:c05:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-082"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ETRD: Applied theory connection.",
+    "query": {
+      "journal": "ETRD",
+      "domain": "Instructional Design",
+      "article_type": "Development Article"
+    },
+    "expected_source_ids": [
+      "journal_etrd_submission_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_etrd_submission_guidelines:c04",
+        "evidence_ids": [
+          "journal_etrd_submission_guidelines:c04:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-083"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ETRD: Development process documentation.",
+    "query": {
+      "journal": "ETRD",
+      "domain": "Instructional Design",
+      "article_type": "Development Article"
+    },
+    "expected_source_ids": [
+      "journal_etrd_submission_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_etrd_submission_guidelines:c03",
+        "evidence_ids": [
+          "journal_etrd_submission_guidelines:c03:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-084"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ETRD: Instructional design and learning environment relevance.",
+    "query": {
+      "journal": "ETRD",
+      "domain": "Instructional Design",
+      "article_type": "Development Article"
+    },
+    "expected_source_ids": [
+      "journal_etrd_submission_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_etrd_submission_guidelines:c02",
+        "evidence_ids": [
+          "journal_etrd_submission_guidelines:c02:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-085"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ETRD: Rigorous empirical study.",
+    "query": {
+      "journal": "ETRD",
+      "domain": "Instructional Design",
+      "article_type": "Development Article"
+    },
+    "expected_source_ids": [
+      "journal_etrd_submission_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_etrd_submission_guidelines:c01",
+        "evidence_ids": [
+          "journal_etrd_submission_guidelines:c01:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-086"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Educational Technology Research and Development: Research data transparency.",
+    "query": {
+      "journal": "Educational Technology Research and Development",
+      "domain": "Learning Environments",
+      "article_type": "Research Manuscript"
+    },
+    "expected_source_ids": [
+      "journal_etrd_submission_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_etrd_submission_guidelines:c06",
+        "evidence_ids": [
+          "journal_etrd_submission_guidelines:c06:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-087"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Educational Technology Research and Development: Ethical and compliance responsibility.",
+    "query": {
+      "journal": "Educational Technology Research and Development",
+      "domain": "Learning Environments",
+      "article_type": "Research Manuscript"
+    },
+    "expected_source_ids": [
+      "journal_etrd_submission_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_etrd_submission_guidelines:c05",
+        "evidence_ids": [
+          "journal_etrd_submission_guidelines:c05:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-088"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Educational Technology Research and Development: Applied theory connection.",
+    "query": {
+      "journal": "Educational Technology Research and Development",
+      "domain": "Learning Environments",
+      "article_type": "Research Manuscript"
+    },
+    "expected_source_ids": [
+      "journal_etrd_submission_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_etrd_submission_guidelines:c04",
+        "evidence_ids": [
+          "journal_etrd_submission_guidelines:c04:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-089"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Educational Technology Research and Development: Development process documentation.",
+    "query": {
+      "journal": "Educational Technology Research and Development",
+      "domain": "Learning Environments",
+      "article_type": "Research Manuscript"
+    },
+    "expected_source_ids": [
+      "journal_etrd_submission_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_etrd_submission_guidelines:c03",
+        "evidence_ids": [
+          "journal_etrd_submission_guidelines:c03:evidence_1"
+        ]
+      }
+    ],
+    "id": "kg-real-090"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Educational Technology & Society: Plagiarism/similarity compliance.",
+    "query": {
+      "journal": "Educational Technology & Society",
+      "domain": "Learning Sciences",
+      "article_type": "Original research article"
+    },
+    "expected_source_ids": [
+      "journal_ets_author_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_ets_author_guidelines:c06",
+        "evidence_ids": [
+          "journal_ets_author_guidelines_c06_ev2",
+          "journal_ets_author_guidelines_c06_ev1"
+        ]
+      }
+    ],
+    "id": "kg-real-091"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Educational Technology & Society: Language, consistency, and APA form.",
+    "query": {
+      "journal": "Educational Technology & Society",
+      "domain": "Learning Sciences",
+      "article_type": "Original research article"
+    },
+    "expected_source_ids": [
+      "journal_ets_author_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_ets_author_guidelines:c05",
+        "evidence_ids": [
+          "journal_ets_author_guidelines_c05_ev4",
+          "journal_ets_author_guidelines_c05_ev3"
+        ]
+      }
+    ],
+    "id": "kg-real-092"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Educational Technology & Society: Originality and transferable contribution.",
+    "query": {
+      "journal": "Educational Technology & Society",
+      "domain": "Learning Sciences",
+      "article_type": "Original research article"
+    },
+    "expected_source_ids": [
+      "journal_ets_author_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_ets_author_guidelines:c02",
+        "evidence_ids": [
+          "journal_ets_author_guidelines_c02_ev3",
+          "journal_ets_author_guidelines_c02_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-093"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Educational Technology & Society: Up-to-date educational-technology literature.",
+    "query": {
+      "journal": "Educational Technology & Society",
+      "domain": "Learning Sciences",
+      "article_type": "Original research article"
+    },
+    "expected_source_ids": [
+      "journal_ets_author_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_ets_author_guidelines:c04",
+        "evidence_ids": [
+          "journal_ets_author_guidelines_c04_ev3",
+          "journal_ets_author_guidelines_c04_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-094"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Educational Technology & Society: Rigorous method.",
+    "query": {
+      "journal": "Educational Technology & Society",
+      "domain": "Learning Sciences",
+      "article_type": "Original research article"
+    },
+    "expected_source_ids": [
+      "journal_ets_author_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_ets_author_guidelines:c03",
+        "evidence_ids": [
+          "journal_ets_author_guidelines_c03_ev5",
+          "journal_ets_author_guidelines_c03_ev4"
+        ]
+      }
+    ],
+    "id": "kg-real-095"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for Educational Technology & Society: Pedagogy-practice-technology bridge.",
+    "query": {
+      "journal": "Educational Technology & Society",
+      "domain": "Learning Sciences",
+      "article_type": "Original research article"
+    },
+    "expected_source_ids": [
+      "journal_ets_author_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_ets_author_guidelines:c01",
+        "evidence_ids": [
+          "journal_ets_author_guidelines_c01_ev4",
+          "journal_ets_author_guidelines_c01_ev3"
+        ]
+      }
+    ],
+    "id": "kg-real-096"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ETS: Plagiarism/similarity compliance.",
+    "query": {
+      "journal": "ETS",
+      "domain": "Learning Sciences",
+      "article_type": "Original research article"
+    },
+    "expected_source_ids": [
+      "journal_ets_author_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_ets_author_guidelines:c06",
+        "evidence_ids": [
+          "journal_ets_author_guidelines_c06_ev2",
+          "journal_ets_author_guidelines_c06_ev1"
+        ]
+      }
+    ],
+    "id": "kg-real-097"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ETS: Language, consistency, and APA form.",
+    "query": {
+      "journal": "ETS",
+      "domain": "Learning Sciences",
+      "article_type": "Original research article"
+    },
+    "expected_source_ids": [
+      "journal_ets_author_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_ets_author_guidelines:c05",
+        "evidence_ids": [
+          "journal_ets_author_guidelines_c05_ev4",
+          "journal_ets_author_guidelines_c05_ev3"
+        ]
+      }
+    ],
+    "id": "kg-real-098"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ETS: Originality and transferable contribution.",
+    "query": {
+      "journal": "ETS",
+      "domain": "Learning Sciences",
+      "article_type": "Original research article"
+    },
+    "expected_source_ids": [
+      "journal_ets_author_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_ets_author_guidelines:c02",
+        "evidence_ids": [
+          "journal_ets_author_guidelines_c02_ev3",
+          "journal_ets_author_guidelines_c02_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-099"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "Retrieve KG evidence for ETS: Up-to-date educational-technology literature.",
+    "query": {
+      "journal": "ETS",
+      "domain": "Learning Sciences",
+      "article_type": "Original research article"
+    },
+    "expected_source_ids": [
+      "journal_ets_author_guidelines"
+    ],
+    "expected_criteria": [
+      {
+        "criterion_id": "journal_ets_author_guidelines:c04",
+        "evidence_ids": [
+          "journal_ets_author_guidelines_c04_ev3",
+          "journal_ets_author_guidelines_c04_ev2"
+        ]
+      }
+    ],
+    "id": "kg-real-100"
+  },
+  {
+    "category": "missing_optional_fields",
+    "scenario": "Venue only should retrieve ICLR criteria",
+    "query": {
+      "venue": "ICLR"
+    },
+    "expected_source_ids": [
+      "conference_iclr_2026_reviewer_guide"
+    ],
+    "min_criteria_count": 5,
+    "id": "kg-real-101"
+  },
+  {
+    "category": "missing_optional_fields",
+    "scenario": "Venue only should retrieve CHI criteria",
+    "query": {
+      "venue": "CHI"
+    },
+    "expected_source_ids": [
+      "conference_chi_2025_reviewing_guide"
+    ],
+    "min_criteria_count": 6,
+    "id": "kg-real-102"
+  },
+  {
+    "category": "missing_optional_fields",
+    "scenario": "Venue only should retrieve AAAI criteria",
+    "query": {
+      "venue": "AAAI"
+    },
+    "expected_source_ids": [
+      "conference_aaai_26_policies_guidelines"
+    ],
+    "min_criteria_count": 5,
+    "id": "kg-real-103"
+  },
+  {
+    "category": "missing_optional_fields",
+    "scenario": "Journal only should retrieve ETRD criteria",
+    "query": {
+      "journal": "ETRD"
+    },
+    "expected_source_ids": [
+      "journal_etrd_submission_guidelines"
+    ],
+    "min_criteria_count": 6,
+    "id": "kg-real-104"
+  },
+  {
+    "category": "missing_optional_fields",
+    "scenario": "Journal only should retrieve C&E criteria",
+    "query": {
+      "journal": "Computers & Education"
+    },
+    "expected_source_ids": [
+      "journal_computers_and_education_guide"
+    ],
+    "min_criteria_count": 6,
+    "id": "kg-real-105"
+  },
+  {
+    "category": "missing_optional_fields",
+    "scenario": "Journal only should retrieve ETS criteria",
+    "query": {
+      "journal": "Educational Technology & Society"
+    },
+    "expected_source_ids": [
+      "journal_ets_author_guidelines"
+    ],
+    "min_criteria_count": 6,
+    "id": "kg-real-106"
+  },
+  {
+    "category": "missing_optional_fields",
+    "scenario": "Venue only should retrieve ACL ARR criteria",
+    "query": {
+      "venue": "ACL"
+    },
+    "expected_source_ids": [
+      "conference_acl_arr_review_form"
+    ],
+    "min_criteria_count": 6,
+    "id": "kg-real-107"
+  },
+  {
+    "category": "missing_optional_fields",
+    "scenario": "Venue only should retrieve NeurIPS criteria",
+    "query": {
+      "venue": "NeurIPS"
+    },
+    "expected_source_ids": [
+      "conference_neurips_2025_reviewer_guidelines"
+    ],
+    "min_criteria_count": 5,
+    "id": "kg-real-108"
+  },
+  {
+    "category": "missing_optional_fields",
+    "scenario": "Venue only should retrieve ICML criteria",
+    "query": {
+      "venue": "ICML"
+    },
+    "expected_source_ids": [
+      "conference_icml_2025_reviewer_instructions"
+    ],
+    "min_criteria_count": 5,
+    "id": "kg-real-109"
+  },
+  {
+    "category": "missing_optional_fields",
+    "scenario": "Venue only should retrieve TWELF criteria",
+    "query": {
+      "venue": "TWELF"
+    },
+    "expected_source_ids": [
+      "conference_twelf2026_call_for_papers"
+    ],
+    "min_criteria_count": 5,
+    "id": "kg-real-110"
+  },
+  {
+    "category": "case_format_tolerance",
+    "scenario": "Lowercase ICLR query should still work",
+    "query": {
+      "venue": "iclr",
+      "domain": "machine learning",
+      "article_type": "full conference paper"
+    },
+    "expected_source_ids": [
+      "conference_iclr_2026_reviewer_guide"
+    ],
+    "min_criteria_count": 5,
+    "id": "kg-real-111"
+  },
+  {
+    "category": "case_format_tolerance",
+    "scenario": "Lowercase NeurIPS query should still work",
+    "query": {
+      "venue": "neurips",
+      "domain": "artificial intelligence",
+      "article_type": "conference full paper"
+    },
+    "expected_source_ids": [
+      "conference_neurips_2025_reviewer_guidelines"
+    ],
+    "min_criteria_count": 5,
+    "id": "kg-real-112"
+  },
+  {
+    "category": "case_format_tolerance",
+    "scenario": "Lowercase CHI query should still work",
+    "query": {
+      "venue": "chi",
+      "domain": "human-computer interaction",
+      "article_type": "chi full paper"
+    },
+    "expected_source_ids": [
+      "conference_chi_2025_reviewing_guide"
+    ],
+    "min_criteria_count": 6,
+    "id": "kg-real-113"
+  },
+  {
+    "category": "case_format_tolerance",
+    "scenario": "AAAI 2026 should map to AAAI 26 KG source",
+    "query": {
+      "venue": "AAAI 2026",
+      "domain": "artificial intelligence",
+      "article_type": "aaai main technical track and related tracks"
+    },
+    "expected_source_ids": [
+      "conference_aaai_26_policies_guidelines"
+    ],
+    "min_criteria_count": 5,
+    "id": "kg-real-114"
+  },
+  {
+    "category": "case_format_tolerance",
+    "scenario": "Computers Education without ampersand should work",
+    "query": {
+      "journal": "computers education",
+      "domain": "educational technology",
+      "article_type": "research article"
+    },
+    "expected_source_ids": [
+      "journal_computers_and_education_guide"
+    ],
+    "min_criteria_count": 6,
+    "id": "kg-real-115"
+  },
+  {
+    "category": "case_format_tolerance",
+    "scenario": "Lowercase ETS full journal should work",
+    "query": {
+      "journal": "educational technology & society",
+      "domain": "learning sciences",
+      "article_type": "original research article"
+    },
+    "expected_source_ids": [
+      "journal_ets_author_guidelines"
+    ],
+    "min_criteria_count": 6,
+    "id": "kg-real-116"
+  },
+  {
+    "category": "case_format_tolerance",
+    "scenario": "ARR abbreviation should retrieve ACL ARR form",
+    "query": {
+      "venue": "ARR",
+      "domain": "natural language processing",
+      "article_type": "long paper"
+    },
+    "expected_source_ids": [
+      "conference_acl_arr_review_form"
+    ],
+    "min_criteria_count": 6,
+    "id": "kg-real-117"
+  },
+  {
+    "category": "case_format_tolerance",
+    "scenario": "ACM CHI alias should retrieve CHI source",
+    "query": {
+      "venue": "acm chi",
+      "domain": "human-computer interaction",
+      "article_type": "replication"
+    },
+    "expected_source_ids": [
+      "conference_chi_2025_reviewing_guide"
+    ],
+    "min_criteria_count": 6,
+    "id": "kg-real-118"
+  },
+  {
+    "category": "case_format_tolerance",
+    "scenario": "ICML long name should retrieve ICML source",
+    "query": {
+      "venue": "International Conference on Machine Learning",
+      "domain": "machine learning",
+      "article_type": "main track full paper"
+    },
+    "expected_source_ids": [
+      "conference_icml_2025_reviewer_instructions"
+    ],
+    "min_criteria_count": 5,
+    "id": "kg-real-119"
+  },
+  {
+    "category": "case_format_tolerance",
+    "scenario": "ETRD full name should retrieve ETRD source",
+    "query": {
+      "journal": "Educational Technology Research and Development",
+      "domain": "learning environments",
+      "article_type": "research manuscript"
+    },
+    "expected_source_ids": [
+      "journal_etrd_submission_guidelines"
+    ],
+    "min_criteria_count": 6,
+    "id": "kg-real-120"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Typo correction should map NeruIPS to NeurIPS",
+    "question": null,
+    "query": {
+      "venue": "NeruIPS",
+      "domain": "Machine Learning",
+      "article_type": "Conference full paper"
+    },
+    "expected_source_ids": [
+      "conference_neurips_2025_reviewer_guidelines"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-121"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Typo correction should map ICLM to ICML",
+    "question": null,
+    "query": {
+      "venue": "ICLM",
+      "domain": "Machine Learning",
+      "article_type": "Main track full paper"
+    },
+    "expected_source_ids": [
+      "conference_icml_2025_reviewer_instructions"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-122"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Typo correction should map ALC to ACL",
+    "question": null,
+    "query": {
+      "venue": "ALC",
+      "domain": "Natural Language Processing",
+      "article_type": "Long paper"
+    },
+    "expected_source_ids": [
+      "conference_acl_arr_review_form"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-123"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Typo correction should map CHl with letter-l to CHI",
+    "question": null,
+    "query": {
+      "venue": "CHl",
+      "domain": "Human-Computer Interaction",
+      "article_type": "CHI full paper"
+    },
+    "expected_source_ids": [
+      "conference_chi_2025_reviewing_guide"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-124"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Typo correction should map Compters & Education to Computers & Education",
+    "question": null,
+    "query": {
+      "journal": "Compters & Education",
+      "domain": "Educational Technology",
+      "article_type": "Research Article"
+    },
+    "expected_source_ids": [
+      "journal_computers_and_education_guide"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-125"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Semantic alias should map Neural Information Processing conference to NeurIPS",
+    "question": null,
+    "query": {
+      "venue": "Neural Information Processing conference",
+      "domain": "Machine Learning",
+      "article_type": "Conference full paper"
+    },
+    "expected_source_ids": [
+      "conference_neurips_2025_reviewer_guidelines"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-126"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Semantic alias should map Learning Representations conference to ICLR",
+    "question": null,
+    "query": {
+      "venue": "Learning Representations conference",
+      "domain": "Artificial Intelligence",
+      "article_type": "Full conference paper"
+    },
+    "expected_source_ids": [
+      "conference_iclr_2026_reviewer_guide"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-127"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Semantic alias should map Machine Learning conference to ICML",
+    "question": null,
+    "query": {
+      "venue": "Machine Learning conference",
+      "domain": "Machine Learning",
+      "article_type": "Main track full paper"
+    },
+    "expected_source_ids": [
+      "conference_icml_2025_reviewer_instructions"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-128"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Semantic alias should map HCI conference to CHI",
+    "question": null,
+    "query": {
+      "venue": "HCI conference",
+      "domain": "Human-Computer Interaction",
+      "article_type": "CHI full paper"
+    },
+    "expected_source_ids": [
+      "conference_chi_2025_reviewing_guide"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-129"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Semantic alias should map AI conference policy guide to AAAI",
+    "question": null,
+    "query": {
+      "venue": "AI conference policy guide",
+      "domain": "Artificial Intelligence",
+      "article_type": "AAAI main technical track and related tracks"
+    },
+    "expected_source_ids": [
+      "conference_aaai_26_policies_guidelines"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-130"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Question-only routing should infer TWELF education relevance source",
+    "question": "What evidence should a TWELF paper provide for educational application relevance?",
+    "query": {},
+    "expected_source_ids": [
+      "conference_twelf2026_call_for_papers"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-131"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Question-only routing should infer ICLR LLM reviewing source",
+    "question": "What evidence is required for responsible LLM-assisted reviewing at ICLR?",
+    "query": {},
+    "expected_source_ids": [
+      "conference_iclr_2026_reviewer_guide"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-132"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Question-only routing should infer NeurIPS ethics source",
+    "question": "For NeurIPS, what evidence supports ethics and societal impact review?",
+    "query": {},
+    "expected_source_ids": [
+      "conference_neurips_2025_reviewer_guidelines"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-133"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Question-only routing should infer CHI confidentiality source",
+    "question": "What evidence confirms confidentiality expectations for a CHI review?",
+    "query": {},
+    "expected_source_ids": [
+      "conference_chi_2025_reviewing_guide"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-134"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Question-only routing should infer ETS rigorous method source",
+    "question": "For Educational Technology and Society, what evidence checks rigorous method?",
+    "query": {},
+    "expected_source_ids": [
+      "journal_ets_author_guidelines"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-135"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Partial acronym plus year should map NIPS 2025 to NeurIPS",
+    "question": null,
+    "query": {
+      "venue": "NIPS 2025",
+      "domain": "Machine Learning",
+      "article_type": "Conference full paper"
+    },
+    "expected_source_ids": [
+      "conference_neurips_2025_reviewer_guidelines"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-136"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Partial acronym should map C and E to Computers & Education",
+    "question": null,
+    "query": {
+      "journal": "C and E",
+      "domain": "Educational Technology",
+      "article_type": "Research Article"
+    },
+    "expected_source_ids": [
+      "journal_computers_and_education_guide"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-137"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Partial acronym should map Ed Tech Research Dev to ETRD",
+    "question": null,
+    "query": {
+      "journal": "Ed Tech Research Dev",
+      "domain": "Instructional Design",
+      "article_type": "Development Article"
+    },
+    "expected_source_ids": [
+      "journal_etrd_submission_guidelines"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-138"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Partial acronym should map Edu Tech Society to ETS",
+    "question": null,
+    "query": {
+      "journal": "Edu Tech Society",
+      "domain": "Learning Sciences",
+      "article_type": "Original research article"
+    },
+    "expected_source_ids": [
+      "journal_ets_author_guidelines"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-139"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Broad venue family should map OpenReview ICLR to ICLR",
+    "question": null,
+    "query": {
+      "venue": "OpenReview ICLR reviewer instructions",
+      "domain": "Machine Learning",
+      "article_type": "Full conference paper"
+    },
+    "expected_source_ids": [
+      "conference_iclr_2026_reviewer_guide"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-140"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Broad source phrase should map author response guidelines to NeurIPS",
+    "question": null,
+    "query": {
+      "venue": "author response reviewer guidelines",
+      "domain": "Machine Learning",
+      "article_type": "Conference full paper"
+    },
+    "expected_source_ids": [
+      "conference_neurips_2025_reviewer_guidelines"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-141"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Broad source phrase should map reviewer AI-use transparency to AAAI",
+    "question": null,
+    "query": {
+      "venue": "reviewer AI-use transparency conference",
+      "domain": "Artificial Intelligence",
+      "article_type": "AAAI main technical track and related tracks"
+    },
+    "expected_source_ids": [
+      "conference_aaai_26_policies_guidelines"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-142"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Broad source phrase should map prior publication originality to CHI",
+    "question": null,
+    "query": {
+      "venue": "prior publication originality HCI guide",
+      "domain": "Human-Computer Interaction",
+      "article_type": "CHI full paper"
+    },
+    "expected_source_ids": [
+      "conference_chi_2025_reviewing_guide"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-143"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Broad source phrase should map ARR limitations societal impact to ACL",
+    "question": null,
+    "query": {
+      "venue": "limitations societal impact NLP review form",
+      "domain": "Natural Language Processing",
+      "article_type": "Long paper"
+    },
+    "expected_source_ids": [
+      "conference_acl_arr_review_form"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-144"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Mixed language phrase should map TWELF digital learning forum",
+    "question": null,
+    "query": {
+      "venue": "Taiwan digital learning ??",
+      "domain": "E-Learning",
+      "article_type": "Poster paper 1-2 pages"
+    },
+    "expected_source_ids": [
+      "conference_twelf2026_call_for_papers"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-145"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Loose journal name should map computers education technology journal",
+    "question": null,
+    "query": {
+      "journal": "computers education technology journal",
+      "domain": "Educational Technology",
+      "article_type": "Research Article"
+    },
+    "expected_source_ids": [
+      "journal_computers_and_education_guide"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-146"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Loose journal name should map instructional design development journal",
+    "question": null,
+    "query": {
+      "journal": "instructional design development journal",
+      "domain": "Instructional Design",
+      "article_type": "Development Article"
+    },
+    "expected_source_ids": [
+      "journal_etrd_submission_guidelines"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-147"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Loose journal name should map learning sciences society journal",
+    "question": null,
+    "query": {
+      "journal": "learning sciences society journal",
+      "domain": "Learning Sciences",
+      "article_type": "Original research article"
+    },
+    "expected_source_ids": [
+      "journal_ets_author_guidelines"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-148"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Question-only routing should infer NeurIPS technical soundness without structured metadata",
+    "question": "What evidence is needed for technical soundness in a NeurIPS full paper?",
+    "query": {},
+    "expected_source_ids": [
+      "conference_neurips_2025_reviewer_guidelines"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-149"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Question-only routing should infer CHI contribution to HCI without structured metadata",
+    "question": "What evidence is needed for contribution to HCI in a CHI paper?",
+    "query": {},
+    "expected_source_ids": [
+      "conference_chi_2025_reviewing_guide"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-150"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Typo plus missing domain should map ICLR reviewer guide",
+    "question": "What evidence is needed for ICLR review quality?",
+    "query": {
+      "venue": "ICLRR",
+      "article_type": "Full conference paper"
+    },
+    "expected_source_ids": [
+      "conference_iclr_2026_reviewer_guide"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-151"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Semantic phrase should map NeurIPS technical soundness",
+    "question": "What evidence checks technical soundness?",
+    "query": {
+      "venue": "top ML conference about neural information",
+      "domain": "Machine Learning"
+    },
+    "expected_source_ids": [
+      "conference_neurips_2025_reviewer_guidelines"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-152"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Question-only should infer Computers & Education research quality",
+    "question": "In Computers and Education, what evidence is needed for research quality?",
+    "query": {},
+    "expected_source_ids": [
+      "journal_computers_and_education_guide"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-153"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Loose phrase should map ACL ARR scientific soundness",
+    "question": "What evidence checks scientific soundness?",
+    "query": {
+      "venue": "NLP rolling review scientific soundness"
+    },
+    "expected_source_ids": [
+      "conference_acl_arr_review_form"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-154"
+  },
+  {
+    "category": "aspirational_unsupported_inputs",
+    "scenario": "Loose phrase should map TWELF format requirements",
+    "question": "What evidence checks paper format and presentation compliance?",
+    "query": {
+      "venue": "Taiwan elearning 2026"
+    },
+    "expected_source_ids": [
+      "conference_twelf2026_call_for_papers"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-155"
+  }
+]
