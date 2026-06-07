@@ -11,13 +11,18 @@ from deepeval.test_case import LLMTestCase, LLMTestCaseParams
 
 from benchmark.checks import validate_run_completion
 from benchmark.collect import RUNS_JSONL_PATH, collect_run
-from benchmark.eval_llm import build_deepeval_model, eval_model_name, pause_between_eval_calls
+from benchmark.eval_llm import build_judge_model, eval_model_name, pause_between_eval_calls
 from benchmark.paths import DATA_JOBS_DIR, RESULTS_DIR
 from benchmark.registry import list_runs
 
 REVIEW_QUALITY_SCORES_PATH = RESULTS_DIR / 'review_quality_scores.csv'
 DEFAULT_JUDGE_MODEL = 'gpt-5-mini'
-DEFAULT_MANUSCRIPT_MAX_CHARS = 8_000
+DEFAULT_MANUSCRIPT_MAX_CHARS = 25_000
+
+JUDGE_SCORE_ANCHORS = (
+    'Anchors: 1=major failures; 3=adequate but generic; 5=excellent and evidence-grounded. '
+    'Return only a single number 1-5.'
+)
 
 CORE_JUDGE_METRICS = (
     'factual_correctness',
@@ -36,7 +41,11 @@ _EVAL_PARAMS = [LLMTestCaseParams.ACTUAL_OUTPUT, LLMTestCaseParams.CONTEXT]
 
 
 def _judge_mode() -> str:
-    return os.environ.get('BENCHMARK_JUDGE_MODE', 'composite').strip().lower()
+    return os.environ.get('BENCHMARK_JUDGE_MODE', 'per_metric').strip().lower()
+
+
+def _anchored(criteria: str) -> str:
+    return f'{criteria} {JUDGE_SCORE_ANCHORS}'
 
 
 def _manuscript_max_chars() -> int:
@@ -50,14 +59,14 @@ def _manuscript_max_chars() -> int:
 
 
 def _truncate_report(text: str) -> str:
-    max_chars = int(os.environ.get('BENCHMARK_JUDGE_MAX_REPORT_CHARS', '4000'))
+    max_chars = int(os.environ.get('BENCHMARK_JUDGE_MAX_REPORT_CHARS', '8000'))
     if len(text) <= max_chars:
         return text
     return text[:max_chars] + '\n\n...[truncated]...'
 
 
 def _truncate_criteria(text: str) -> str:
-    max_chars = int(os.environ.get('BENCHMARK_JUDGE_MAX_CRITERIA_CHARS', '2000'))
+    max_chars = int(os.environ.get('BENCHMARK_JUDGE_MAX_CRITERIA_CHARS', '4000'))
     if len(text) <= max_chars:
         return text
     return text[:max_chars] + '\n\n...[truncated]...'
@@ -79,7 +88,7 @@ def build_composite_metric() -> GEval:
         name='composite_review_quality',
         criteria=COMPOSITE_JUDGE_CRITERIA,
         evaluation_params=_EVAL_PARAMS,
-        model=build_deepeval_model(),
+        model=build_judge_model(),
     )
 
 
@@ -126,14 +135,14 @@ def _build_geval_metric(*, name: str, criteria: str) -> GEval:
         name=name,
         criteria=criteria,
         evaluation_params=_EVAL_PARAMS,
-        model=build_deepeval_model(),
+        model=build_judge_model(),
     )
 
 
 def build_factual_correctness_metric() -> GEval:
     return _build_geval_metric(
         name='factual_correctness',
-        criteria=(
+        criteria=_anchored(
             'Score 1-5 how factually correct the peer review is relative to the manuscript. '
             '1 = major factual errors or misreadings; 5 = claims align with the paper.'
         ),
@@ -143,7 +152,7 @@ def build_factual_correctness_metric() -> GEval:
 def build_evidence_support_metric() -> GEval:
     return _build_geval_metric(
         name='evidence_support',
-        criteria=(
+        criteria=_anchored(
             'Score 1-5 how well critiques and strengths cite or reflect manuscript evidence. '
             '1 = mostly unsupported assertions; 5 = critiques are well grounded in the text.'
         ),
@@ -153,7 +162,7 @@ def build_evidence_support_metric() -> GEval:
 def build_rubric_alignment_metric() -> GEval:
     return _build_geval_metric(
         name='rubric_alignment',
-        criteria=(
+        criteria=_anchored(
             'Score 1-5 how well the review addresses venue-specific review criteria when provided. '
             '1 = ignores criteria; 5 = systematically covers the rubric.'
         ),
@@ -194,7 +203,7 @@ def build_unsupported_critique_rate_metric() -> GEval:
 def build_criterion_grounded_valid_critique_metric() -> GEval:
     return _build_geval_metric(
         name='criterion_grounded_valid_critique',
-        criteria=(
+        criteria=_anchored(
             'Score 1-5 for criterion-grounded, valid critiques when venue criteria are provided. '
             '1 = criteria ignored or invalid critiques; 5 = valid critiques tied to rubric items. '
             'If no criteria are provided, score based on whether critiques would be valid for a venue review.'
@@ -313,7 +322,12 @@ def judge_run(collected_row: dict[str, Any] | str) -> dict[str, Any]:
     if _judge_mode() == 'composite':
         scores.update(composite_judge_scores(row))
         return scores
-    metrics = build_all_metrics()
+    all_metrics = build_all_metrics()
+    metrics = (
+        {name: all_metrics[name] for name in CORE_JUDGE_METRICS}
+        if _judge_mode() == 'per_metric'
+        else all_metrics
+    )
     for name, metric in metrics.items():
         scores[name] = metric.measure(test_case)
     return scores

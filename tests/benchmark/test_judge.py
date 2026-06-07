@@ -13,6 +13,27 @@ def _deepeval_openai_key(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv('BENCHMARK_EVAL_PROVIDER', 'openai')
 
 
+def test_judge_mode_defaults_per_metric(monkeypatch):
+    monkeypatch.delenv('BENCHMARK_JUDGE_MODE', raising=False)
+    from benchmark.judge import _judge_mode
+
+    assert _judge_mode() == 'per_metric'
+
+
+def test_manuscript_max_chars_default_25k(monkeypatch):
+    monkeypatch.delenv('BENCHMARK_JUDGE_MAX_MANUSCRIPT_CHARS', raising=False)
+    from benchmark.judge import _manuscript_max_chars
+
+    assert _manuscript_max_chars() == 25000
+
+
+def test_core_metrics_include_anchors():
+    from benchmark.judge import JUDGE_SCORE_ANCHORS, build_factual_correctness_metric
+
+    metric = build_factual_correctness_metric()
+    assert JUDGE_SCORE_ANCHORS in metric.criteria
+
+
 def test_build_rubric_alignment_metric():
     from benchmark.judge import build_rubric_alignment_metric
 
@@ -61,7 +82,7 @@ def test_load_judge_artifacts(tmp_path, monkeypatch: pytest.MonkeyPatch):
 def test_judge_run_uses_measure(monkeypatch: pytest.MonkeyPatch):
     from benchmark import judge as judge_module
 
-    monkeypatch.setenv('BENCHMARK_JUDGE_MODE', 'separate')
+    monkeypatch.setenv('BENCHMARK_JUDGE_MODE', 'per_metric')
     captured: list[LLMTestCase] = []
 
     class FakeMetric:
