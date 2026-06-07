@@ -53,7 +53,17 @@ def _submit_response(job: JobState, completed: bool) -> dict:
     return payload
 
 
-def _create_job(pdf_path: Path, title: str | None) -> JobState:
+def _copy_reuse_parse_dir(job_id: str, reuse_dir: Path) -> None:
+    if not reuse_dir.exists() or not reuse_dir.is_dir():
+        return
+    target_dir = job_dir(job_id)
+    for name in ('mineru_full.md', 'mineru_content_list.json'):
+        src = reuse_dir / name
+        if src.exists() and src.stat().st_size > 0:
+            shutil.copy2(src, target_dir / name)
+
+
+def _create_job(pdf_path: Path, title: str | None, *, reuse_parse_dir: Path | None = None) -> JobState:
     job = JobState(
         title=(title or pdf_path.stem).strip() or pdf_path.stem,
         source_pdf_name=pdf_path.name,
@@ -64,6 +74,8 @@ def _create_job(pdf_path: Path, title: str | None) -> JobState:
     source_pdf_path = Path(artifacts['source_pdf'])
     source_pdf_path.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(str(pdf_path), str(source_pdf_path))
+    if reuse_parse_dir is not None:
+        _copy_reuse_parse_dir(str(job.id), reuse_parse_dir)
 
     def apply(state: JobState) -> None:
         state.artifacts.source_pdf_path = str(source_pdf_path)
@@ -127,7 +139,11 @@ def cmd_submit(args: argparse.Namespace) -> int:
         )
         return 2
 
-    job = _create_job(pdf_path, args.title)
+    reuse_parse_dir = None
+    if getattr(args, 'reuse_parse_dir', None):
+        reuse_parse_dir = Path(args.reuse_parse_dir).expanduser().resolve()
+
+    job = _create_job(pdf_path, args.title, reuse_parse_dir=reuse_parse_dir)
     _spawn_worker(str(job.id))
 
     wait_seconds = args.wait_seconds
@@ -253,6 +269,11 @@ def build_parser() -> argparse.ArgumentParser:
     submit.add_argument('--pdf', required=True, help='Path to PDF file')
     submit.add_argument('--title', required=False, help='Optional title override')
     submit.add_argument('--wait-seconds', type=int, required=False, help='Wait window before returning')
+    submit.add_argument(
+        '--reuse-parse-dir',
+        required=False,
+        help='Copy cached MinerU parse artifacts into the new job before worker starts',
+    )
     submit.set_defaults(func=cmd_submit)
 
     status = sub.add_parser('status', help='Get job status')
