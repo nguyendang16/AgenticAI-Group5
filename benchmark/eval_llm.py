@@ -15,38 +15,32 @@ DEFAULT_FAITHFULNESS_MODEL = 'gemma-4-31b-it'
 
 
 def _legacy_provider() -> str | None:
-    raw = os.environ.get('BENCHMARK_EVAL_PROVIDER')
-    if raw is None:
-        return None
-    return raw.strip().lower()
+    raw = os.environ.get('BENCHMARK_EVAL_PROVIDER', '').strip().lower()
+    return raw or None
 
 
 def judge_provider() -> str:
-    raw = os.environ.get('BENCHMARK_JUDGE_PROVIDER')
-    if raw is not None:
-        return raw.strip().lower()
-    legacy = _legacy_provider()
-    if legacy is not None:
-        return legacy
-    return DEFAULT_JUDGE_PROVIDER
+    explicit = os.environ.get('BENCHMARK_JUDGE_PROVIDER', '').strip().lower()
+    if explicit:
+        return explicit
+    return _legacy_provider() or DEFAULT_JUDGE_PROVIDER
 
 
 def faithfulness_provider() -> str:
-    raw = os.environ.get('BENCHMARK_FAITHFULNESS_PROVIDER')
-    if raw is not None:
-        return raw.strip().lower()
-    legacy = _legacy_provider()
-    if legacy is not None:
-        return legacy
-    return DEFAULT_FAITHFULNESS_PROVIDER
+    explicit = os.environ.get('BENCHMARK_FAITHFULNESS_PROVIDER', '').strip().lower()
+    if explicit:
+        return explicit
+    return _legacy_provider() or DEFAULT_FAITHFULNESS_PROVIDER
 
 
 def judge_model_name() -> str:
-    return os.environ.get('BENCHMARK_JUDGE_MODEL') or DEFAULT_JUDGE_MODEL
+    return os.environ.get('BENCHMARK_JUDGE_MODEL', '').strip() or DEFAULT_JUDGE_MODEL
 
 
 def faithfulness_model_name() -> str:
-    return os.environ.get('BENCHMARK_FAITHFULNESS_MODEL') or DEFAULT_FAITHFULNESS_MODEL
+    return (
+        os.environ.get('BENCHMARK_FAITHFULNESS_MODEL', '').strip() or DEFAULT_FAITHFULNESS_MODEL
+    )
 
 
 def eval_provider() -> str:
