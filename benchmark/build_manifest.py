@@ -6,7 +6,7 @@ from collections import defaultdict
 
 from benchmark.fetch_journals import fetch_journal_gaps, scan_incoming_papers
 from benchmark.fetch_openreview import fetch_openreview_gaps
-from benchmark.ingest_local import ingest_kg_test_papers
+from benchmark.ingest_local import ingest_benchmark_papers_dir, ingest_kg_test_papers
 from benchmark.models import PaperRecord
 from benchmark.paths import MANIFEST_PATH
 
@@ -61,7 +61,17 @@ def _select_manifest_rows(rows: list[PaperRecord]) -> list[PaperRecord]:
     return selected
 
 
-def build_manifest() -> list[PaperRecord]:
+def build_manifest(*, local_only: bool = False) -> list[PaperRecord]:
+    if local_only:
+        rows = ingest_benchmark_papers_dir()
+        manifest_rows = _select_manifest_rows(rows)
+        MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with MANIFEST_PATH.open('w', encoding='utf-8') as handle:
+            for row in manifest_rows:
+                handle.write(json.dumps(row.to_dict()) + '\n')
+        logger.info('Wrote %d papers to %s (local-only)', len(manifest_rows), MANIFEST_PATH)
+        return manifest_rows
+
     rows = ingest_kg_test_papers()
 
     gaps = compute_gaps(rows)
