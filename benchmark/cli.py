@@ -12,6 +12,7 @@ PIPELINE_EVAL_STEPS: tuple[str, ...] = (
     'collect',
     'check',
     'judge',
+    'pairwise-judge',
     'faithfulness',
     'compare',
     'report',
@@ -58,6 +59,14 @@ def _cmd_judge(args: argparse.Namespace) -> int:
 
     scores = judge_all(job_id=args.job_id)
     print(f'Wrote {len(scores)} rows to {REVIEW_QUALITY_SCORES_PATH}')
+    return 0
+
+
+def _cmd_pairwise_judge(args: argparse.Namespace) -> int:
+    from benchmark.pairwise_judge import PAIRWISE_JUDGE_SCORES_PATH, pairwise_all
+
+    rows = pairwise_all(paper_id=args.paper_id)
+    print(f'Wrote {len(rows)} rows to {PAIRWISE_JUDGE_SCORES_PATH}')
     return 0
 
 
@@ -113,6 +122,7 @@ def _dispatch_step(name: str, args: argparse.Namespace) -> int:
         'collect': _cmd_collect,
         'check': _cmd_check,
         'judge': _cmd_judge,
+        'pairwise-judge': _cmd_pairwise_judge,
         'faithfulness': _cmd_faithfulness,
         'decision-metrics': _cmd_decision_metrics,
         'compare': _cmd_compare,
@@ -132,7 +142,10 @@ def _cmd_pipeline(args: argparse.Namespace) -> int:
         phase_banner('reviews', detail='OpenAI reviews only — gap-fill missing papers')
     elif args.phase == 'eval':
         steps = PIPELINE_EVAL_STEPS
-        phase_banner('eval', detail='Gemma judge + RAGAS — run ≥60 min after reviews')
+        phase_banner(
+            'eval',
+            detail='OpenAI judge + pairwise + Gemma RAGAS — run ≥60 min after reviews',
+        )
     else:
         print(f'Unknown phase: {args.phase}', file=sys.stderr)
         return 1
@@ -224,6 +237,13 @@ def main(argv: list[str] | None = None) -> int:
     judge_parser.add_argument('--job-id', default=None, help='Judge a single benchmark job')
     judge_parser.set_defaults(func=_cmd_judge, local_only=False)
 
+    pairwise_parser = subparsers.add_parser(
+        'pairwise-judge',
+        help='OpenAI pairwise comparison of KG_ON vs KG_OFF reviews per paper',
+    )
+    pairwise_parser.add_argument('--paper-id', default=None, help='Compare a single paper')
+    pairwise_parser.set_defaults(func=_cmd_pairwise_judge)
+
     faithfulness_parser = subparsers.add_parser(
         'faithfulness',
         help='RAGAS claim-level faithfulness scoring',
@@ -239,7 +259,7 @@ def main(argv: list[str] | None = None) -> int:
         '--phase',
         required=True,
         choices=('reviews', 'eval'),
-        help='reviews=gap-fill OpenAI; eval=Gemma judge+RAGAS+report',
+        help='reviews=gap-fill OpenAI; eval=OpenAI judge+pairwise+Gemma RAGAS+report',
     )
     pipeline_parser.add_argument('--dry-run', action='store_true', help='Pass --dry-run to review run step')
     pipeline_parser.add_argument('--paper-id', default=None, help='Run a single paper (reviews phase)')
