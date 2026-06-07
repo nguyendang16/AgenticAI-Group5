@@ -11,6 +11,7 @@ from deepeval.test_case import LLMTestCase, LLMTestCaseParams
 
 from benchmark.checks import validate_run_completion
 from benchmark.collect import RUNS_JSONL_PATH, collect_run
+from benchmark.eval_llm import build_deepeval_model, pause_between_eval_calls
 from benchmark.paths import DATA_JOBS_DIR, RESULTS_DIR
 from benchmark.registry import list_runs
 
@@ -18,21 +19,24 @@ REVIEW_QUALITY_SCORES_PATH = RESULTS_DIR / 'review_quality_scores.csv'
 DEFAULT_JUDGE_MODEL = 'gpt-5-mini'
 DEFAULT_MANUSCRIPT_MAX_CHARS = 50_000
 
-METRIC_NAMES = (
+CORE_JUDGE_METRICS = (
     'factual_correctness',
     'evidence_support',
     'rubric_alignment',
-    'specificity',
-    'actionability',
-    'unsupported_critique_rate',
     'criterion_grounded_valid_critique',
 )
+
+METRIC_NAMES = CORE_JUDGE_METRICS
+
+COMPOSITE_JUDGE_CRITERIA = """Return ONLY valid JSON with numeric scores 1-5 for:
+factual_correctness, evidence_support, rubric_alignment, criterion_grounded_valid_critique.
+Score the peer review against the manuscript excerpt and venue criteria in context."""
 
 _EVAL_PARAMS = [LLMTestCaseParams.ACTUAL_OUTPUT, LLMTestCaseParams.CONTEXT]
 
 
-def _judge_model() -> str:
-    return os.environ.get('BENCHMARK_JUDGE_MODEL', DEFAULT_JUDGE_MODEL)
+def _judge_mode() -> str:
+    return os.environ.get('BENCHMARK_JUDGE_MODE', 'composite').strip().lower()
 
 
 def _manuscript_max_chars() -> int:
@@ -45,12 +49,37 @@ def _manuscript_max_chars() -> int:
         return DEFAULT_MANUSCRIPT_MAX_CHARS
 
 
+def _truncate_report(text: str) -> str:
+    max_chars = int(os.environ.get('BENCHMARK_JUDGE_MAX_REPORT_CHARS', '8000'))
+    if len(text) <= max_chars:
+        return text
+    return text[:max_chars] + '\n\n...[truncated]...'
+
+
+def parse_composite_judge_response(raw: str) -> dict[str, float]:
+    text = raw.strip()
+    if '```' in text:
+        text = text.split('```', 1)[-1]
+        text = text.split('```', 1)[0]
+    payload = json.loads(text)
+    return {name: float(payload[name]) for name in CORE_JUDGE_METRICS}
+
+
+def build_composite_metric() -> GEval:
+    return GEval(
+        name='composite_review_quality',
+        criteria=COMPOSITE_JUDGE_CRITERIA,
+        evaluation_params=_EVAL_PARAMS,
+        model=build_deepeval_model(),
+    )
+
+
 def _build_geval_metric(*, name: str, criteria: str) -> GEval:
     return GEval(
         name=name,
         criteria=criteria,
         evaluation_params=_EVAL_PARAMS,
-        model=_judge_model(),
+        model=build_deepeval_model(),
     )
 
 
@@ -158,7 +187,9 @@ def load_judge_artifacts(job_id: str) -> dict[str, str]:
         manuscript_excerpt = _truncate_manuscript(mineru_path.read_text(encoding='utf-8'))
 
     final_path = job_dir / 'final_report.md'
-    final_markdown = final_path.read_text(encoding='utf-8') if final_path.exists() else ''
+    final_markdown = ''
+    if final_path.exists():
+        final_markdown = _truncate_report(final_path.read_text(encoding='utf-8'))
 
     criteria_json = ''
     criteria_path = job_dir / 'review_criteria_bundle.json'
@@ -226,18 +257,19 @@ def _build_test_case(row: dict[str, Any]) -> LLMTestCase:
 def judge_run(collected_row: dict[str, Any] | str) -> dict[str, Any]:
     row = _enrich_row_for_judge(_resolve_collected_row(collected_row))
     test_case = _build_test_case(row)
-    metrics = build_all_metrics()
-
     scores: dict[str, Any] = {
         'paper_id': row.get('paper_id', ''),
         'job_id': row.get('job_id', ''),
         'venue': row.get('venue', ''),
         'condition': row.get('condition', ''),
     }
-
+    if _judge_mode() == 'composite':
+        raw = build_composite_metric().measure(test_case)
+        scores.update(parse_composite_judge_response(str(raw)))
+        return scores
+    metrics = build_all_metrics()
     for name, metric in metrics.items():
         scores[name] = metric.measure(test_case)
-
     return scores
 
 
@@ -252,6 +284,14 @@ def _read_runs_jsonl(path: Path) -> list[dict[str, Any]]:
     return rows
 
 
+def _existing_judged_job_ids(path: Path) -> set[str]:
+    if not path.exists():
+        return set()
+    with path.open(encoding='utf-8') as handle:
+        reader = csv.DictReader(handle)
+        return {str(row.get('job_id', '')) for row in reader if row.get('job_id')}
+
+
 def judge_all(
     *,
     job_id: str | None = None,
@@ -264,15 +304,26 @@ def judge_all(
 
     if job_id:
         candidate_rows = [_resolve_collected_row(job_id)]
+        skip_ids: set[str] = set()
     else:
         candidate_rows = _read_runs_jsonl(source)
+        skip_ids = _existing_judged_job_ids(destination)
 
     results: list[dict[str, Any]] = []
+    if destination.exists() and destination.stat().st_size > 0:
+        with destination.open(encoding='utf-8') as handle:
+            reader = csv.DictReader(handle)
+            results = list(reader)
+
     for row in candidate_rows:
         completion_errors = validate_run_completion(row)
         if completion_errors:
             continue
+        jid = str(row.get('job_id', ''))
+        if jid in skip_ids:
+            continue
         results.append(judge_run(row))
+        pause_between_eval_calls()
 
     if not results:
         destination.write_text('', encoding='utf-8')

@@ -10,6 +10,7 @@ from deepeval.test_case import LLMTestCase, LLMTestCaseParams
 @pytest.fixture(autouse=True)
 def _deepeval_openai_key(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv('OPENAI_API_KEY', 'sk-test')
+    monkeypatch.setenv('BENCHMARK_EVAL_PROVIDER', 'openai')
 
 
 def test_build_rubric_alignment_metric():
@@ -60,6 +61,7 @@ def test_load_judge_artifacts(tmp_path, monkeypatch: pytest.MonkeyPatch):
 def test_judge_run_uses_measure(monkeypatch: pytest.MonkeyPatch):
     from benchmark import judge as judge_module
 
+    monkeypatch.setenv('BENCHMARK_JUDGE_MODE', 'separate')
     captured: list[LLMTestCase] = []
 
     class FakeMetric:
