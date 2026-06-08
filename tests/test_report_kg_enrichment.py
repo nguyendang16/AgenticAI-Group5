@@ -195,7 +195,7 @@ def test_build_report_includes_legend():
         review_fast_mode=True,
     )
     assert '## Criterion Legend' in md
-    assert '## Graph Evaluation' in md
+    assert '## KG Criteria Result' in md
     assert 'C01' in md
     assert '## Summary' in md
 
@@ -226,6 +226,6 @@ def test_graph_evaluation_summarizes_sources():
     assert evaluation['source_documents'][0]['file_name'] == 'twelf.docx'
 
     md = format_graph_evaluation_markdown(bundle)
-    assert '## Graph Evaluation' in md
+    assert '## KG Criteria Result' in md
     assert 'twelf.docx' in md
     assert 'Evidence requirements linked: 1' in md

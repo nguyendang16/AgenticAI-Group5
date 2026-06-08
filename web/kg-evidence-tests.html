@@ -17,27 +17,12 @@
       </div>
       <nav class="site-nav" aria-label="Primary">
         <a href="/">Review App</a>
-        <a href="/benchmark-graph-evaluation.html">Graph Evaluation</a>
       </nav>
     </header>
 
     <main class="layout benchmark-layout">
       <section class="panel benchmark-state">
-        <h2>Test Runner</h2>
-        <div class="benchmark-status-row">
-          <span class="status-pill status-loading" id="test-status-pill">
-            <span class="status-spinner" aria-hidden="true"></span>
-            Loading
-          </span>
-          <p id="test-status-message">Loading latest test result...</p>
-        </div>
-        <div class="test-actions">
-          <button type="button" id="run-tests-btn" class="primary-action">Run Benchmark</button>
-          <label class="test-filter">
-            <input type="checkbox" id="failures-only" />
-            Show failures only
-          </label>
-        </div>
+        <h2>KG Evidence Benchmark</h2>
         <p class="benchmark-note">
           Pass means the KG behaved as expected for the scenario: correct evidence retrieval,
           correct empty result, correct alias handling, or correct conflict resolution. This page
@@ -72,12 +57,13 @@
         <p class="benchmark-note" id="generated-at">Generated: --</p>
       </section>
 
-      <section class="panel">
-        <h2>Behavior Categories</h2>
-        <table class="benchmark-table evidence-table">
+      <section class="panel behavior-categories-panel">
+        <h2>Behaviour Categories</h2>
+        <table class="benchmark-table evidence-table behavior-category-table">
           <thead>
             <tr>
               <th>Category</th>
+              <th>Meaning</th>
               <th>Cases</th>
               <th>Passed</th>
               <th>Failed</th>
@@ -85,7 +71,7 @@
             </tr>
           </thead>
           <tbody id="category-results">
-            <tr><td colspan="5">Waiting for test result...</td></tr>
+            <tr><td colspan="6">Waiting for test result...</td></tr>
           </tbody>
         </table>
       </section>
@@ -178,18 +164,6 @@
           .replaceAll('>', '&gt;')
           .replaceAll('"', '&quot;')
           .replaceAll("'", '&#39;');
-      }
-
-      function setStatus(stateName, label, message) {
-        const pill = document.getElementById('test-status-pill');
-        if (pill) {
-          pill.className = `status-pill status-${stateName}`;
-          const spinner = stateName === 'loading' || stateName === 'running'
-            ? '<span class="status-spinner" aria-hidden="true"></span>'
-            : '';
-          pill.innerHTML = `${spinner}${escapeHtml(label)}`;
-        }
-        setText('test-status-message', message);
       }
 
       function queryLabel(query) {
@@ -290,13 +264,24 @@
       }
 
       function renderCategoryRows(byCategory) {
+        const categoryDescriptions = {
+          positive_retrieval: 'Normal valid inputs where the KG should return the expected source, criterion, and evidence.',
+          missing_optional_fields: 'Partial metadata cases, such as venue-only or journal-only input.',
+          case_format_tolerance: 'Different casing, year formats, aliases, and common name variations.',
+          aspirational_unsupported_inputs: 'Hard future-work cases such as typos, fuzzy phrases, and question-only routing.',
+          no_match_and_fallback: 'Unknown or empty inputs where the KG should avoid guessing.',
+          wrong_filter_rejection: 'Wrong domain or article type inputs that should not return unrelated criteria.',
+          ambiguous_conflict_resolution: 'Inputs containing conflicting venue/journal metadata where routing should stay predictable.',
+          natural_language_question_routing: 'Question-style cases with enough structured metadata to route correctly.',
+        };
         const entries = Object.entries(byCategory || {}).sort(([a], [b]) => a.localeCompare(b));
         if (!entries.length) {
-          return '<tr><td colspan="5">No behavior categories found.</td></tr>';
+          return '<tr><td colspan="6">No behavior categories found.</td></tr>';
         }
         return entries.map(([category, row]) => `
           <tr>
             <td>${escapeHtml(category.replaceAll('_', ' '))}</td>
+            <td>${escapeHtml(categoryDescriptions[category] || 'Benchmark scenario group.')}</td>
             <td>${row.case_count ?? 0}</td>
             <td>${row.passed ?? 0}</td>
             <td>${row.failed ?? 0}</td>
@@ -334,12 +319,9 @@
       }
 
       function filteredCases(cases) {
-        const failuresOnlyInput = document.getElementById('failures-only');
         const search = '';
         const category = state.categoryFilter || '';
-        const failuresOnly = failuresOnlyInput ? failuresOnlyInput.checked : false;
         return (cases || []).filter((item) => {
-          if (failuresOnly && item.passed) return false;
           if (category && item.category !== category) return false;
           if (state.resultFilter === 'pass' && !item.passed) return false;
           if (state.resultFilter === 'fail' && item.passed) return false;
@@ -431,7 +413,6 @@
       function renderPayload(payload) {
         state.payload = payload;
         if (!payload.ready) {
-          setStatus('waiting', 'Waiting', payload.message || 'No evidence test result is available yet.');
           setText('metric-case-count', '--');
           setText('metric-passed', '--');
           setText('metric-failed', '--');
@@ -440,12 +421,6 @@
         }
 
         const summary = payload.summary || {};
-        const failed = Number(summary.failed || 0);
-        setStatus(
-          failed === 0 ? 'ready' : 'failed',
-          failed === 0 ? 'Passed' : 'Failed',
-          `Latest run completed with ${summary.passed || 0}/${summary.case_count || 0} cases passing.`
-        );
         setText('metric-case-count', summary.case_count ?? '--');
         setText('metric-passed', summary.passed ?? '--');
         setText('metric-failed', summary.failed ?? '--');
@@ -460,38 +435,12 @@
       }
 
       async function loadResults() {
-        setStatus('loading', 'Loading', 'Loading latest test result...');
         const response = await fetch(`/api/kg-evidence-tests?ts=${Date.now()}`, { cache: 'no-store' });
         const payload = await response.json();
         if (!response.ok) throw new Error(payload.detail || 'Could not load test result');
         renderPayload(payload);
       }
 
-      async function runTests() {
-        const button = document.getElementById('run-tests-btn');
-        state.running = true;
-        button.disabled = true;
-        setStatus('running', 'Running', 'Running the KG real-world behavior benchmark...');
-        try {
-          const response = await fetch('/api/kg-evidence-tests/run', {
-            method: 'POST',
-            cache: 'no-store',
-          });
-          const payload = await response.json();
-          if (!response.ok) throw new Error(payload.detail?.message || payload.detail || 'Test run failed');
-          renderPayload(payload);
-        } catch (error) {
-          setStatus('failed', 'Error', error.message || String(error));
-        } finally {
-          state.running = false;
-          button.disabled = false;
-        }
-      }
-
-      document.getElementById('run-tests-btn').addEventListener('click', runTests);
-      document.getElementById('failures-only').addEventListener('change', () => {
-        rerenderCases(true);
-      });
       document.getElementById('case-category-chips').addEventListener('click', (event) => {
         const button = event.target.closest('[data-category-chip]');
         if (!button) return;
@@ -518,7 +467,9 @@
         if (event.key === 'Escape') closeCaseDetail();
       });
 
-      loadResults().catch((error) => setStatus('failed', 'Error', error.message || String(error)));
+      loadResults().catch((error) => {
+        document.getElementById('case-results').innerHTML = `<p class="error">${escapeHtml(error.message || String(error))}</p>`;
+      });
     </script>
   </body>
 </html>

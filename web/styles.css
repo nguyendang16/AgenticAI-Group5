@@ -774,6 +774,43 @@ body {
   text-align: left;
 }
 
+.behavior-categories-panel {
+  overflow-x: auto;
+}
+
+.behavior-categories-panel h2,
+.behavior-category-table th {
+  overflow-wrap: normal;
+  white-space: nowrap;
+  word-break: normal;
+}
+
+.behavior-category-table {
+  min-width: 760px;
+  table-layout: auto;
+}
+
+.behavior-category-table th,
+.behavior-category-table td {
+  vertical-align: top;
+}
+
+.behavior-category-table td {
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.behavior-category-table td:first-child {
+  font-weight: 700;
+  min-width: 15rem;
+  white-space: nowrap;
+}
+
+.behavior-category-table td:nth-child(2) {
+  line-height: 1.45;
+  min-width: 22rem;
+}
+
 .evidence-case-table td:nth-child(5),
 .evidence-case-table th:nth-child(5) {
   text-align: right;

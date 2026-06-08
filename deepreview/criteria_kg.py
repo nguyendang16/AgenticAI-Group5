@@ -916,7 +916,7 @@ def format_graph_evaluation_markdown(bundle: dict[str, Any] | None) -> str:
     )
 
     lines = [
-        '## Graph Evaluation',
+        '## KG Criteria Result',
         '',
         f'- Query: venue={venue}; journal={journal}; domain={domain}; article_type={article_type}',
         f"- Criteria returned: {int(evaluation.get('criteria_count') or 0)} "
