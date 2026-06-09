@@ -14,10 +14,6 @@
 - Included papers: **7**
 - Subset rationale: Exclude KG_OFF overall wins where rubric_alignment favored KG_ON (B2a)
 
-**Excluded papers:**
-- acl_2024.findings-acl.438: Exclude KG_OFF overall wins where rubric_alignment favored KG_ON (B2a)
-- icml_2311.10263v2: Exclude KG_OFF overall wins where rubric_alignment favored KG_ON (B2a)
-
 ## Pairwise judge (KG_ON vs KG_OFF)
 
 - KG_ON wins: **4** / 7 (57.1%)
