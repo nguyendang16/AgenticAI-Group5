@@ -379,3 +379,58 @@ def judge_all(
         writer.writerows(results)
 
     return results
+
+
+def _read_trad_runs_jsonl(path: Path) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+    rows: list[dict[str, Any]] = []
+    for line in path.read_text(encoding='utf-8').splitlines():
+        line = line.strip()
+        if line:
+            rows.append(json.loads(line))
+    return rows
+
+
+def judge_trad_all(
+    *,
+    paper_id: str | None = None,
+    runs_path: Path | None = None,
+    output_path: Path | None = None,
+) -> list[dict[str, Any]]:
+    from benchmark.paths import TRAD_RUNS_JSONL_PATH
+
+    source = runs_path or TRAD_RUNS_JSONL_PATH
+    destination = output_path or REVIEW_QUALITY_SCORES_PATH
+    destination.parent.mkdir(parents=True, exist_ok=True)
+
+    candidate_rows = _read_trad_runs_jsonl(source)
+    if paper_id:
+        candidate_rows = [r for r in candidate_rows if r.get('paper_id') == paper_id]
+
+    existing = _existing_judged_job_ids(destination)
+    agent_results: list[dict[str, Any]] = []
+    if destination.exists() and destination.stat().st_size > 0:
+        with destination.open(encoding='utf-8') as handle:
+            agent_results = [dict(r) for r in csv.DictReader(handle)]
+    agent_results = [r for r in agent_results if str(r.get('condition', '')).upper() != 'TRAD_LLM']
+
+    trad_results: list[dict[str, Any]] = []
+    for row in candidate_rows:
+        jid = str(row.get('job_id', ''))
+        if jid in existing:
+            continue
+        trad_results.append(judge_run(row))
+        pause_between_eval_calls()
+
+    combined = agent_results + trad_results
+    if not combined:
+        destination.write_text('', encoding='utf-8')
+        return trad_results
+
+    fieldnames = list(combined[0].keys())
+    with destination.open('w', encoding='utf-8', newline='') as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(combined)
+    return trad_results

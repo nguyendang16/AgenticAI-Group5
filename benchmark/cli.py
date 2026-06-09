@@ -55,10 +55,13 @@ def _cmd_check(_args: argparse.Namespace) -> int:
 
 
 def _cmd_judge(args: argparse.Namespace) -> int:
-    from benchmark.judge import REVIEW_QUALITY_SCORES_PATH, judge_all
+    from benchmark.judge import REVIEW_QUALITY_SCORES_PATH, judge_all, judge_trad_all
 
-    scores = judge_all(job_id=args.job_id)
-    print(f'Wrote {len(scores)} rows to {REVIEW_QUALITY_SCORES_PATH}')
+    if getattr(args, 'source', None) == 'trad':
+        scores = judge_trad_all(paper_id=args.paper_id)
+    else:
+        scores = judge_all(job_id=args.job_id)
+    print(f'Wrote judge scores ({len(scores)} new rows) to {REVIEW_QUALITY_SCORES_PATH}')
     return 0
 
 
@@ -242,6 +245,13 @@ def main(argv: list[str] | None = None) -> int:
 
     judge_parser = subparsers.add_parser('judge', help='DeepEval report-level quality scoring')
     judge_parser.add_argument('--job-id', default=None, help='Judge a single benchmark job')
+    judge_parser.add_argument(
+        '--source',
+        choices=('agent', 'trad'),
+        default='agent',
+        help='Review source: agent benchmark jobs or TRAD_LLM PDF reviews',
+    )
+    judge_parser.add_argument('--paper-id', default=None, help='Judge a single paper (trad source)')
     judge_parser.set_defaults(func=_cmd_judge, local_only=False)
 
     pairwise_parser = subparsers.add_parser(
