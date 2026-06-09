@@ -126,6 +126,16 @@ def _cmd_compare(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_three_way_compare(args: argparse.Namespace) -> int:
+    from benchmark.paths import THREE_WAY_SUMMARY_PATH
+    from benchmark.three_way_compare import build_three_way_summary
+
+    summary = build_three_way_summary(use_subset=not args.all_papers)
+    paper_count = int(summary[summary['paper_id'] != '__overall__'].shape[0])
+    print(f'Wrote three-way summary ({paper_count} papers) to {THREE_WAY_SUMMARY_PATH}')
+    return 0
+
+
 def _cmd_report(_args: argparse.Namespace) -> int:
     from benchmark.report import BENCHMARK_SUMMARY_PATH, generate_report
 
@@ -336,6 +346,17 @@ def main(argv: list[str] | None = None) -> int:
         help='Include all papers; default uses B2a analysis subset',
     )
     compare_parser.set_defaults(func=_cmd_compare)
+
+    three_way_parser = subparsers.add_parser(
+        'three-way-compare',
+        help='Build TRAD_LLM vs KG_ON vs KG_OFF median summary table',
+    )
+    three_way_parser.add_argument(
+        '--all-papers',
+        action='store_true',
+        help='Include all papers; default uses analysis subset',
+    )
+    three_way_parser.set_defaults(func=_cmd_three_way_compare)
 
     report_parser = subparsers.add_parser('report', help='Generate benchmark_summary.md')
     report_parser.set_defaults(func=_cmd_report)
