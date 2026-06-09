@@ -174,7 +174,8 @@ def faithfulness_trad_all(
     if paper_id:
         candidate_rows = [r for r in candidate_rows if r.get('paper_id') == paper_id]
 
-    skip_ids = _existing_scored_job_ids(destination)
+    trad_job_ids = {str(row.get('job_id', '')) for row in candidate_rows}
+    skip_ids = _existing_scored_job_ids(destination) - trad_job_ids
     agent_results: list[dict[str, Any]] = []
     if destination.exists() and destination.stat().st_size > 0:
         with destination.open(encoding='utf-8') as handle:

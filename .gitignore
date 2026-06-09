@@ -53,6 +53,7 @@ benchmark/results/archive/
 benchmark/results/claim_scores.jsonl
 benchmark/results/*.csv
 !benchmark/results/benchmark_results_combined.csv
+!benchmark/results/benchmark_results.xlsx
 benchmark/results/*.jsonl
 trad_LLM/
 .codegraph/

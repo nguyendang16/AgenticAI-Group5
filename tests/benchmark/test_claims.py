@@ -34,3 +34,23 @@ def test_cap_at_max_claims():
     text = '## Weaknesses\n' + '\n'.join(f'- item {i}' for i in range(20))
     claims = extract_critique_claims(text, manuscript='ms', max_claims=10)
     assert len(claims) == 10
+
+
+TRAD_SAMPLE = """3. Weaknesses
+• First trad weakness about statistical reporting.
+• Second trad weakness about reproducibility.
+
+4. Key Issues
+• Mechanism unclear for first-digit behavior.
+• Artifact risk from tokenization.
+
+5. Actionable Suggestions
+• Should be ignored.
+"""
+
+
+def test_extract_trad_numbered_sections_and_bullet_chars():
+    claims = extract_critique_claims(TRAD_SAMPLE, manuscript='A' * 5000, max_claims=10)
+    assert len(claims) == 4
+    assert all(c.section in {'Weaknesses', 'Key Issues'} for c in claims)
+    assert 'Actionable' not in ' '.join(c.text for c in claims)

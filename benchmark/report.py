@@ -79,6 +79,11 @@ def _three_way_median_lines(three_way: pd.DataFrame) -> list[str]:
             f'- TRAD_LLM: **{_fmt(row.get("median_rubric_alignment_TRAD_LLM"))}**',
             f'- KG_OFF: **{_fmt(row.get("median_rubric_alignment_KG_OFF"))}**',
             f'- KG_ON: **{_fmt(row.get("median_rubric_alignment_KG_ON"))}**',
+            '',
+            'Median faithfulness_mean by condition:',
+            f'- TRAD_LLM: **{_fmt(row.get("median_faithfulness_mean_TRAD_LLM"))}**',
+            f'- KG_OFF: **{_fmt(row.get("median_faithfulness_mean_KG_OFF"))}**',
+            f'- KG_ON: **{_fmt(row.get("median_faithfulness_mean_KG_ON"))}**',
         ]
     )
     return lines

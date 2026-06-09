@@ -7,10 +7,17 @@ from dataclasses import dataclass
 
 from benchmark.evidence_resolve import ResolvedEvidence, resolve_evidence_span
 
-_SECTIONS = ('## Weaknesses', '## Key Issues')
-_BULLET_RE = re.compile(r'^(?:-\s+|\d+\.\s+)(.+)$', re.MULTILINE)
-_EVIDENCE_RE = re.compile(r'\(evidence:\s*["\']?([^"\')]+)', re.IGNORECASE)
-_PAREN_REF_RE = re.compile(r'\((?:See|Appendix|Section|Figure|Table|Abstract)[^)]+\)', re.IGNORECASE)
+_SECTION_NAMES = ('Weaknesses', 'Key Issues')
+_BULLET_RE = re.compile(r'^(?:[-•]\s+|\d+\.\s+)(.+)$', re.MULTILINE)
+_MD_STOP_HEADERS = (
+    '## Weaknesses',
+    '## Key Issues',
+    '## Strengths',
+    '## Actionable',
+    '## Claim-Level',
+    '## Scores',
+    '## Criterion',
+)
 
 
 @dataclass
@@ -27,26 +34,36 @@ def _max_claims() -> int:
     return int(os.environ.get('BENCHMARK_RAGAS_MAX_CLAIMS', '10'))
 
 
-def _max_context_chars() -> int:
-    return int(os.environ.get('BENCHMARK_RAGAS_MAX_CONTEXT_CHARS', '2000'))
-
-
-def _section_slice(report_md: str, header: str) -> str:
-    if header not in report_md:
-        return ''
-    part = report_md.split(header, 1)[1]
-    stop_headers = (
-        *(h for h in _SECTIONS if h != header),
-        '## Strengths',
-        '## Actionable',
-        '## Claim-Level',
-        '## Scores',
-        '## Criterion',
+def _section_slice(report_md: str, section_name: str) -> str:
+    md_match = re.search(
+        rf'^##\s+{re.escape(section_name)}\s*$',
+        report_md,
+        re.MULTILINE | re.IGNORECASE,
     )
-    for stop in stop_headers:
-        if stop in part:
-            part = part.split(stop, 1)[0]
-    return part
+    if md_match:
+        part = report_md[md_match.end() :]
+        for stop in _MD_STOP_HEADERS:
+            if stop.lower() == f'## {section_name}'.lower():
+                continue
+            if stop in part:
+                part = part.split(stop, 1)[0]
+        return part
+
+    num_match = re.search(
+        rf'^\d+\.\s+{re.escape(section_name)}\s*$',
+        report_md,
+        re.MULTILINE | re.IGNORECASE,
+    )
+    if num_match:
+        part = report_md[num_match.end() :]
+        next_numbered = re.search(r'^\d+\.\s+', part, re.MULTILINE)
+        if next_numbered:
+            part = part[: next_numbered.start()]
+        if 'PART B' in part:
+            part = part.split('PART B', 1)[0]
+        return part
+
+    return ''
 
 
 def _evidence_for_bullet(
@@ -66,8 +83,8 @@ def extract_critique_claims(
 ) -> list[AtomicClaim]:
     cap = max_claims if max_claims is not None else _max_claims()
     claims: list[AtomicClaim] = []
-    for header in _SECTIONS:
-        for match in _BULLET_RE.finditer(_section_slice(report_md, header)):
+    for section_name in _SECTION_NAMES:
+        for match in _BULLET_RE.finditer(_section_slice(report_md, section_name)):
             text = match.group(1).strip()
             if not text:
                 continue
@@ -76,7 +93,7 @@ def extract_critique_claims(
                 AtomicClaim(
                     claim_id=str(uuid.uuid4()),
                     text=text,
-                    section=header.removeprefix('## '),
+                    section=section_name,
                     evidence_span=resolved.text,
                     context_source=resolved.source,
                     resolved_context_preview=resolved.preview,

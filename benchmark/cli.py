@@ -177,10 +177,11 @@ def _cmd_report(args: argparse.Namespace) -> int:
 
 
 def _cmd_export_results(_args: argparse.Namespace) -> int:
-    from benchmark.export_results import COMBINED_RESULTS_PATH, build_combined_results_csv
+    from benchmark.export_results import export_all_results
 
-    path = build_combined_results_csv()
-    print(f'Wrote {path}')
+    csv_path, xlsx_path = export_all_results()
+    print(f'Wrote {csv_path}')
+    print(f'Wrote {xlsx_path}')
     return 0
 
 

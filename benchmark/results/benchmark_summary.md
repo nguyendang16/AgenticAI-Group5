@@ -31,6 +31,11 @@ Median rubric_alignment by condition:
 - KG_OFF: **0.900**
 - KG_ON: **0.600**
 
+Median faithfulness_mean by condition:
+- TRAD_LLM: **0.062**
+- KG_OFF: **0.075**
+- KG_ON: **0.000**
+
 ## Trad pairwise win rates
 
 - **TRAD_VS_KG_OFF**: KG_OFF: **7**
