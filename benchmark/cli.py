@@ -73,6 +73,15 @@ def _cmd_pairwise_judge(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_trad_pairwise_judge(args: argparse.Namespace) -> int:
+    from benchmark.paths import TRAD_PAIRWISE_JUDGE_SCORES_PATH
+    from benchmark.trad_pairwise_judge import trad_pairwise_all
+
+    rows = trad_pairwise_all(paper_id=args.paper_id, use_subset=not args.all_papers)
+    print(f'Wrote {len(rows)} rows to {TRAD_PAIRWISE_JUDGE_SCORES_PATH}')
+    return 0
+
+
 def _cmd_faithfulness(args: argparse.Namespace) -> int:
     from benchmark.faithfulness import (
         FAITHFULNESS_RUN_SCORES_PATH,
@@ -267,6 +276,18 @@ def main(argv: list[str] | None = None) -> int:
     )
     pairwise_parser.add_argument('--paper-id', default=None, help='Compare a single paper')
     pairwise_parser.set_defaults(func=_cmd_pairwise_judge)
+
+    trad_pairwise_parser = subparsers.add_parser(
+        'trad-pairwise-judge',
+        help='OpenAI pairwise comparison of TRAD vs KG_OFF/KG_ON reviews per paper',
+    )
+    trad_pairwise_parser.add_argument('--paper-id', default=None, help='Compare a single paper')
+    trad_pairwise_parser.add_argument(
+        '--all-papers',
+        action='store_true',
+        help='Include all papers; default uses analysis subset',
+    )
+    trad_pairwise_parser.set_defaults(func=_cmd_trad_pairwise_judge)
 
     faithfulness_parser = subparsers.add_parser(
         'faithfulness',
