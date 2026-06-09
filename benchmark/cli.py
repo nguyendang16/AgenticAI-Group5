@@ -136,10 +136,10 @@ def _cmd_three_way_compare(args: argparse.Namespace) -> int:
     return 0
 
 
-def _cmd_report(_args: argparse.Namespace) -> int:
+def _cmd_report(args: argparse.Namespace) -> int:
     from benchmark.report import BENCHMARK_SUMMARY_PATH, generate_report
 
-    path = generate_report(rebuild_comparison=True)
+    path = generate_report(rebuild_comparison=True, use_subset=not args.all_papers)
     print(f'Wrote {path}')
     return 0
 
@@ -359,6 +359,11 @@ def main(argv: list[str] | None = None) -> int:
     three_way_parser.set_defaults(func=_cmd_three_way_compare)
 
     report_parser = subparsers.add_parser('report', help='Generate benchmark_summary.md')
+    report_parser.add_argument(
+        '--all-papers',
+        action='store_true',
+        help='Include all papers; default uses analysis subset',
+    )
     report_parser.set_defaults(func=_cmd_report)
 
     archive_parser = subparsers.add_parser(
