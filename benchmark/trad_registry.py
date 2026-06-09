@@ -33,4 +33,8 @@ def resolve_source_pdf(path_value: str) -> Path:
     path = Path(path_value)
     if path.is_absolute():
         return path
+    for root in (REPO_ROOT, REPO_ROOT.parent, REPO_ROOT.parent.parent):
+        candidate = root / path
+        if candidate.exists():
+            return candidate
     return REPO_ROOT / path
