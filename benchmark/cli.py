@@ -17,6 +17,15 @@ PIPELINE_EVAL_STEPS: tuple[str, ...] = (
     'compare',
     'report',
 )
+PIPELINE_TRAD_EVAL_STEPS: tuple[str, ...] = (
+    'trad-ingest',
+    'judge',
+    'faithfulness',
+    'trad-pairwise-judge',
+    'compare',
+    'three-way-compare',
+    'report',
+)
 
 
 def _cmd_build_manifest(args: argparse.Namespace) -> int:
@@ -62,6 +71,15 @@ def _cmd_judge(args: argparse.Namespace) -> int:
     else:
         scores = judge_all(job_id=args.job_id)
     print(f'Wrote judge scores ({len(scores)} new rows) to {REVIEW_QUALITY_SCORES_PATH}')
+    return 0
+
+
+def _cmd_trad_ingest(args: argparse.Namespace) -> int:
+    from benchmark.paths import TRAD_RUNS_JSONL_PATH
+    from benchmark.trad_ingest import ingest_trad_reviews
+
+    rows = ingest_trad_reviews(paper_id=args.paper_id)
+    print(f'Ingested {len(rows)} trad reviews to {TRAD_RUNS_JSONL_PATH}')
     return 0
 
 
@@ -157,11 +175,14 @@ def _dispatch_step(name: str, args: argparse.Namespace) -> int:
         'run': _cmd_run,
         'collect': _cmd_collect,
         'check': _cmd_check,
+        'trad-ingest': _cmd_trad_ingest,
         'judge': _cmd_judge,
         'pairwise-judge': _cmd_pairwise_judge,
+        'trad-pairwise-judge': _cmd_trad_pairwise_judge,
         'faithfulness': _cmd_faithfulness,
         'decision-metrics': _cmd_decision_metrics,
         'compare': _cmd_compare,
+        'three-way-compare': _cmd_three_way_compare,
         'report': _cmd_report,
     }
     handler = handlers.get(name)
@@ -182,6 +203,12 @@ def _cmd_pipeline(args: argparse.Namespace) -> int:
             'eval',
             detail='OpenAI judge + pairwise + Gemma RAGAS — run >=60 min after reviews',
         )
+    elif args.phase == 'trad-eval':
+        steps = PIPELINE_TRAD_EVAL_STEPS
+        phase_banner(
+            'trad-eval',
+            detail='TRAD_LLM ingest + judge + faithfulness + pairwise + three-way compare + report',
+        )
     else:
         print(f'Unknown phase: {args.phase}', file=sys.stderr)
         return 1
@@ -194,6 +221,8 @@ def _cmd_pipeline(args: argparse.Namespace) -> int:
 
     for step in steps:
         progress.advance(step)
+        if args.phase == 'trad-eval' and step in ('judge', 'faithfulness'):
+            args.source = 'trad'
         if args.dry_run and step == 'build-manifest':
             print(
                 'DRY-RUN: skip build-manifest (use existing benchmark/manifest.jsonl).',
@@ -287,6 +316,13 @@ def main(argv: list[str] | None = None) -> int:
     pairwise_parser.add_argument('--paper-id', default=None, help='Compare a single paper')
     pairwise_parser.set_defaults(func=_cmd_pairwise_judge)
 
+    trad_ingest_parser = subparsers.add_parser(
+        'trad-ingest',
+        help='Extract TRAD_LLM PDF reviews to benchmark/trad_reviews/*.md',
+    )
+    trad_ingest_parser.add_argument('--paper-id', default=None, help='Ingest a single paper')
+    trad_ingest_parser.set_defaults(func=_cmd_trad_ingest)
+
     trad_pairwise_parser = subparsers.add_parser(
         'trad-pairwise-judge',
         help='OpenAI pairwise comparison of TRAD vs KG_OFF/KG_ON reviews per paper',
@@ -324,8 +360,9 @@ def main(argv: list[str] | None = None) -> int:
     pipeline_parser.add_argument(
         '--phase',
         required=True,
-        choices=('reviews', 'eval'),
-        help='reviews=gap-fill OpenAI; eval=OpenAI judge+pairwise+Gemma RAGAS+report',
+        choices=('reviews', 'eval', 'trad-eval'),
+        help='reviews=gap-fill OpenAI; eval=OpenAI judge+pairwise+Gemma RAGAS+report; '
+        'trad-eval=TRAD_LLM ingest through three-way compare',
     )
     pipeline_parser.add_argument('--dry-run', action='store_true', help='Pass --dry-run to review run step')
     pipeline_parser.add_argument('--paper-id', default=None, help='Run a single paper (reviews phase)')
