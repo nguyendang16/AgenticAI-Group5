@@ -31,7 +31,10 @@
       </section>
 
       <section class="panel benchmark-summary">
-        <h2>Summary</h2>
+        <div class="section-heading-row">
+          <h2>Statistic Results</h2>
+          <a class="download-action" href="/kg-evidence-tests.xlsx" download>Download Excel</a>
+        </div>
         <div class="benchmark-grid">
           <div class="metric-card">
             <span class="metric-label">Test cases</span>
@@ -55,6 +58,10 @@
           </div>
         </div>
         <p class="benchmark-note" id="generated-at">Generated: --</p>
+        <div class="failure-summary" id="failure-summary">
+          <span class="metric-label">Failed categories</span>
+          <p>Waiting for test result...</p>
+        </div>
       </section>
 
       <section class="panel behavior-categories-panel">
@@ -290,6 +297,21 @@
         `).join('');
       }
 
+      function renderFailureSummary(byCategory) {
+        const failed = Object.entries(byCategory || {})
+          .filter(([, row]) => Number(row.failed || 0) > 0)
+          .sort(([a], [b]) => a.localeCompare(b));
+        if (!failed.length) {
+          return '<span class="status-pill status-ready evidence-mini-pill">No failed categories</span>';
+        }
+        return failed.map(([category, row]) => `
+          <span class="failure-chip">
+            ${escapeHtml(category.replaceAll('_', ' '))}
+            <strong>${Number(row.failed || 0)}/${Number(row.case_count || 0)}</strong>
+          </span>
+        `).join('');
+      }
+
       function normalize(value) {
         return String(value == null ? '' : value).toLowerCase();
       }
@@ -430,6 +452,10 @@
         updateCategoryFilter(payload);
         renderCategoryChips(payload);
         document.getElementById('category-results').innerHTML = renderCategoryRows(payload.by_category);
+        document.getElementById('failure-summary').innerHTML = `
+          <span class="metric-label">Failed categories</span>
+          <div class="failure-chip-row">${renderFailureSummary(payload.by_category)}</div>
+        `;
         document.getElementById('source-results').innerHTML = renderSourceRows(payload.by_source);
         document.getElementById('case-results').innerHTML = renderCaseRows(payload.cases);
       }

@@ -261,6 +261,23 @@ body {
   font-size: 0.9rem;
 }
 
+.download-action {
+  background: rgba(59, 130, 246, 0.16);
+  border: 1px solid rgba(96, 165, 250, 0.45);
+  border-radius: 6px;
+  color: #bfdbfe;
+  font-size: 0.9rem;
+  font-weight: 700;
+  min-height: 2.2rem;
+  padding: 0.5rem 0.75rem;
+  text-decoration: none;
+}
+
+.download-action:hover {
+  background: rgba(59, 130, 246, 0.26);
+  color: var(--text);
+}
+
 .report-md {
   background: var(--bg);
   border: 1px solid var(--border);
@@ -390,6 +407,41 @@ body {
   display: block;
   margin-top: 0.25rem;
   font-size: 1.45rem;
+}
+
+.failure-summary {
+  border-top: 1px solid var(--border);
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+}
+
+.failure-summary p {
+  color: var(--muted);
+  margin: 0.35rem 0 0;
+}
+
+.failure-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.45rem;
+}
+
+.failure-chip {
+  align-items: center;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  border-radius: 999px;
+  color: #fecaca;
+  display: inline-flex;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.35rem 0.65rem;
+}
+
+.failure-chip strong {
+  color: var(--text);
 }
 
 .benchmark-version {

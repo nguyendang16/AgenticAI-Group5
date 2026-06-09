@@ -54,6 +54,7 @@ async def add_no_cache_for_benchmark(request: Request, call_next):
     if (
         request.url.path.startswith('/api/kg-evidence-tests')
         or request.url.path.endswith('kg-evidence-tests.html')
+        or request.url.path.endswith('kg-evidence-tests.xlsx')
     ):
         response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
         response.headers['Pragma'] = 'no-cache'
@@ -104,6 +105,18 @@ def _kg_evidence_tests_payload() -> dict[str, Any]:
 @app.get('/api/kg-evidence-tests')
 def get_kg_evidence_tests() -> dict[str, Any]:
     return _kg_evidence_tests_payload()
+
+
+@app.get('/kg-evidence-tests.xlsx')
+def get_kg_evidence_tests_excel() -> FileResponse:
+    path = _REPO_ROOT / 'test' / 'output' / 'kg_evidence_retrieval_test_results.xlsx'
+    if not path.exists():
+        raise HTTPException(status_code=404, detail='KG evidence Excel result not found')
+    return FileResponse(
+        path,
+        media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        filename='kg_evidence_retrieval_test_results.xlsx',
+    )
 
 
 @app.post('/api/kg-evidence-tests/run')
