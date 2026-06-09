@@ -158,3 +158,24 @@ python -m benchmark report
 | Faithfulness all zeros | Check `context_source` in `claim_scores.jsonl`; ensure v2 `.env` and annotation resolution |
 | Judge scores all 5.0 | Confirm `BENCHMARK_JUDGE_MODE=per_metric` and truncation vars |
 | `benchmark/.run.lock` stuck | Delete lock if owning PID is dead |
+
+## Traditional LLM eval (trad-eval)
+
+Prerequisite: v2 agent eval complete (`benchmark/results/review_quality_scores.csv`).
+
+```bash
+python -m benchmark pipeline --phase trad-eval
+```
+
+Or step-by-step:
+```bash
+python -m benchmark trad-ingest
+python -m benchmark judge --source trad
+python -m benchmark faithfulness --source trad
+python -m benchmark trad-pairwise-judge
+python -m benchmark compare
+python -m benchmark three-way-compare
+python -m benchmark report
+```
+
+Default compare/report use B2a 7-paper analysis subset (4/2/1 KG pairwise headline). Use `--all-papers` for full 9-paper appendix tables.
