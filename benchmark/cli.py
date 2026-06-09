@@ -8,6 +8,14 @@ from typing import Callable
 from benchmark.progress import ProgressReporter, phase_banner, pipeline_exit, warn_if_live
 
 PIPELINE_REVIEWS_STEPS: tuple[str, ...] = ('build-manifest', 'run')
+def _use_analysis_subset(args: argparse.Namespace) -> bool:
+    return not getattr(args, 'all_papers', False)
+
+
+def _optional_paper_id(args: argparse.Namespace) -> str | None:
+    return getattr(args, 'paper_id', None)
+
+
 PIPELINE_EVAL_STEPS: tuple[str, ...] = (
     'collect',
     'check',
@@ -95,7 +103,10 @@ def _cmd_trad_pairwise_judge(args: argparse.Namespace) -> int:
     from benchmark.paths import TRAD_PAIRWISE_JUDGE_SCORES_PATH
     from benchmark.trad_pairwise_judge import trad_pairwise_all
 
-    rows = trad_pairwise_all(paper_id=args.paper_id, use_subset=not args.all_papers)
+    rows = trad_pairwise_all(
+        paper_id=_optional_paper_id(args),
+        use_subset=_use_analysis_subset(args),
+    )
     print(f'Wrote {len(rows)} rows to {TRAD_PAIRWISE_JUDGE_SCORES_PATH}')
     return 0
 
@@ -135,7 +146,7 @@ def _cmd_compare(args: argparse.Namespace) -> int:
         build_paired_comparison,
     )
 
-    metadata = build_paired_comparison(use_subset=not args.all_papers)
+    metadata = build_paired_comparison(use_subset=_use_analysis_subset(args))
     print(
         'Wrote paired comparison outputs: '
         f'{PAIRED_COMPARISON_PATH}, {OVERALL_SUMMARY_PATH}, {VENUE_SUMMARY_PATH} '
@@ -148,7 +159,7 @@ def _cmd_three_way_compare(args: argparse.Namespace) -> int:
     from benchmark.paths import THREE_WAY_SUMMARY_PATH
     from benchmark.three_way_compare import build_three_way_summary
 
-    summary = build_three_way_summary(use_subset=not args.all_papers)
+    summary = build_three_way_summary(use_subset=_use_analysis_subset(args))
     paper_count = int(summary[summary['paper_id'] != '__overall__'].shape[0])
     print(f'Wrote three-way summary ({paper_count} papers) to {THREE_WAY_SUMMARY_PATH}')
     return 0
@@ -157,7 +168,10 @@ def _cmd_three_way_compare(args: argparse.Namespace) -> int:
 def _cmd_report(args: argparse.Namespace) -> int:
     from benchmark.report import BENCHMARK_SUMMARY_PATH, generate_report
 
-    path = generate_report(rebuild_comparison=True, use_subset=not args.all_papers)
+    path = generate_report(
+        rebuild_comparison=True,
+        use_subset=_use_analysis_subset(args),
+    )
     print(f'Wrote {path}')
     return 0
 
