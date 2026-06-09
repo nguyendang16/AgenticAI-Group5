@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import wilcoxon
 
+from benchmark.analysis_subset import filter_paper_ids
 from benchmark.checks import DETERMINISTIC_SCORES_PATH
 from benchmark.decision_metrics import SUMMARY_PAPER_ID
 from benchmark.faithfulness import FAITHFULNESS_RUN_SCORES_PATH
@@ -400,6 +401,14 @@ def _write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
         writer.writerows(rows)
 
 
+def apply_paper_id_filter(frame: pd.DataFrame, *, use_subset: bool = True) -> pd.DataFrame:
+    if frame.empty or 'paper_id' not in frame.columns:
+        return frame
+    allowed = filter_paper_ids(frame['paper_id'].astype(str).tolist(), use_subset=use_subset)
+    allowed_set = set(allowed)
+    return frame[frame['paper_id'].astype(str).isin(allowed_set)].copy()
+
+
 def _write_dataframe(path: Path, frame: pd.DataFrame) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     if frame.empty:
@@ -417,6 +426,7 @@ def build_paired_comparison(
     paired_output_path: Path | None = None,
     overall_output_path: Path | None = None,
     venue_output_path: Path | None = None,
+    use_subset: bool = True,
 ) -> dict[str, Any]:
     deterministic = _read_csv(deterministic_path or DETERMINISTIC_SCORES_PATH)
     judge = _read_csv(judge_path or REVIEW_QUALITY_SCORES_PATH)
@@ -428,6 +438,7 @@ def build_paired_comparison(
     pairs_raw, excluded_pairs = _build_valid_pairs(merged)
     paired = _compute_pair_deltas(pairs_raw)
     paired = _merge_pairwise_judge(paired, pairwise)
+    paired = apply_paper_id_filter(paired, use_subset=use_subset)
     paired, overall_decision_deltas, venue_decision_deltas = _append_decision_metric_deltas(paired, merged)
 
     overall = _summarize_deltas(paired)

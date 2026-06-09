@@ -106,6 +106,7 @@ def test_build_paired_comparison_writes_outputs(tmp_path):
         paired_output_path=tmp_path / 'paired_comparison.csv',
         overall_output_path=tmp_path / 'overall_summary.csv',
         venue_output_path=tmp_path / 'venue_summary.csv',
+        use_subset=False,
     )
 
     paired = pd.read_csv(tmp_path / 'paired_comparison.csv')
@@ -222,6 +223,7 @@ def test_paired_comparison_includes_pairwise_columns(tmp_path):
         paired_output_path=tmp_path / 'paired_comparison.csv',
         overall_output_path=tmp_path / 'overall_summary.csv',
         venue_output_path=tmp_path / 'venue_summary.csv',
+        use_subset=False,
     )
 
     paired = pd.read_csv(tmp_path / 'paired_comparison.csv')

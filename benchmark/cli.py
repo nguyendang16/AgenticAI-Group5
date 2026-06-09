@@ -100,7 +100,7 @@ def _cmd_decision_metrics(_args: argparse.Namespace) -> int:
     return 0
 
 
-def _cmd_compare(_args: argparse.Namespace) -> int:
+def _cmd_compare(args: argparse.Namespace) -> int:
     from benchmark.compare import (
         OVERALL_SUMMARY_PATH,
         PAIRED_COMPARISON_PATH,
@@ -108,7 +108,7 @@ def _cmd_compare(_args: argparse.Namespace) -> int:
         build_paired_comparison,
     )
 
-    metadata = build_paired_comparison()
+    metadata = build_paired_comparison(use_subset=not args.all_papers)
     print(
         'Wrote paired comparison outputs: '
         f'{PAIRED_COMPARISON_PATH}, {OVERALL_SUMMARY_PATH}, {VENUE_SUMMARY_PATH} '
@@ -309,6 +309,11 @@ def main(argv: list[str] | None = None) -> int:
     decision_metrics_parser.set_defaults(func=_cmd_decision_metrics)
 
     compare_parser = subparsers.add_parser('compare', help='Build paired KG_ON vs KG_OFF comparison CSVs')
+    compare_parser.add_argument(
+        '--all-papers',
+        action='store_true',
+        help='Include all papers; default uses B2a analysis subset',
+    )
     compare_parser.set_defaults(func=_cmd_compare)
 
     report_parser = subparsers.add_parser('report', help='Generate benchmark_summary.md')
