@@ -2615,86 +2615,598 @@
     "id": "kg-real-135"
   },
   {
-    "category": "aspirational_unsupported_inputs",
-    "scenario": "Partial acronym plus year should map NIPS 2025 to NeurIPS",
-    "question": null,
+    "category": "no_match_and_fallback",
+    "scenario": "Unknown venue should return no criteria",
     "query": {
-      "venue": "NIPS 2025",
+      "venue": "Imaginary Conference on Agentic Widgets",
       "domain": "Machine Learning",
-      "article_type": "Conference full paper"
+      "article_type": "Full paper"
     },
-    "expected_source_ids": [
-      "conference_neurips_2025_reviewer_guidelines"
-    ],
-    "min_criteria_count": 1,
+    "expected_empty": true,
+    "max_criteria_count": 0,
     "id": "kg-real-136"
   },
   {
-    "category": "aspirational_unsupported_inputs",
-    "scenario": "Partial acronym should map C and E to Computers & Education",
-    "question": null,
+    "category": "no_match_and_fallback",
+    "scenario": "Unknown journal should return no criteria",
     "query": {
-      "journal": "C and E",
+      "journal": "Journal of Nonexistent Learning Systems",
       "domain": "Educational Technology",
-      "article_type": "Research Article"
+      "article_type": "Research article"
     },
-    "expected_source_ids": [
-      "journal_computers_and_education_guide"
-    ],
-    "min_criteria_count": 1,
+    "expected_empty": true,
+    "max_criteria_count": 0,
     "id": "kg-real-137"
   },
   {
-    "category": "aspirational_unsupported_inputs",
-    "scenario": "Partial acronym should map Ed Tech Research Dev to ETRD",
-    "question": null,
+    "category": "no_match_and_fallback",
+    "scenario": "Empty venue and journal should return no criteria",
     "query": {
-      "journal": "Ed Tech Research Dev",
-      "domain": "Instructional Design",
-      "article_type": "Development Article"
+      "domain": "Machine Learning",
+      "article_type": "Full paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-138"
+  },
+  {
+    "category": "no_match_and_fallback",
+    "scenario": "Unknown venue with known domain should not guess NeurIPS",
+    "query": {
+      "venue": "Future AI Review Summit",
+      "domain": "Machine Learning",
+      "article_type": "Conference full paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-139"
+  },
+  {
+    "category": "no_match_and_fallback",
+    "scenario": "Unknown education workshop should not guess TWELF",
+    "query": {
+      "venue": "Digital Classroom Symposium X",
+      "domain": "Educational Technology",
+      "article_type": "Long paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-140"
+  },
+  {
+    "category": "no_match_and_fallback",
+    "scenario": "Unknown HCI venue should not guess CHI",
+    "query": {
+      "venue": "Human Interfaces Tomorrow",
+      "domain": "Human-Computer Interaction",
+      "article_type": "CHI full paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-141"
+  },
+  {
+    "category": "no_match_and_fallback",
+    "scenario": "Unknown NLP venue should not guess ACL",
+    "query": {
+      "venue": "Language Models Review Forum",
+      "domain": "Natural Language Processing",
+      "article_type": "Long paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-142"
+  },
+  {
+    "category": "no_match_and_fallback",
+    "scenario": "Unknown AI policy venue should not guess AAAI",
+    "query": {
+      "venue": "AI Policy Review Expo",
+      "domain": "Artificial Intelligence",
+      "article_type": "Main track paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-143"
+  },
+  {
+    "category": "no_match_and_fallback",
+    "scenario": "Unknown education journal should not guess ETS",
+    "query": {
+      "journal": "Learning Futures Quarterly",
+      "domain": "Learning Sciences",
+      "article_type": "Original research article"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-144"
+  },
+  {
+    "category": "no_match_and_fallback",
+    "scenario": "Unknown instructional design journal should not guess ETRD",
+    "query": {
+      "journal": "Instructional Design Review Letters",
+      "domain": "Learning Environments",
+      "article_type": "Research manuscript"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-145"
+  },
+  {
+    "category": "no_match_and_fallback",
+    "scenario": "Unknown generic conference should return no criteria",
+    "query": {
+      "venue": "International Conference on Everything",
+      "domain": "General Science",
+      "article_type": "Full paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-146"
+  },
+  {
+    "category": "no_match_and_fallback",
+    "scenario": "Unknown abbreviated venue should return no criteria",
+    "query": {
+      "venue": "XYZCONF",
+      "domain": "Machine Learning",
+      "article_type": "Full paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-147"
+  },
+  {
+    "category": "no_match_and_fallback",
+    "scenario": "Known domain without host should return no criteria",
+    "query": {
+      "domain": "Human-Computer Interaction",
+      "article_type": "Full paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-148"
+  },
+  {
+    "category": "no_match_and_fallback",
+    "scenario": "Known article type without host should return no criteria",
+    "query": {
+      "article_type": "Long paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-149"
+  },
+  {
+    "category": "no_match_and_fallback",
+    "scenario": "Unknown journal abbreviation should return no criteria",
+    "query": {
+      "journal": "JXLS",
+      "domain": "Learning Sciences",
+      "article_type": "Research article"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-150"
+  },
+  {
+    "category": "no_match_and_fallback",
+    "scenario": "Unknown venue plus unknown domain should return no criteria",
+    "query": {
+      "venue": "Quantum Pedagogy Expo",
+      "domain": "Quantum Education",
+      "article_type": "Full paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-151"
+  },
+  {
+    "category": "no_match_and_fallback",
+    "scenario": "Unknown source-like phrase should not match by broad words",
+    "query": {
+      "venue": "Reviewer Guidelines Congress",
+      "domain": "Machine Learning",
+      "article_type": "Reviewer form"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-152"
+  },
+  {
+    "category": "no_match_and_fallback",
+    "scenario": "Unknown partial learning venue should not guess ICLR",
+    "query": {
+      "venue": "Representation Learning Review Day",
+      "domain": "Machine Learning",
+      "article_type": "Full paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-153"
+  },
+  {
+    "category": "no_match_and_fallback",
+    "scenario": "Unknown partial education venue should not guess Computers and Education",
+    "query": {
+      "journal": "Computers for Classrooms Review",
+      "domain": "Educational Technology",
+      "article_type": "Research article"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-154"
+  },
+  {
+    "category": "no_match_and_fallback",
+    "scenario": "Unknown acronym with year should return no criteria",
+    "query": {
+      "venue": "ABC 2026",
+      "domain": "Artificial Intelligence",
+      "article_type": "Main track paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-155"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "ICLR with education domain should reject ML criteria",
+    "query": {
+      "venue": "ICLR",
+      "domain": "Educational Technology",
+      "article_type": "Full paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-156"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "ICLR with CHI article type should reject ICLR criteria",
+    "query": {
+      "venue": "ICLR",
+      "domain": "Machine Learning",
+      "article_type": "CHI full paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-157"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "NeurIPS with NLP domain should reject ML criteria",
+    "query": {
+      "venue": "NeurIPS",
+      "domain": "Natural Language Processing",
+      "article_type": "Conference full paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-158"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "NeurIPS with journal article type should reject conference criteria",
+    "query": {
+      "venue": "NeurIPS",
+      "domain": "Machine Learning",
+      "article_type": "Original research article"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-159"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "ICML with HCI domain should reject ML criteria",
+    "query": {
+      "venue": "ICML",
+      "domain": "Human-Computer Interaction",
+      "article_type": "Main track full paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-160"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "ICML with education article type should reject main-track criteria",
+    "query": {
+      "venue": "ICML",
+      "domain": "Machine Learning",
+      "article_type": "Long paper 3-5 pages"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-161"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "ACL with machine learning domain should reject NLP criteria",
+    "query": {
+      "venue": "ACL",
+      "domain": "Machine Learning",
+      "article_type": "Long paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-162"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "ACL with journal research article type should reject ARR criteria",
+    "query": {
+      "venue": "ACL",
+      "domain": "Natural Language Processing",
+      "article_type": "Original research article"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-163"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "CHI with machine learning domain should reject HCI criteria",
+    "query": {
+      "venue": "CHI",
+      "domain": "Machine Learning",
+      "article_type": "CHI full paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-164"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "CHI with full conference paper article type should reject CHI-specific criteria",
+    "query": {
+      "venue": "CHI",
+      "domain": "Human-Computer Interaction",
+      "article_type": "Conference full paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-165"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "AAAI with education domain should reject AI criteria",
+    "query": {
+      "venue": "AAAI",
+      "domain": "Educational Technology",
+      "article_type": "AAAI main technical track and related tracks"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-166"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "AAAI with journal article type should reject policy criteria",
+    "query": {
+      "venue": "AAAI",
+      "domain": "Artificial Intelligence",
+      "article_type": "Research manuscript"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-167"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "TWELF with machine learning domain should reject education criteria",
+    "query": {
+      "venue": "TWELF",
+      "domain": "Machine Learning",
+      "article_type": "Long paper 3-5 pages"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-168"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "TWELF with conference full paper type should reject TWELF page-format criteria",
+    "query": {
+      "venue": "TWELF",
+      "domain": "Educational Technology",
+      "article_type": "Conference full paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-169"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "Computers and Education with ML domain should reject education criteria",
+    "query": {
+      "journal": "Computers & Education",
+      "domain": "Machine Learning",
+      "article_type": "Research article"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-170"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "Computers and Education with conference article type should reject journal criteria",
+    "query": {
+      "journal": "Computers & Education",
+      "domain": "Educational Technology",
+      "article_type": "Conference full paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-171"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "ETRD with NLP domain should reject learning-environment criteria",
+    "query": {
+      "journal": "ETRD",
+      "domain": "Natural Language Processing",
+      "article_type": "Research manuscript"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-172"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "ETRD with CHI paper type should reject journal criteria",
+    "query": {
+      "journal": "ETRD",
+      "domain": "Learning Environments",
+      "article_type": "CHI full paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-173"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "ETS with artificial intelligence domain should reject learning sciences criteria",
+    "query": {
+      "journal": "ETS",
+      "domain": "Artificial Intelligence",
+      "article_type": "Original research article"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-174"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "ETS with main-track conference type should reject journal criteria",
+    "query": {
+      "journal": "ETS",
+      "domain": "Learning Sciences",
+      "article_type": "Main track full paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-175"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "ACM CHI alias with NLP domain should reject CHI criteria",
+    "query": {
+      "venue": "ACM CHI",
+      "domain": "Natural Language Processing",
+      "article_type": "CHI full paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-176"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "ARR alias with HCI domain should reject ACL criteria",
+    "query": {
+      "venue": "ARR",
+      "domain": "Human-Computer Interaction",
+      "article_type": "Long paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-177"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "AAAI 2026 with machine learning article type should reject mismatched article type",
+    "query": {
+      "venue": "AAAI 2026",
+      "domain": "Artificial Intelligence",
+      "article_type": "Main track full paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-178"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "NeurIPS 2025 with education domain should reject NeurIPS criteria",
+    "query": {
+      "venue": "NeurIPS 2025",
+      "domain": "Educational Technology",
+      "article_type": "Conference full paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-179"
+  },
+  {
+    "category": "wrong_filter_rejection",
+    "scenario": "ICML long name with NLP domain should reject ICML criteria",
+    "query": {
+      "venue": "International Conference on Machine Learning",
+      "domain": "Natural Language Processing",
+      "article_type": "Main track full paper"
+    },
+    "expected_empty": true,
+    "max_criteria_count": 0,
+    "id": "kg-real-180"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "TWELF with broad education domain should retrieve TWELF criteria",
+    "query": {
+      "venue": "TWELF",
+      "domain": "Education",
+      "article_type": "Long paper 3-5 pages"
+    },
+    "expected_source_ids": [
+      "conference_twelf2026_call_for_papers"
+    ],
+    "min_criteria_count": 1,
+    "id": "kg-real-181"
+  },
+  {
+    "category": "positive_retrieval",
+    "scenario": "ETRD with broad education domain should retrieve journal criteria",
+    "query": {
+      "journal": "ETRD",
+      "domain": "Education",
+      "article_type": "Research manuscript"
     },
     "expected_source_ids": [
       "journal_etrd_submission_guidelines"
     ],
     "min_criteria_count": 1,
-    "id": "kg-real-138"
+    "id": "kg-real-182"
   },
   {
-    "category": "aspirational_unsupported_inputs",
-    "scenario": "Partial acronym should map Edu Tech Society to ETS",
-    "question": null,
+    "category": "missing_optional_fields",
+    "scenario": "Venue-only NIPS should retrieve NeurIPS criteria",
     "query": {
-      "journal": "Edu Tech Society",
-      "domain": "Learning Sciences",
-      "article_type": "Original research article"
+      "venue": "NIPS"
     },
     "expected_source_ids": [
-      "journal_ets_author_guidelines"
+      "conference_neurips_2025_reviewer_guidelines"
     ],
     "min_criteria_count": 1,
-    "id": "kg-real-139"
+    "id": "kg-real-183"
   },
   {
-    "category": "aspirational_unsupported_inputs",
-    "scenario": "Broad venue family should map OpenReview ICLR to ICLR",
-    "question": null,
+    "category": "missing_optional_fields",
+    "scenario": "Journal-only C&E should retrieve Computers and Education criteria",
     "query": {
-      "venue": "OpenReview ICLR reviewer instructions",
-      "domain": "Machine Learning",
-      "article_type": "Full conference paper"
+      "journal": "C&E"
     },
     "expected_source_ids": [
-      "conference_iclr_2026_reviewer_guide"
+      "journal_computers_and_education_guide"
     ],
     "min_criteria_count": 1,
-    "id": "kg-real-140"
+    "id": "kg-real-184"
   },
   {
-    "category": "aspirational_unsupported_inputs",
-    "scenario": "Broad source phrase should map author response guidelines to NeurIPS",
-    "question": null,
+    "category": "case_format_tolerance",
+    "scenario": "NIPS acronym should retrieve NeurIPS criteria",
     "query": {
-      "venue": "author response reviewer guidelines",
+      "venue": "NIPS",
       "domain": "Machine Learning",
       "article_type": "Conference full paper"
     },
@@ -2702,198 +3214,20 @@
       "conference_neurips_2025_reviewer_guidelines"
     ],
     "min_criteria_count": 1,
-    "id": "kg-real-141"
+    "id": "kg-real-185"
   },
   {
-    "category": "aspirational_unsupported_inputs",
-    "scenario": "Broad source phrase should map reviewer AI-use transparency to AAAI",
-    "question": null,
+    "category": "case_format_tolerance",
+    "scenario": "C and E abbreviation should retrieve Computers and Education criteria",
     "query": {
-      "venue": "reviewer AI-use transparency conference",
-      "domain": "Artificial Intelligence",
-      "article_type": "AAAI main technical track and related tracks"
-    },
-    "expected_source_ids": [
-      "conference_aaai_26_policies_guidelines"
-    ],
-    "min_criteria_count": 1,
-    "id": "kg-real-142"
-  },
-  {
-    "category": "aspirational_unsupported_inputs",
-    "scenario": "Broad source phrase should map prior publication originality to CHI",
-    "question": null,
-    "query": {
-      "venue": "prior publication originality HCI guide",
-      "domain": "Human-Computer Interaction",
-      "article_type": "CHI full paper"
-    },
-    "expected_source_ids": [
-      "conference_chi_2025_reviewing_guide"
-    ],
-    "min_criteria_count": 1,
-    "id": "kg-real-143"
-  },
-  {
-    "category": "aspirational_unsupported_inputs",
-    "scenario": "Broad source phrase should map ARR limitations societal impact to ACL",
-    "question": null,
-    "query": {
-      "venue": "limitations societal impact NLP review form",
-      "domain": "Natural Language Processing",
-      "article_type": "Long paper"
-    },
-    "expected_source_ids": [
-      "conference_acl_arr_review_form"
-    ],
-    "min_criteria_count": 1,
-    "id": "kg-real-144"
-  },
-  {
-    "category": "aspirational_unsupported_inputs",
-    "scenario": "Mixed language phrase should map TWELF digital learning forum",
-    "question": null,
-    "query": {
-      "venue": "Taiwan digital learning ??",
-      "domain": "E-Learning",
-      "article_type": "Poster paper 1-2 pages"
-    },
-    "expected_source_ids": [
-      "conference_twelf2026_call_for_papers"
-    ],
-    "min_criteria_count": 1,
-    "id": "kg-real-145"
-  },
-  {
-    "category": "aspirational_unsupported_inputs",
-    "scenario": "Loose journal name should map computers education technology journal",
-    "question": null,
-    "query": {
-      "journal": "computers education technology journal",
+      "journal": "C and E",
       "domain": "Educational Technology",
-      "article_type": "Research Article"
+      "article_type": "Research article"
     },
     "expected_source_ids": [
       "journal_computers_and_education_guide"
     ],
     "min_criteria_count": 1,
-    "id": "kg-real-146"
-  },
-  {
-    "category": "aspirational_unsupported_inputs",
-    "scenario": "Loose journal name should map instructional design development journal",
-    "question": null,
-    "query": {
-      "journal": "instructional design development journal",
-      "domain": "Instructional Design",
-      "article_type": "Development Article"
-    },
-    "expected_source_ids": [
-      "journal_etrd_submission_guidelines"
-    ],
-    "min_criteria_count": 1,
-    "id": "kg-real-147"
-  },
-  {
-    "category": "aspirational_unsupported_inputs",
-    "scenario": "Loose journal name should map learning sciences society journal",
-    "question": null,
-    "query": {
-      "journal": "learning sciences society journal",
-      "domain": "Learning Sciences",
-      "article_type": "Original research article"
-    },
-    "expected_source_ids": [
-      "journal_ets_author_guidelines"
-    ],
-    "min_criteria_count": 1,
-    "id": "kg-real-148"
-  },
-  {
-    "category": "aspirational_unsupported_inputs",
-    "scenario": "Question-only routing should infer NeurIPS technical soundness without structured metadata",
-    "question": "What evidence is needed for technical soundness in a NeurIPS full paper?",
-    "query": {},
-    "expected_source_ids": [
-      "conference_neurips_2025_reviewer_guidelines"
-    ],
-    "min_criteria_count": 1,
-    "id": "kg-real-149"
-  },
-  {
-    "category": "aspirational_unsupported_inputs",
-    "scenario": "Question-only routing should infer CHI contribution to HCI without structured metadata",
-    "question": "What evidence is needed for contribution to HCI in a CHI paper?",
-    "query": {},
-    "expected_source_ids": [
-      "conference_chi_2025_reviewing_guide"
-    ],
-    "min_criteria_count": 1,
-    "id": "kg-real-150"
-  },
-  {
-    "category": "aspirational_unsupported_inputs",
-    "scenario": "Typo plus missing domain should map ICLR reviewer guide",
-    "question": "What evidence is needed for ICLR review quality?",
-    "query": {
-      "venue": "ICLRR",
-      "article_type": "Full conference paper"
-    },
-    "expected_source_ids": [
-      "conference_iclr_2026_reviewer_guide"
-    ],
-    "min_criteria_count": 1,
-    "id": "kg-real-151"
-  },
-  {
-    "category": "aspirational_unsupported_inputs",
-    "scenario": "Semantic phrase should map NeurIPS technical soundness",
-    "question": "What evidence checks technical soundness?",
-    "query": {
-      "venue": "top ML conference about neural information",
-      "domain": "Machine Learning"
-    },
-    "expected_source_ids": [
-      "conference_neurips_2025_reviewer_guidelines"
-    ],
-    "min_criteria_count": 1,
-    "id": "kg-real-152"
-  },
-  {
-    "category": "aspirational_unsupported_inputs",
-    "scenario": "Question-only should infer Computers & Education research quality",
-    "question": "In Computers and Education, what evidence is needed for research quality?",
-    "query": {},
-    "expected_source_ids": [
-      "journal_computers_and_education_guide"
-    ],
-    "min_criteria_count": 1,
-    "id": "kg-real-153"
-  },
-  {
-    "category": "aspirational_unsupported_inputs",
-    "scenario": "Loose phrase should map ACL ARR scientific soundness",
-    "question": "What evidence checks scientific soundness?",
-    "query": {
-      "venue": "NLP rolling review scientific soundness"
-    },
-    "expected_source_ids": [
-      "conference_acl_arr_review_form"
-    ],
-    "min_criteria_count": 1,
-    "id": "kg-real-154"
-  },
-  {
-    "category": "aspirational_unsupported_inputs",
-    "scenario": "Loose phrase should map TWELF format requirements",
-    "question": "What evidence checks paper format and presentation compliance?",
-    "query": {
-      "venue": "Taiwan elearning 2026"
-    },
-    "expected_source_ids": [
-      "conference_twelf2026_call_for_papers"
-    ],
-    "min_criteria_count": 1,
-    "id": "kg-real-155"
+    "id": "kg-real-186"
   }
 ]
