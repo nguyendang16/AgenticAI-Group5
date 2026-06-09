@@ -8,7 +8,8 @@ from typing import Any
 from benchmark.claims import AtomicClaim, extract_critique_claims
 from benchmark.collect import RUNS_JSONL_PATH, collect_run
 from benchmark.eval_llm import pause_between_eval_calls
-from benchmark.judge import load_judge_artifacts
+from benchmark.judge import _read_trad_runs_jsonl, load_judge_artifacts
+from benchmark.review_sources import load_review_artifacts
 from benchmark.paths import DATA_JOBS_DIR, RESULTS_DIR
 from benchmark.registry import list_runs
 
@@ -155,3 +156,70 @@ def faithfulness_all(*, job_id: str | None = None) -> list[dict[str, Any]]:
         pause_between_eval_calls()
 
     return run_results
+
+
+def faithfulness_trad_all(
+    *,
+    paper_id: str | None = None,
+    runs_path: Path | None = None,
+    run_scores_path: Path | None = None,
+) -> list[dict[str, Any]]:
+    from benchmark.paths import TRAD_RUNS_JSONL_PATH
+
+    source = runs_path or TRAD_RUNS_JSONL_PATH
+    destination = run_scores_path or FAITHFULNESS_RUN_SCORES_PATH
+    destination.parent.mkdir(parents=True, exist_ok=True)
+
+    candidate_rows = _read_trad_runs_jsonl(source)
+    if paper_id:
+        candidate_rows = [r for r in candidate_rows if r.get('paper_id') == paper_id]
+
+    skip_ids = _existing_scored_job_ids(destination)
+    agent_results: list[dict[str, Any]] = []
+    if destination.exists() and destination.stat().st_size > 0:
+        with destination.open(encoding='utf-8') as handle:
+            agent_results = [dict(r) for r in csv.DictReader(handle)]
+    agent_results = [
+        r for r in agent_results if str(r.get('condition', '')).upper() != 'TRAD_LLM'
+    ]
+
+    trad_results: list[dict[str, Any]] = []
+    for row in candidate_rows:
+        jid = str(row.get('job_id', ''))
+        if jid in skip_ids:
+            continue
+        artifacts = load_review_artifacts(row)
+        manuscript = artifacts.get('manuscript_excerpt') or ''
+        claims = extract_critique_claims(
+            artifacts.get('final_markdown') or '',
+            manuscript=manuscript,
+            annotations=[],
+        )
+        meta = {
+            'job_id': jid,
+            'paper_id': row.get('paper_id', ''),
+            'venue': row.get('venue', ''),
+            'condition': row.get('condition', ''),
+        }
+        scored = score_claims(claims, job_meta=meta)
+        run_row = {
+            **meta,
+            'faithfulness_mean': scored['faithfulness_mean'],
+            'faithfulness_n': scored['faithfulness_n'],
+        }
+        trad_results.append(run_row)
+        _append_claim_scores(CLAIM_SCORES_PATH, scored['claim_rows'])
+        pause_between_eval_calls()
+
+    combined = agent_results + trad_results
+    if not combined:
+        destination.write_text('', encoding='utf-8')
+        return trad_results
+
+    with destination.open('w', encoding='utf-8', newline='') as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(_RUN_SCORE_FIELDS))
+        writer.writeheader()
+        for row in combined:
+            writer.writerow({key: row.get(key, '') for key in _RUN_SCORE_FIELDS})
+
+    return trad_results

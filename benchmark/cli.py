@@ -74,9 +74,16 @@ def _cmd_pairwise_judge(args: argparse.Namespace) -> int:
 
 
 def _cmd_faithfulness(args: argparse.Namespace) -> int:
-    from benchmark.faithfulness import FAITHFULNESS_RUN_SCORES_PATH, faithfulness_all
+    from benchmark.faithfulness import (
+        FAITHFULNESS_RUN_SCORES_PATH,
+        faithfulness_all,
+        faithfulness_trad_all,
+    )
 
-    rows = faithfulness_all(job_id=args.job_id)
+    if getattr(args, 'source', None) == 'trad':
+        rows = faithfulness_trad_all(paper_id=args.paper_id)
+    else:
+        rows = faithfulness_all(job_id=args.job_id)
     print(f'Wrote {len(rows)} rows to {FAITHFULNESS_RUN_SCORES_PATH}')
     return 0
 
@@ -266,6 +273,17 @@ def main(argv: list[str] | None = None) -> int:
         help='RAGAS claim-level faithfulness scoring',
     )
     faithfulness_parser.add_argument('--job-id', default=None, help='Score a single benchmark job')
+    faithfulness_parser.add_argument(
+        '--source',
+        choices=('agent', 'trad'),
+        default='agent',
+        help='Review source: agent benchmark jobs or TRAD_LLM PDF reviews',
+    )
+    faithfulness_parser.add_argument(
+        '--paper-id',
+        default=None,
+        help='Score a single paper (trad source)',
+    )
     faithfulness_parser.set_defaults(func=_cmd_faithfulness, local_only=False)
 
     pipeline_parser = subparsers.add_parser(
