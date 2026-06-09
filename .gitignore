@@ -41,3 +41,20 @@ backend/.cache/
 
 # Outputs
 outputs/
+.worktrees/
+
+# Benchmark runtime artifacts (results README + combined CSV are tracked)
+benchmark/registry.sqlite
+benchmark/papers/
+benchmark/parses/
+benchmark/run_attempts.json
+benchmark/trad_reviews/
+benchmark/results/archive/
+benchmark/results/claim_scores.jsonl
+benchmark/results/*.csv
+!benchmark/results/benchmark_results_combined.csv
+benchmark/results/*.jsonl
+trad_LLM/
+.codegraph/
+.deepeval/
+.cursor/
