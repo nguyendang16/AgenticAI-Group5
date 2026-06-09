@@ -235,28 +235,9 @@ def _job_dir(job_id: str) -> Path:
 
 
 def load_judge_artifacts(job_id: str) -> dict[str, str]:
-    job_dir = _job_dir(job_id)
+    from benchmark.review_sources import load_job_review_artifacts
 
-    mineru_path = job_dir / 'mineru_full.md'
-    manuscript_excerpt = ''
-    if mineru_path.exists():
-        manuscript_excerpt = _truncate_manuscript(mineru_path.read_text(encoding='utf-8'))
-
-    final_path = job_dir / 'final_report.md'
-    final_markdown = ''
-    if final_path.exists():
-        final_markdown = _truncate_report(final_path.read_text(encoding='utf-8'))
-
-    criteria_json = ''
-    criteria_path = job_dir / 'review_criteria_bundle.json'
-    if criteria_path.exists():
-        criteria_json = _truncate_criteria(criteria_path.read_text(encoding='utf-8'))
-
-    return {
-        'manuscript_excerpt': manuscript_excerpt,
-        'final_markdown': final_markdown,
-        'criteria_json': criteria_json,
-    }
+    return load_job_review_artifacts(job_id)
 
 
 def _registry_row_for_job(job_id: str) -> dict[str, Any]:
@@ -286,7 +267,9 @@ def _enrich_row_for_judge(row: dict[str, Any]) -> dict[str, Any]:
     if not job_id:
         raise ValueError('collected_row must include job_id')
 
-    artifacts = load_judge_artifacts(job_id)
+    from benchmark.review_sources import load_review_artifacts
+
+    artifacts = load_review_artifacts(enriched)
     for key, value in artifacts.items():
         if not str(enriched.get(key) or '').strip():
             enriched[key] = value
