@@ -1,0 +1,17 @@
+{
+  "version": "b2a-v1",
+  "reason": "Exclude KG_OFF overall wins where rubric_alignment favored KG_ON (B2a)",
+  "included_paper_ids": [
+    "acl_2024.acl-short.8",
+    "ets_liu-usingaibasedobject-2023",
+    "iclr_1412.6980v9",
+    "iclr_9447_tabular_insights_visual_i",
+    "icml_2402.01869v2",
+    "neurips_1706.03762v7",
+    "neurips_2402.05602v2"
+  ],
+  "excluded_paper_ids": [
+    "acl_2024.findings-acl.438",
+    "icml_2311.10263v2"
+  ]
+}
