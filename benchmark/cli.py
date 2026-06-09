@@ -176,6 +176,14 @@ def _cmd_report(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_export_results(_args: argparse.Namespace) -> int:
+    from benchmark.export_results import COMBINED_RESULTS_PATH, build_combined_results_csv
+
+    path = build_combined_results_csv()
+    print(f'Wrote {path}')
+    return 0
+
+
 def _cmd_archive_results(args: argparse.Namespace) -> int:
     from benchmark.archive_results import archive_eval_results
 
@@ -416,6 +424,12 @@ def main(argv: list[str] | None = None) -> int:
         help='Include all papers; default uses analysis subset',
     )
     report_parser.set_defaults(func=_cmd_report)
+
+    export_parser = subparsers.add_parser(
+        'export-results',
+        help='Build benchmark_results_combined.csv from eval outputs',
+    )
+    export_parser.set_defaults(func=_cmd_export_results)
 
     archive_parser = subparsers.add_parser(
         'archive-results',
