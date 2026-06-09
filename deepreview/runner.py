@@ -404,33 +404,64 @@ async def run_job_async(job_id: str) -> None:
             f'Source PDF too large: {file_size} bytes, max allowed {int(settings.max_pdf_bytes)} bytes.'
         )
 
-    set_status(job_id, JobStatus.pdf_uploading_to_mineru, 'Submitting PDF to MinerU and uploading file...')
-    set_status(job_id, JobStatus.pdf_parsing, 'Polling MinerU parse result and assembling markdown...')
+    mineru_markdown_path = Path(artifacts['mineru_markdown'])
+    cached_markdown = ''
+    if mineru_markdown_path.exists() and mineru_markdown_path.stat().st_size > 0:
+        cached_markdown = mineru_markdown_path.read_text(encoding='utf-8')
 
-    mineru = _build_mineru_adapter()
-    parse_result = await mineru.parse_pdf(pdf_path=source_pdf, data_id=job_id)
+    if cached_markdown:
+        set_status(job_id, JobStatus.pdf_parsing, 'Reusing cached MinerU parse artifacts...')
+        content_list: list[dict[str, Any]] | None = None
+        content_list_path = Path(artifacts['mineru_content_list'])
+        if content_list_path.exists():
+            payload = read_json(content_list_path)
+            if isinstance(payload, dict):
+                raw_list = payload.get('content_list')
+                if isinstance(raw_list, list):
+                    content_list = raw_list
+            elif isinstance(payload, list):
+                content_list = payload
 
-    write_text_atomic(Path(artifacts['mineru_markdown']), parse_result.markdown)
-    if parse_result.content_list is not None:
-        write_json_atomic(Path(artifacts['mineru_content_list']), {'content_list': parse_result.content_list})
-    if parse_result.raw_result is not None:
-        write_json_atomic(Path(artifacts['raw_result']), parse_result.raw_result)
+        def apply_cached(state):
+            state.artifacts.mineru_markdown_path = str(mineru_markdown_path)
+            state.artifacts.mineru_content_list_path = (
+                str(content_list_path) if content_list_path.exists() else None
+            )
+            state.artifacts.annotations_path = str(artifacts['annotations'])
+            state.metadata['markdown_provider'] = 'cached'
+            state.metadata['parse_warning'] = None
 
-    def apply_parsed(state):
-        state.artifacts.mineru_markdown_path = str(artifacts['mineru_markdown'])
-        state.artifacts.mineru_content_list_path = (
-            str(artifacts['mineru_content_list']) if Path(artifacts['mineru_content_list']).exists() else None
-        )
-        state.artifacts.annotations_path = str(artifacts['annotations'])
-        state.metadata['markdown_provider'] = parse_result.provider
-        state.metadata['mineru_batch_id'] = parse_result.batch_id
-        state.metadata['parse_warning'] = parse_result.warning
+        mutate_job_state(job_id, apply_cached)
+        append_event(job_id, 'mineru_parse_skipped', reason='cached_artifacts_present')
+        page_index = build_page_index(cached_markdown, content_list)
+    else:
+        set_status(job_id, JobStatus.pdf_uploading_to_mineru, 'Submitting PDF to MinerU and uploading file...')
+        set_status(job_id, JobStatus.pdf_parsing, 'Polling MinerU parse result and assembling markdown...')
 
-    mutate_job_state(job_id, apply_parsed)
-    if parse_result.warning:
-        append_event(job_id, 'markdown_parse_warning', warning=parse_result.warning, provider=parse_result.provider)
+        mineru = _build_mineru_adapter()
+        parse_result = await mineru.parse_pdf(pdf_path=source_pdf, data_id=job_id)
 
-    page_index = build_page_index(parse_result.markdown, parse_result.content_list)
+        write_text_atomic(mineru_markdown_path, parse_result.markdown)
+        if parse_result.content_list is not None:
+            write_json_atomic(Path(artifacts['mineru_content_list']), {'content_list': parse_result.content_list})
+        if parse_result.raw_result is not None:
+            write_json_atomic(Path(artifacts['raw_result']), parse_result.raw_result)
+
+        def apply_parsed(state):
+            state.artifacts.mineru_markdown_path = str(artifacts['mineru_markdown'])
+            state.artifacts.mineru_content_list_path = (
+                str(artifacts['mineru_content_list']) if Path(artifacts['mineru_content_list']).exists() else None
+            )
+            state.artifacts.annotations_path = str(artifacts['annotations'])
+            state.metadata['markdown_provider'] = parse_result.provider
+            state.metadata['mineru_batch_id'] = parse_result.batch_id
+            state.metadata['parse_warning'] = parse_result.warning
+
+        mutate_job_state(job_id, apply_parsed)
+        if parse_result.warning:
+            append_event(job_id, 'markdown_parse_warning', warning=parse_result.warning, provider=parse_result.provider)
+
+        page_index = build_page_index(parse_result.markdown, parse_result.content_list)
 
     set_status(job_id, JobStatus.agent_running, 'Running review agent with tool loop...')
 

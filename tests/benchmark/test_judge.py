@@ -10,6 +10,28 @@ from deepeval.test_case import LLMTestCase, LLMTestCaseParams
 @pytest.fixture(autouse=True)
 def _deepeval_openai_key(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv('OPENAI_API_KEY', 'sk-test')
+    monkeypatch.setenv('BENCHMARK_EVAL_PROVIDER', 'openai')
+
+
+def test_judge_mode_defaults_per_metric(monkeypatch):
+    monkeypatch.delenv('BENCHMARK_JUDGE_MODE', raising=False)
+    from benchmark.judge import _judge_mode
+
+    assert _judge_mode() == 'per_metric'
+
+
+def test_manuscript_max_chars_default_25k(monkeypatch):
+    monkeypatch.delenv('BENCHMARK_JUDGE_MAX_MANUSCRIPT_CHARS', raising=False)
+    from benchmark.judge import _manuscript_max_chars
+
+    assert _manuscript_max_chars() == 25000
+
+
+def test_core_metrics_include_anchors():
+    from benchmark.judge import JUDGE_SCORE_ANCHORS, build_factual_correctness_metric
+
+    metric = build_factual_correctness_metric()
+    assert JUDGE_SCORE_ANCHORS in metric.criteria
 
 
 def test_build_rubric_alignment_metric():
@@ -41,6 +63,7 @@ def test_build_geval_metrics(builder_name: str):
 
 def test_load_judge_artifacts(tmp_path, monkeypatch: pytest.MonkeyPatch):
     from benchmark import judge as judge_module
+    from benchmark import review_sources as rs
 
     job_id = 'job-test-1'
     job_dir = tmp_path / job_id
@@ -49,7 +72,7 @@ def test_load_judge_artifacts(tmp_path, monkeypatch: pytest.MonkeyPatch):
     (job_dir / 'final_report.md').write_text('## Summary\n\nReview.', encoding='utf-8')
     (job_dir / 'review_criteria_bundle.json').write_text('{"criteria_count": 1}', encoding='utf-8')
 
-    monkeypatch.setattr(judge_module, 'DATA_JOBS_DIR', tmp_path)
+    monkeypatch.setattr(rs, '_job_dir', lambda _job_id: job_dir)
 
     artifacts = judge_module.load_judge_artifacts(job_id)
     assert artifacts['manuscript_excerpt'].startswith('# Paper')
@@ -60,6 +83,7 @@ def test_load_judge_artifacts(tmp_path, monkeypatch: pytest.MonkeyPatch):
 def test_judge_run_uses_measure(monkeypatch: pytest.MonkeyPatch):
     from benchmark import judge as judge_module
 
+    monkeypatch.setenv('BENCHMARK_JUDGE_MODE', 'per_metric')
     captured: list[LLMTestCase] = []
 
     class FakeMetric:
@@ -75,9 +99,8 @@ def test_judge_run_uses_measure(monkeypatch: pytest.MonkeyPatch):
 
     monkeypatch.setattr(judge_module, 'build_all_metrics', fake_build_all_metrics)
     monkeypatch.setattr(
-        judge_module,
-        'load_judge_artifacts',
-        lambda _job_id: {
+        'benchmark.review_sources.load_review_artifacts',
+        lambda _row: {
             'manuscript_excerpt': 'manuscript body',
             'final_markdown': '## Summary\n\nGood paper.',
             'criteria_json': '{"criteria_count": 2}',

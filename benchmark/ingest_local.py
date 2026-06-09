@@ -71,6 +71,42 @@ def extract_title_from_pdf(pdf_path: Path) -> str:
         doc.close()
 
 
+def ingest_benchmark_papers_dir() -> list[PaperRecord]:
+    """Build records from PDFs already present under benchmark/papers/."""
+    PAPERS_DIR.mkdir(parents=True, exist_ok=True)
+    records: list[PaperRecord] = []
+    for pdf_path in sorted(PAPERS_DIR.glob('*.pdf')):
+        paper_id = pdf_path.stem
+        venue = 'Unknown'
+        prefix = paper_id.split('_', 1)[0]
+        venue_map = {
+            'iclr': 'ICLR',
+            'neurips': 'NeurIPS',
+            'icml': 'ICML',
+            'acl': 'ACL',
+            'aaai': 'AAAI',
+            'chi': 'CHI',
+            'twelf': 'TWELF',
+            'computers_and_education': 'Computers And Education',
+            'etrd': 'ETRD',
+            'ets': 'ETS',
+        }
+        venue = venue_map.get(prefix, detect_venue_from_pdf(pdf_path) or 'Unknown')
+        title = extract_title_from_pdf(pdf_path)
+        rel_pdf = pdf_path.relative_to(REPO_ROOT).as_posix()
+        records.append(
+            PaperRecord(
+                paper_id=paper_id,
+                venue=venue,
+                title=title,
+                pdf_path=rel_pdf,
+                source='local',
+                metadata_source='local',
+            )
+        )
+    return records
+
+
 def ingest_kg_test_papers() -> list[PaperRecord]:
     PAPERS_DIR.mkdir(parents=True, exist_ok=True)
     records: list[PaperRecord] = []

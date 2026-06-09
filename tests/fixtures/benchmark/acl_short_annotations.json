@@ -1,0 +1,9 @@
+{
+  "annotations": [
+    {
+      "text": "which on average increases the confidence of the correct last digit on 5-digit by 5-digit multiplication tasks using Llama 2-13B by over 230% (0.13→0.43) and Mistral-7B by 150% (0.22→0.55).",
+      "comment": "Statistical reporting is weak: quantitative claims lack confidence intervals and proper uncertainty quantification.",
+      "criterion_id": "ACL_C06_TECHNICAL"
+    }
+  ]
+}
