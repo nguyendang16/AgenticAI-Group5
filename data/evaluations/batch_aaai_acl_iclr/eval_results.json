@@ -334,7 +334,7 @@
       },
       "tier2_needed": false,
       "root_cause_bucket": null,
-      "evaluated_at": "2026-06-09T03:25:31.191208+08:00",
+      "evaluated_at": "2026-06-09T03:56:54.302727+08:00",
       "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
       "artifacts": {
         "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/035e3dff-e25e-4947-8403-fb4b92bf0cac/job.json",
@@ -677,13 +677,356 @@
       },
       "tier2_needed": false,
       "root_cause_bucket": null,
-      "evaluated_at": "2026-06-09T03:25:31.194825+08:00",
+      "evaluated_at": "2026-06-09T03:56:54.305571+08:00",
       "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
       "artifacts": {
         "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/066d4725-1f1e-449d-9f7f-15b96d1eef53/job.json",
         "final_report_md": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/066d4725-1f1e-449d-9f7f-15b96d1eef53/final_report.md",
         "annotations_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/066d4725-1f1e-449d-9f7f-15b96d1eef53/annotations.json",
         "mineru_markdown": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/066d4725-1f1e-449d-9f7f-15b96d1eef53/mineru_full.md"
+      }
+    },
+    {
+      "job_id": "06d42cc4-8f85-431c-b7ee-bbc5abb6c9da",
+      "title": "iclr_1412.6980v9",
+      "source_pdf_name": "iclr_1412.6980v9.pdf",
+      "status": "completed",
+      "error": null,
+      "annotation_count": 8,
+      "demo_checklist": [
+        {
+          "id": "job_completed",
+          "label": "1. Job finished successfully",
+          "pass": true,
+          "value": "completed",
+          "evidence": "job.json → status == completed"
+        },
+        {
+          "id": "report_exists",
+          "label": "2. Report was generated",
+          "pass": true,
+          "value": "Yes",
+          "evidence": "final_report.md exists"
+        },
+        {
+          "id": "annotations_ge_8",
+          "label": "3. Annotations created (≥ 8)",
+          "pass": true,
+          "value": "8",
+          "evidence": "annotations.json exists; annotation_count >= 8"
+        },
+        {
+          "id": "pdf_exists",
+          "label": "4. PDF export worked",
+          "pass": true,
+          "value": "Yes",
+          "evidence": "final_report.pdf exists"
+        },
+        {
+          "id": "runtime_reasonable",
+          "label": "5. Runtime is reasonable",
+          "pass": true,
+          "value": "3.6 min",
+          "evidence": "Flag if > 45 min (record only)",
+          "flag": false
+        },
+        {
+          "id": "tokens_recorded",
+          "label": "6. Token usage",
+          "pass": null,
+          "value": "2023376",
+          "evidence": "job.json → usage.token.total_tokens"
+        },
+        {
+          "id": "grounding_2_of_3",
+          "label": "7. Highlights are real (grounding)",
+          "pass": true,
+          "value": "3/3",
+          "evidence": "At least 2 of 3 sampled annotations appear in mineru_full.md"
+        }
+      ],
+      "demo_grounding": {
+        "passed": 3,
+        "sample_size": 3,
+        "display": "3/3",
+        "pass": true,
+        "rule": "At least 2 of 3 sampled annotations appear in mineru_full.md",
+        "checks": [
+          {
+            "annotation_id": "88c9fb9a-3304-4f54-9c89-1b9817c787df",
+            "page": 13,
+            "overlap": 1.0,
+            "passed": true,
+            "quoted_preview": "$$\n\\begin{array}{l} \\sum_ {t = 1} ^ {T} \\frac {\\widehat {m} _ {t , i} ^ {2}}{\\sqrt {t \\widehat {v} _ {t , i}}} = \\sum_ {"
+          },
+          {
+            "annotation_id": "45862c9a-fcb2-43d5-9f49-6268ff830b67",
+            "page": 8,
+            "overlap": 1.0,
+            "passed": true,
+            "quoted_preview": "We also empirically evaluate the effect of the bias correction terms explained in sections 2 and 3. Discussed in section"
+          },
+          {
+            "annotation_id": "4d307a87-ecf8-4d46-94c6-b0d734b30acd",
+            "page": 3,
+            "overlap": 1.0,
+            "passed": true,
+            "quoted_preview": "3 INITIALIZATION BIAS CORRECTION\nAs explained in section 2, Adam utilizes initialization bias correction terms. We will "
+          }
+        ]
+      },
+      "demo_verdict": {
+        "verdict": "pass",
+        "checks_passed": 6,
+        "checks_scored": 6,
+        "checks_total": 7,
+        "note": "Demo checklist: pipeline reliability and span grounding only (not review quality)."
+      },
+      "framework": {
+        "name": "MINT–AgentBoard System Performance Evaluation Framework",
+        "scope": "system_performance_only",
+        "design_doc": "docs/2026-06-01-tiered-system-evaluation-design.md",
+        "sources": [
+          {
+            "id": "mint",
+            "paper": "MINT: Evaluating LLMs in Multi-turn Interaction with Tools and Language Feedback",
+            "authors": "Wang et al.",
+            "venue": "ICLR 2024",
+            "pdf_url": "https://openreview.net/pdf?id=jp3gWrMuIZ",
+            "citation": "Table 2 (Success Rate, interaction limit k); §3.2"
+          },
+          {
+            "id": "agentboard",
+            "paper": "AgentBoard: An Analytical Evaluation Board of Multi-turn LLM Agents",
+            "authors": "Ma et al.",
+            "venue": "NeurIPS 2024 (D&B Track)",
+            "pdf_url": "https://proceedings.neurips.cc/paper_files/paper/2024/file/877b40688e330a0e2a3fc24084208dfa-Paper-Datasets_and_Benchmarks_Track.pdf",
+            "citation": "Table 1 (multi-round interaction, fine-grained metrics, traceability)"
+          }
+        ],
+        "go_no_go_thresholds": {
+          "completion_rate_min": 0.85,
+          "deliverable_rate_min": 0.8,
+          "median_wall_clock_max_minutes": 45
+        }
+      },
+      "system_metrics": {
+        "M1_sr": {
+          "label": "Success Rate (SR)",
+          "description": "Did the review job finish with status completed (no fatal pipeline error)?",
+          "value": true,
+          "pass": true,
+          "source": "MINT Table 2",
+          "calculation": "job.json → status == completed"
+        },
+        "M2_k_proxy": {
+          "label": "Interaction depth (k proxy)",
+          "description": "How many tool/LLM rounds the agent ran — proxy for MINT interaction limit k.",
+          "value": 27,
+          "pass": true,
+          "source": "MINT Table 2",
+          "calculation": "job.json → usage.tool.total_calls"
+        },
+        "M3_deliverable": {
+          "label": "Deliverable (tier1 pass)",
+          "description": "Job completed and produced final_report.md (>2 KB) plus final PDF when expected.",
+          "value": true,
+          "pass": true,
+          "source": "AgentBoard §2",
+          "calculation": "completed AND final_report.md > 2048 bytes AND final_report.pdf exists"
+        },
+        "M4_multi_round": {
+          "label": "Multi-round interaction",
+          "description": "Agent used a real tool loop (≥5 calls), not a single-shot or noop run.",
+          "value": true,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "usage.tool.total_calls >= 5"
+        },
+        "M5_wall_clock": {
+          "label": "Wall-clock latency (min)",
+          "description": "Real elapsed minutes from job start to terminal event. Flag if >45 min (fast mode).",
+          "value": 3.6,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "events.jsonl: created → completed/failed timestamp"
+        },
+        "M6_tokens": {
+          "label": "Token cost (total)",
+          "description": "Total LLM tokens used (input + output). Cost proxy — recorded, not pass/fail.",
+          "value": 2023376,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "job.json → usage.token.total_tokens"
+        },
+        "M7_trace": {
+          "label": "Traceable process",
+          "description": "events.jsonl logs a terminal event so the run is auditable end-to-end.",
+          "value": true,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "completed / failed / evaluation_completed in events.jsonl"
+        }
+      },
+      "system_checklist": [
+        {
+          "id": "job_completed",
+          "label": "Job completed (SR)",
+          "pass": true,
+          "source": "MINT Table 2",
+          "evidence": "reliability.completed == true"
+        },
+        {
+          "id": "final_markdown",
+          "label": "Final markdown deliverable (>2 KB)",
+          "pass": true,
+          "source": "AgentBoard §2",
+          "evidence": "final_report.md size > 2048 bytes"
+        },
+        {
+          "id": "final_pdf",
+          "label": "Final PDF exported",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "final_report.pdf exists"
+        },
+        {
+          "id": "final_write_gate",
+          "label": "Final write gate satisfied",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "review_final_markdown_write or final_report_ready"
+        },
+        {
+          "id": "multi_round",
+          "label": "Multi-round tool loop (≥5 tool calls)",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "tool_calls_total=27"
+        },
+        {
+          "id": "traceable",
+          "label": "Auditable event trace",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "terminal event in events.jsonl"
+        },
+        {
+          "id": "wall_clock_fast",
+          "label": "Wall-clock within fast-mode target (≤45 min)",
+          "pass": true,
+          "source": "AgentBoard Table 1 / design doc",
+          "evidence": "wall_clock_minutes=3.6"
+        }
+      ],
+      "system_verdict": {
+        "verdict": "pass",
+        "critical_pass": true,
+        "checklist_passed": 7,
+        "checklist_total": 7,
+        "tier1_pass": true,
+        "wall_clock_minutes": 3.6,
+        "wall_clock_within_target": true,
+        "note": "System performance only; OQI/review quality excluded from verdict."
+      },
+      "reliability": {
+        "completed": true,
+        "has_final_markdown": true,
+        "has_final_pdf": true,
+        "no_fatal_error": true,
+        "final_write_gate": true,
+        "tier1_pass": true
+      },
+      "efficiency": {
+        "wall_clock_minutes": 3.6,
+        "tokens_total": 2023376,
+        "tokens_input": 2014707,
+        "tokens_output": 8669,
+        "tool_calls_total": 27,
+        "paper_search_calls": 0,
+        "agent_run_incomplete_count": 1,
+        "flags": []
+      },
+      "oqi": {
+        "q1_structure": {
+          "score": 2,
+          "sections_found": [
+            "summary",
+            "strengths",
+            "weaknesses",
+            "suggestions"
+          ],
+          "word_count": 860,
+          "section_ok": true,
+          "length_ok": true
+        },
+        "q2_coverage": {
+          "score": 2,
+          "keyword_hits": {
+            "method": true,
+            "experiments": true,
+            "limitations": true
+          },
+          "hit_count": 3
+        },
+        "q3_specificity": {
+          "score": 2,
+          "annotation_count": 8,
+          "distinct_pages": 8,
+          "avg_comment_length": 269.9,
+          "count_ok": true,
+          "pages_ok": true,
+          "comment_ok": true
+        },
+        "q4_grounding": {
+          "sample_size": 3,
+          "passed": 3,
+          "pass_rate": 1.0,
+          "checks": [
+            {
+              "annotation_id": "88c9fb9a-3304-4f54-9c89-1b9817c787df",
+              "page": 13,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "$$\n\\begin{array}{l} \\sum_ {t = 1} ^ {T} \\frac {\\widehat {m} _ {t , i} ^ {2}}{\\sqrt {t \\widehat {v} _ {t , i}}} = \\sum_ {"
+            },
+            {
+              "annotation_id": "45862c9a-fcb2-43d5-9f49-6268ff830b67",
+              "page": 8,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "We also empirically evaluate the effect of the bias correction terms explained in sections 2 and 3. Discussed in section"
+            },
+            {
+              "annotation_id": "4d307a87-ecf8-4d46-94c6-b0d734b30acd",
+              "page": 3,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "3 INITIALIZATION BIAS CORRECTION\nAs explained in section 2, Adam utilizes initialization bias correction terms. We will "
+            }
+          ],
+          "score": 2
+        },
+        "q5_actionability": {
+          "score": 2,
+          "suggestion_bullets": 6,
+          "placeholder_ratio": 0.0,
+          "bullets_ok": true,
+          "placeholder_ok": true
+        },
+        "total": 10,
+        "max": 10,
+        "tier1_quality_pass": true
+      },
+      "tier2_needed": false,
+      "root_cause_bucket": null,
+      "evaluated_at": "2026-06-09T03:56:54.307832+08:00",
+      "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
+      "artifacts": {
+        "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/06d42cc4-8f85-431c-b7ee-bbc5abb6c9da/job.json",
+        "final_report_md": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/06d42cc4-8f85-431c-b7ee-bbc5abb6c9da/final_report.md",
+        "annotations_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/06d42cc4-8f85-431c-b7ee-bbc5abb6c9da/annotations.json",
+        "mineru_markdown": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/06d42cc4-8f85-431c-b7ee-bbc5abb6c9da/mineru_full.md"
       }
     },
     {
@@ -1020,7 +1363,7 @@
       },
       "tier2_needed": false,
       "root_cause_bucket": null,
-      "evaluated_at": "2026-06-09T03:25:31.197766+08:00",
+      "evaluated_at": "2026-06-09T03:56:54.309956+08:00",
       "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
       "artifacts": {
         "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/0845b4e8-bdd1-45a5-92be-8a0d24a8b146/job.json",
@@ -1363,13 +1706,356 @@
       },
       "tier2_needed": false,
       "root_cause_bucket": null,
-      "evaluated_at": "2026-06-09T03:25:31.201158+08:00",
+      "evaluated_at": "2026-06-09T03:56:54.312187+08:00",
       "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
       "artifacts": {
         "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/0f613193-e85e-4a86-af65-4c34684d5588/job.json",
         "final_report_md": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/0f613193-e85e-4a86-af65-4c34684d5588/final_report.md",
         "annotations_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/0f613193-e85e-4a86-af65-4c34684d5588/annotations.json",
         "mineru_markdown": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/0f613193-e85e-4a86-af65-4c34684d5588/mineru_full.md"
+      }
+    },
+    {
+      "job_id": "1578166c-e57b-417a-9686-4fda98992601",
+      "title": "aaai_ra02aayytw",
+      "source_pdf_name": "aaai_ra02aayytw.pdf",
+      "status": "completed",
+      "error": null,
+      "annotation_count": 8,
+      "demo_checklist": [
+        {
+          "id": "job_completed",
+          "label": "1. Job finished successfully",
+          "pass": true,
+          "value": "completed",
+          "evidence": "job.json → status == completed"
+        },
+        {
+          "id": "report_exists",
+          "label": "2. Report was generated",
+          "pass": true,
+          "value": "Yes",
+          "evidence": "final_report.md exists"
+        },
+        {
+          "id": "annotations_ge_8",
+          "label": "3. Annotations created (≥ 8)",
+          "pass": true,
+          "value": "8",
+          "evidence": "annotations.json exists; annotation_count >= 8"
+        },
+        {
+          "id": "pdf_exists",
+          "label": "4. PDF export worked",
+          "pass": true,
+          "value": "Yes",
+          "evidence": "final_report.pdf exists"
+        },
+        {
+          "id": "runtime_reasonable",
+          "label": "5. Runtime is reasonable",
+          "pass": true,
+          "value": "2.4 min",
+          "evidence": "Flag if > 45 min (record only)",
+          "flag": false
+        },
+        {
+          "id": "tokens_recorded",
+          "label": "6. Token usage",
+          "pass": null,
+          "value": "1298990",
+          "evidence": "job.json → usage.token.total_tokens"
+        },
+        {
+          "id": "grounding_2_of_3",
+          "label": "7. Highlights are real (grounding)",
+          "pass": true,
+          "value": "3/3",
+          "evidence": "At least 2 of 3 sampled annotations appear in mineru_full.md"
+        }
+      ],
+      "demo_grounding": {
+        "passed": 3,
+        "sample_size": 3,
+        "display": "3/3",
+        "pass": true,
+        "rule": "At least 2 of 3 sampled annotations appear in mineru_full.md",
+        "checks": [
+          {
+            "annotation_id": "be6f50d2-807c-46d2-8659-ec1e9e007cfd",
+            "page": 1,
+            "overlap": 1.0,
+            "passed": true,
+            "quoted_preview": "Robots require ethical sensitivity, not just functional competence, to make decisions in human settings. While AI planni"
+          },
+          {
+            "annotation_id": "7f6075b1-af9a-4974-b169-1d8935ea61b6",
+            "page": 4,
+            "overlap": 1.0,
+            "passed": true,
+            "quoted_preview": "Figure 3 presents a sample output from PART 1 of the pipeline following a fact check and utility assignment. This exampl"
+          },
+          {
+            "annotation_id": "69181468-a0d2-4d19-9ee2-8356cb16ba5f",
+            "page": 2,
+            "overlap": 1.0,
+            "passed": true,
+            "quoted_preview": "Large Language Models (LLMs) in Planning Recent work has explored incorporating LLMs into automated planning in various "
+          }
+        ]
+      },
+      "demo_verdict": {
+        "verdict": "pass",
+        "checks_passed": 6,
+        "checks_scored": 6,
+        "checks_total": 7,
+        "note": "Demo checklist: pipeline reliability and span grounding only (not review quality)."
+      },
+      "framework": {
+        "name": "MINT–AgentBoard System Performance Evaluation Framework",
+        "scope": "system_performance_only",
+        "design_doc": "docs/2026-06-01-tiered-system-evaluation-design.md",
+        "sources": [
+          {
+            "id": "mint",
+            "paper": "MINT: Evaluating LLMs in Multi-turn Interaction with Tools and Language Feedback",
+            "authors": "Wang et al.",
+            "venue": "ICLR 2024",
+            "pdf_url": "https://openreview.net/pdf?id=jp3gWrMuIZ",
+            "citation": "Table 2 (Success Rate, interaction limit k); §3.2"
+          },
+          {
+            "id": "agentboard",
+            "paper": "AgentBoard: An Analytical Evaluation Board of Multi-turn LLM Agents",
+            "authors": "Ma et al.",
+            "venue": "NeurIPS 2024 (D&B Track)",
+            "pdf_url": "https://proceedings.neurips.cc/paper_files/paper/2024/file/877b40688e330a0e2a3fc24084208dfa-Paper-Datasets_and_Benchmarks_Track.pdf",
+            "citation": "Table 1 (multi-round interaction, fine-grained metrics, traceability)"
+          }
+        ],
+        "go_no_go_thresholds": {
+          "completion_rate_min": 0.85,
+          "deliverable_rate_min": 0.8,
+          "median_wall_clock_max_minutes": 45
+        }
+      },
+      "system_metrics": {
+        "M1_sr": {
+          "label": "Success Rate (SR)",
+          "description": "Did the review job finish with status completed (no fatal pipeline error)?",
+          "value": true,
+          "pass": true,
+          "source": "MINT Table 2",
+          "calculation": "job.json → status == completed"
+        },
+        "M2_k_proxy": {
+          "label": "Interaction depth (k proxy)",
+          "description": "How many tool/LLM rounds the agent ran — proxy for MINT interaction limit k.",
+          "value": 26,
+          "pass": true,
+          "source": "MINT Table 2",
+          "calculation": "job.json → usage.tool.total_calls"
+        },
+        "M3_deliverable": {
+          "label": "Deliverable (tier1 pass)",
+          "description": "Job completed and produced final_report.md (>2 KB) plus final PDF when expected.",
+          "value": true,
+          "pass": true,
+          "source": "AgentBoard §2",
+          "calculation": "completed AND final_report.md > 2048 bytes AND final_report.pdf exists"
+        },
+        "M4_multi_round": {
+          "label": "Multi-round interaction",
+          "description": "Agent used a real tool loop (≥5 calls), not a single-shot or noop run.",
+          "value": true,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "usage.tool.total_calls >= 5"
+        },
+        "M5_wall_clock": {
+          "label": "Wall-clock latency (min)",
+          "description": "Real elapsed minutes from job start to terminal event. Flag if >45 min (fast mode).",
+          "value": 2.4,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "events.jsonl: created → completed/failed timestamp"
+        },
+        "M6_tokens": {
+          "label": "Token cost (total)",
+          "description": "Total LLM tokens used (input + output). Cost proxy — recorded, not pass/fail.",
+          "value": 1298990,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "job.json → usage.token.total_tokens"
+        },
+        "M7_trace": {
+          "label": "Traceable process",
+          "description": "events.jsonl logs a terminal event so the run is auditable end-to-end.",
+          "value": true,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "completed / failed / evaluation_completed in events.jsonl"
+        }
+      },
+      "system_checklist": [
+        {
+          "id": "job_completed",
+          "label": "Job completed (SR)",
+          "pass": true,
+          "source": "MINT Table 2",
+          "evidence": "reliability.completed == true"
+        },
+        {
+          "id": "final_markdown",
+          "label": "Final markdown deliverable (>2 KB)",
+          "pass": true,
+          "source": "AgentBoard §2",
+          "evidence": "final_report.md size > 2048 bytes"
+        },
+        {
+          "id": "final_pdf",
+          "label": "Final PDF exported",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "final_report.pdf exists"
+        },
+        {
+          "id": "final_write_gate",
+          "label": "Final write gate satisfied",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "review_final_markdown_write or final_report_ready"
+        },
+        {
+          "id": "multi_round",
+          "label": "Multi-round tool loop (≥5 tool calls)",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "tool_calls_total=26"
+        },
+        {
+          "id": "traceable",
+          "label": "Auditable event trace",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "terminal event in events.jsonl"
+        },
+        {
+          "id": "wall_clock_fast",
+          "label": "Wall-clock within fast-mode target (≤45 min)",
+          "pass": true,
+          "source": "AgentBoard Table 1 / design doc",
+          "evidence": "wall_clock_minutes=2.4"
+        }
+      ],
+      "system_verdict": {
+        "verdict": "pass",
+        "critical_pass": true,
+        "checklist_passed": 7,
+        "checklist_total": 7,
+        "tier1_pass": true,
+        "wall_clock_minutes": 2.4,
+        "wall_clock_within_target": true,
+        "note": "System performance only; OQI/review quality excluded from verdict."
+      },
+      "reliability": {
+        "completed": true,
+        "has_final_markdown": true,
+        "has_final_pdf": true,
+        "no_fatal_error": true,
+        "final_write_gate": true,
+        "tier1_pass": true
+      },
+      "efficiency": {
+        "wall_clock_minutes": 2.4,
+        "tokens_total": 1298990,
+        "tokens_input": 1292570,
+        "tokens_output": 6420,
+        "tool_calls_total": 26,
+        "paper_search_calls": 0,
+        "agent_run_incomplete_count": 0,
+        "flags": []
+      },
+      "oqi": {
+        "q1_structure": {
+          "score": 2,
+          "sections_found": [
+            "summary",
+            "strengths",
+            "weaknesses",
+            "suggestions"
+          ],
+          "word_count": 1067,
+          "section_ok": true,
+          "length_ok": true
+        },
+        "q2_coverage": {
+          "score": 2,
+          "keyword_hits": {
+            "method": true,
+            "experiments": true,
+            "limitations": true
+          },
+          "hit_count": 3
+        },
+        "q3_specificity": {
+          "score": 2,
+          "annotation_count": 8,
+          "distinct_pages": 7,
+          "avg_comment_length": 321.5,
+          "count_ok": true,
+          "pages_ok": true,
+          "comment_ok": true
+        },
+        "q4_grounding": {
+          "sample_size": 3,
+          "passed": 3,
+          "pass_rate": 1.0,
+          "checks": [
+            {
+              "annotation_id": "be6f50d2-807c-46d2-8659-ec1e9e007cfd",
+              "page": 1,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "Robots require ethical sensitivity, not just functional competence, to make decisions in human settings. While AI planni"
+            },
+            {
+              "annotation_id": "7f6075b1-af9a-4974-b169-1d8935ea61b6",
+              "page": 4,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "Figure 3 presents a sample output from PART 1 of the pipeline following a fact check and utility assignment. This exampl"
+            },
+            {
+              "annotation_id": "69181468-a0d2-4d19-9ee2-8356cb16ba5f",
+              "page": 2,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "Large Language Models (LLMs) in Planning Recent work has explored incorporating LLMs into automated planning in various "
+            }
+          ],
+          "score": 2
+        },
+        "q5_actionability": {
+          "score": 2,
+          "suggestion_bullets": 6,
+          "placeholder_ratio": 0.0,
+          "bullets_ok": true,
+          "placeholder_ok": true
+        },
+        "total": 10,
+        "max": 10,
+        "tier1_quality_pass": true
+      },
+      "tier2_needed": false,
+      "root_cause_bucket": null,
+      "evaluated_at": "2026-06-09T03:56:54.314720+08:00",
+      "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
+      "artifacts": {
+        "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/1578166c-e57b-417a-9686-4fda98992601/job.json",
+        "final_report_md": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/1578166c-e57b-417a-9686-4fda98992601/final_report.md",
+        "annotations_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/1578166c-e57b-417a-9686-4fda98992601/annotations.json",
+        "mineru_markdown": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/1578166c-e57b-417a-9686-4fda98992601/mineru_full.md"
       }
     },
     {
@@ -1706,7 +2392,7 @@
       },
       "tier2_needed": false,
       "root_cause_bucket": null,
-      "evaluated_at": "2026-06-09T03:25:31.204135+08:00",
+      "evaluated_at": "2026-06-09T03:56:54.316993+08:00",
       "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
       "artifacts": {
         "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/1919ff59-108b-4d5e-98b5-cee4e1adcdf6/job.json",
@@ -2049,13 +2735,356 @@
       },
       "tier2_needed": false,
       "root_cause_bucket": null,
-      "evaluated_at": "2026-06-09T03:25:31.208584+08:00",
+      "evaluated_at": "2026-06-09T03:56:54.321111+08:00",
       "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
       "artifacts": {
         "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/1c6e5728-c042-47ae-ad70-f6bb7e12c7a1/job.json",
         "final_report_md": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/1c6e5728-c042-47ae-ad70-f6bb7e12c7a1/final_report.md",
         "annotations_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/1c6e5728-c042-47ae-ad70-f6bb7e12c7a1/annotations.json",
         "mineru_markdown": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/1c6e5728-c042-47ae-ad70-f6bb7e12c7a1/mineru_full.md"
+      }
+    },
+    {
+      "job_id": "1f276757-57af-418f-a67f-ffe1cccb277b",
+      "title": "aaai_t1yqsvzeoo",
+      "source_pdf_name": "aaai_t1yqsvzeoo.pdf",
+      "status": "completed",
+      "error": null,
+      "annotation_count": 8,
+      "demo_checklist": [
+        {
+          "id": "job_completed",
+          "label": "1. Job finished successfully",
+          "pass": true,
+          "value": "completed",
+          "evidence": "job.json → status == completed"
+        },
+        {
+          "id": "report_exists",
+          "label": "2. Report was generated",
+          "pass": true,
+          "value": "Yes",
+          "evidence": "final_report.md exists"
+        },
+        {
+          "id": "annotations_ge_8",
+          "label": "3. Annotations created (≥ 8)",
+          "pass": true,
+          "value": "8",
+          "evidence": "annotations.json exists; annotation_count >= 8"
+        },
+        {
+          "id": "pdf_exists",
+          "label": "4. PDF export worked",
+          "pass": true,
+          "value": "Yes",
+          "evidence": "final_report.pdf exists"
+        },
+        {
+          "id": "runtime_reasonable",
+          "label": "5. Runtime is reasonable",
+          "pass": true,
+          "value": "1.55 min",
+          "evidence": "Flag if > 45 min (record only)",
+          "flag": false
+        },
+        {
+          "id": "tokens_recorded",
+          "label": "6. Token usage",
+          "pass": null,
+          "value": "681530",
+          "evidence": "job.json → usage.token.total_tokens"
+        },
+        {
+          "id": "grounding_2_of_3",
+          "label": "7. Highlights are real (grounding)",
+          "pass": true,
+          "value": "3/3",
+          "evidence": "At least 2 of 3 sampled annotations appear in mineru_full.md"
+        }
+      ],
+      "demo_grounding": {
+        "passed": 3,
+        "sample_size": 3,
+        "display": "3/3",
+        "pass": true,
+        "rule": "At least 2 of 3 sampled annotations appear in mineru_full.md",
+        "checks": [
+          {
+            "annotation_id": "3e6d8745-737d-44dd-8551-8b2f91602355",
+            "page": 1,
+            "overlap": 1.0,
+            "passed": true,
+            "quoted_preview": "1. Problem framing. We characterise LCIA arbitration as a closed-world legal reasoning domain with unusually strong proc"
+          },
+          {
+            "annotation_id": "1d75b809-ebf0-4c2d-a8d5-a0bf66794417",
+            "page": 2,
+            "overlap": 1.0,
+            "passed": true,
+            "quoted_preview": "Explainability has long motivated neurosymbolic AI: explicit rules, proofs, and constraints support explanations that ca"
+          },
+          {
+            "annotation_id": "8d78604f-0880-405d-86bd-2045e029aa81",
+            "page": 4,
+            "overlap": 1.0,
+            "passed": true,
+            "quoted_preview": "Existing logical reasoning benchmarks are valuable but far from the procedural structure of LCIA proceedings (Pan et al."
+          }
+        ]
+      },
+      "demo_verdict": {
+        "verdict": "pass",
+        "checks_passed": 6,
+        "checks_scored": 6,
+        "checks_total": 7,
+        "note": "Demo checklist: pipeline reliability and span grounding only (not review quality)."
+      },
+      "framework": {
+        "name": "MINT–AgentBoard System Performance Evaluation Framework",
+        "scope": "system_performance_only",
+        "design_doc": "docs/2026-06-01-tiered-system-evaluation-design.md",
+        "sources": [
+          {
+            "id": "mint",
+            "paper": "MINT: Evaluating LLMs in Multi-turn Interaction with Tools and Language Feedback",
+            "authors": "Wang et al.",
+            "venue": "ICLR 2024",
+            "pdf_url": "https://openreview.net/pdf?id=jp3gWrMuIZ",
+            "citation": "Table 2 (Success Rate, interaction limit k); §3.2"
+          },
+          {
+            "id": "agentboard",
+            "paper": "AgentBoard: An Analytical Evaluation Board of Multi-turn LLM Agents",
+            "authors": "Ma et al.",
+            "venue": "NeurIPS 2024 (D&B Track)",
+            "pdf_url": "https://proceedings.neurips.cc/paper_files/paper/2024/file/877b40688e330a0e2a3fc24084208dfa-Paper-Datasets_and_Benchmarks_Track.pdf",
+            "citation": "Table 1 (multi-round interaction, fine-grained metrics, traceability)"
+          }
+        ],
+        "go_no_go_thresholds": {
+          "completion_rate_min": 0.85,
+          "deliverable_rate_min": 0.8,
+          "median_wall_clock_max_minutes": 45
+        }
+      },
+      "system_metrics": {
+        "M1_sr": {
+          "label": "Success Rate (SR)",
+          "description": "Did the review job finish with status completed (no fatal pipeline error)?",
+          "value": true,
+          "pass": true,
+          "source": "MINT Table 2",
+          "calculation": "job.json → status == completed"
+        },
+        "M2_k_proxy": {
+          "label": "Interaction depth (k proxy)",
+          "description": "How many tool/LLM rounds the agent ran — proxy for MINT interaction limit k.",
+          "value": 23,
+          "pass": true,
+          "source": "MINT Table 2",
+          "calculation": "job.json → usage.tool.total_calls"
+        },
+        "M3_deliverable": {
+          "label": "Deliverable (tier1 pass)",
+          "description": "Job completed and produced final_report.md (>2 KB) plus final PDF when expected.",
+          "value": true,
+          "pass": true,
+          "source": "AgentBoard §2",
+          "calculation": "completed AND final_report.md > 2048 bytes AND final_report.pdf exists"
+        },
+        "M4_multi_round": {
+          "label": "Multi-round interaction",
+          "description": "Agent used a real tool loop (≥5 calls), not a single-shot or noop run.",
+          "value": true,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "usage.tool.total_calls >= 5"
+        },
+        "M5_wall_clock": {
+          "label": "Wall-clock latency (min)",
+          "description": "Real elapsed minutes from job start to terminal event. Flag if >45 min (fast mode).",
+          "value": 1.55,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "events.jsonl: created → completed/failed timestamp"
+        },
+        "M6_tokens": {
+          "label": "Token cost (total)",
+          "description": "Total LLM tokens used (input + output). Cost proxy — recorded, not pass/fail.",
+          "value": 681530,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "job.json → usage.token.total_tokens"
+        },
+        "M7_trace": {
+          "label": "Traceable process",
+          "description": "events.jsonl logs a terminal event so the run is auditable end-to-end.",
+          "value": true,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "completed / failed / evaluation_completed in events.jsonl"
+        }
+      },
+      "system_checklist": [
+        {
+          "id": "job_completed",
+          "label": "Job completed (SR)",
+          "pass": true,
+          "source": "MINT Table 2",
+          "evidence": "reliability.completed == true"
+        },
+        {
+          "id": "final_markdown",
+          "label": "Final markdown deliverable (>2 KB)",
+          "pass": true,
+          "source": "AgentBoard §2",
+          "evidence": "final_report.md size > 2048 bytes"
+        },
+        {
+          "id": "final_pdf",
+          "label": "Final PDF exported",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "final_report.pdf exists"
+        },
+        {
+          "id": "final_write_gate",
+          "label": "Final write gate satisfied",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "review_final_markdown_write or final_report_ready"
+        },
+        {
+          "id": "multi_round",
+          "label": "Multi-round tool loop (≥5 tool calls)",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "tool_calls_total=23"
+        },
+        {
+          "id": "traceable",
+          "label": "Auditable event trace",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "terminal event in events.jsonl"
+        },
+        {
+          "id": "wall_clock_fast",
+          "label": "Wall-clock within fast-mode target (≤45 min)",
+          "pass": true,
+          "source": "AgentBoard Table 1 / design doc",
+          "evidence": "wall_clock_minutes=1.55"
+        }
+      ],
+      "system_verdict": {
+        "verdict": "pass",
+        "critical_pass": true,
+        "checklist_passed": 7,
+        "checklist_total": 7,
+        "tier1_pass": true,
+        "wall_clock_minutes": 1.55,
+        "wall_clock_within_target": true,
+        "note": "System performance only; OQI/review quality excluded from verdict."
+      },
+      "reliability": {
+        "completed": true,
+        "has_final_markdown": true,
+        "has_final_pdf": true,
+        "no_fatal_error": true,
+        "final_write_gate": true,
+        "tier1_pass": true
+      },
+      "efficiency": {
+        "wall_clock_minutes": 1.55,
+        "tokens_total": 681530,
+        "tokens_input": 677355,
+        "tokens_output": 4175,
+        "tool_calls_total": 23,
+        "paper_search_calls": 0,
+        "agent_run_incomplete_count": 1,
+        "flags": []
+      },
+      "oqi": {
+        "q1_structure": {
+          "score": 1,
+          "sections_found": [
+            "summary",
+            "strengths",
+            "weaknesses",
+            "suggestions"
+          ],
+          "word_count": 771,
+          "section_ok": true,
+          "length_ok": false
+        },
+        "q2_coverage": {
+          "score": 1,
+          "keyword_hits": {
+            "method": true,
+            "experiments": true,
+            "limitations": false
+          },
+          "hit_count": 2
+        },
+        "q3_specificity": {
+          "score": 2,
+          "annotation_count": 8,
+          "distinct_pages": 4,
+          "avg_comment_length": 229.1,
+          "count_ok": true,
+          "pages_ok": true,
+          "comment_ok": true
+        },
+        "q4_grounding": {
+          "sample_size": 3,
+          "passed": 3,
+          "pass_rate": 1.0,
+          "checks": [
+            {
+              "annotation_id": "3e6d8745-737d-44dd-8551-8b2f91602355",
+              "page": 1,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "1. Problem framing. We characterise LCIA arbitration as a closed-world legal reasoning domain with unusually strong proc"
+            },
+            {
+              "annotation_id": "1d75b809-ebf0-4c2d-a8d5-a0bf66794417",
+              "page": 2,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "Explainability has long motivated neurosymbolic AI: explicit rules, proofs, and constraints support explanations that ca"
+            },
+            {
+              "annotation_id": "8d78604f-0880-405d-86bd-2045e029aa81",
+              "page": 4,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "Existing logical reasoning benchmarks are valuable but far from the procedural structure of LCIA proceedings (Pan et al."
+            }
+          ],
+          "score": 2
+        },
+        "q5_actionability": {
+          "score": 2,
+          "suggestion_bullets": 6,
+          "placeholder_ratio": 0.0,
+          "bullets_ok": true,
+          "placeholder_ok": true
+        },
+        "total": 8,
+        "max": 10,
+        "tier1_quality_pass": true
+      },
+      "tier2_needed": false,
+      "root_cause_bucket": null,
+      "evaluated_at": "2026-06-09T03:56:54.323480+08:00",
+      "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
+      "artifacts": {
+        "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/1f276757-57af-418f-a67f-ffe1cccb277b/job.json",
+        "final_report_md": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/1f276757-57af-418f-a67f-ffe1cccb277b/final_report.md",
+        "annotations_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/1f276757-57af-418f-a67f-ffe1cccb277b/annotations.json",
+        "mineru_markdown": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/1f276757-57af-418f-a67f-ffe1cccb277b/mineru_full.md"
       }
     },
     {
@@ -2392,7 +3421,7 @@
       },
       "tier2_needed": false,
       "root_cause_bucket": null,
-      "evaluated_at": "2026-06-09T03:25:31.212129+08:00",
+      "evaluated_at": "2026-06-09T03:56:54.326416+08:00",
       "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
       "artifacts": {
         "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/20c63521-3a06-4ab0-91bd-607978aaf2c1/job.json",
@@ -2735,13 +3764,356 @@
       },
       "tier2_needed": false,
       "root_cause_bucket": null,
-      "evaluated_at": "2026-06-09T03:25:31.214915+08:00",
+      "evaluated_at": "2026-06-09T03:56:54.328670+08:00",
       "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
       "artifacts": {
         "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/2773a079-a692-4c66-b5ad-a09a41108ee9/job.json",
         "final_report_md": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/2773a079-a692-4c66-b5ad-a09a41108ee9/final_report.md",
         "annotations_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/2773a079-a692-4c66-b5ad-a09a41108ee9/annotations.json",
         "mineru_markdown": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/2773a079-a692-4c66-b5ad-a09a41108ee9/mineru_full.md"
+      }
+    },
+    {
+      "job_id": "39774ebd-7ae7-47c9-bad8-8444c5810c4f",
+      "title": "acl_2024.findings-acl.438",
+      "source_pdf_name": "acl_2024.findings-acl.438.pdf",
+      "status": "completed",
+      "error": null,
+      "annotation_count": 8,
+      "demo_checklist": [
+        {
+          "id": "job_completed",
+          "label": "1. Job finished successfully",
+          "pass": true,
+          "value": "completed",
+          "evidence": "job.json → status == completed"
+        },
+        {
+          "id": "report_exists",
+          "label": "2. Report was generated",
+          "pass": true,
+          "value": "Yes",
+          "evidence": "final_report.md exists"
+        },
+        {
+          "id": "annotations_ge_8",
+          "label": "3. Annotations created (≥ 8)",
+          "pass": true,
+          "value": "8",
+          "evidence": "annotations.json exists; annotation_count >= 8"
+        },
+        {
+          "id": "pdf_exists",
+          "label": "4. PDF export worked",
+          "pass": true,
+          "value": "Yes",
+          "evidence": "final_report.pdf exists"
+        },
+        {
+          "id": "runtime_reasonable",
+          "label": "5. Runtime is reasonable",
+          "pass": true,
+          "value": "4.13 min",
+          "evidence": "Flag if > 45 min (record only)",
+          "flag": false
+        },
+        {
+          "id": "tokens_recorded",
+          "label": "6. Token usage",
+          "pass": null,
+          "value": "2458200",
+          "evidence": "job.json → usage.token.total_tokens"
+        },
+        {
+          "id": "grounding_2_of_3",
+          "label": "7. Highlights are real (grounding)",
+          "pass": true,
+          "value": "3/3",
+          "evidence": "At least 2 of 3 sampled annotations appear in mineru_full.md"
+        }
+      ],
+      "demo_grounding": {
+        "passed": 3,
+        "sample_size": 3,
+        "display": "3/3",
+        "pass": true,
+        "rule": "At least 2 of 3 sampled annotations appear in mineru_full.md",
+        "checks": [
+          {
+            "annotation_id": "0e00b797-1d1d-4c7c-9d99-cc349e4b772d",
+            "page": 9,
+            "overlap": 1.0,
+            "passed": true,
+            "quoted_preview": "Data contamination. Since LLMs are trained with a vast amount of data scraped from the internet, this might result in da"
+          },
+          {
+            "annotation_id": "f1b44c4a-35ff-41c9-b108-05c63808fe50",
+            "page": 1,
+            "overlap": 1.0,
+            "passed": true,
+            "quoted_preview": "In-context learning is a popular inference strategy where large language models solve a task using only a few labeled de"
+          },
+          {
+            "annotation_id": "ea5eb7e9-6f39-4a1a-89ee-4e29f7df3820",
+            "page": 15,
+            "overlap": 1.0,
+            "passed": true,
+            "quoted_preview": "Our codebase is adapted from OpenICL (Wu et al., 2023). We use int8bit model quantization11 for all models except OpenAI"
+          }
+        ]
+      },
+      "demo_verdict": {
+        "verdict": "pass",
+        "checks_passed": 6,
+        "checks_scored": 6,
+        "checks_total": 7,
+        "note": "Demo checklist: pipeline reliability and span grounding only (not review quality)."
+      },
+      "framework": {
+        "name": "MINT–AgentBoard System Performance Evaluation Framework",
+        "scope": "system_performance_only",
+        "design_doc": "docs/2026-06-01-tiered-system-evaluation-design.md",
+        "sources": [
+          {
+            "id": "mint",
+            "paper": "MINT: Evaluating LLMs in Multi-turn Interaction with Tools and Language Feedback",
+            "authors": "Wang et al.",
+            "venue": "ICLR 2024",
+            "pdf_url": "https://openreview.net/pdf?id=jp3gWrMuIZ",
+            "citation": "Table 2 (Success Rate, interaction limit k); §3.2"
+          },
+          {
+            "id": "agentboard",
+            "paper": "AgentBoard: An Analytical Evaluation Board of Multi-turn LLM Agents",
+            "authors": "Ma et al.",
+            "venue": "NeurIPS 2024 (D&B Track)",
+            "pdf_url": "https://proceedings.neurips.cc/paper_files/paper/2024/file/877b40688e330a0e2a3fc24084208dfa-Paper-Datasets_and_Benchmarks_Track.pdf",
+            "citation": "Table 1 (multi-round interaction, fine-grained metrics, traceability)"
+          }
+        ],
+        "go_no_go_thresholds": {
+          "completion_rate_min": 0.85,
+          "deliverable_rate_min": 0.8,
+          "median_wall_clock_max_minutes": 45
+        }
+      },
+      "system_metrics": {
+        "M1_sr": {
+          "label": "Success Rate (SR)",
+          "description": "Did the review job finish with status completed (no fatal pipeline error)?",
+          "value": true,
+          "pass": true,
+          "source": "MINT Table 2",
+          "calculation": "job.json → status == completed"
+        },
+        "M2_k_proxy": {
+          "label": "Interaction depth (k proxy)",
+          "description": "How many tool/LLM rounds the agent ran — proxy for MINT interaction limit k.",
+          "value": 28,
+          "pass": true,
+          "source": "MINT Table 2",
+          "calculation": "job.json → usage.tool.total_calls"
+        },
+        "M3_deliverable": {
+          "label": "Deliverable (tier1 pass)",
+          "description": "Job completed and produced final_report.md (>2 KB) plus final PDF when expected.",
+          "value": true,
+          "pass": true,
+          "source": "AgentBoard §2",
+          "calculation": "completed AND final_report.md > 2048 bytes AND final_report.pdf exists"
+        },
+        "M4_multi_round": {
+          "label": "Multi-round interaction",
+          "description": "Agent used a real tool loop (≥5 calls), not a single-shot or noop run.",
+          "value": true,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "usage.tool.total_calls >= 5"
+        },
+        "M5_wall_clock": {
+          "label": "Wall-clock latency (min)",
+          "description": "Real elapsed minutes from job start to terminal event. Flag if >45 min (fast mode).",
+          "value": 4.13,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "events.jsonl: created → completed/failed timestamp"
+        },
+        "M6_tokens": {
+          "label": "Token cost (total)",
+          "description": "Total LLM tokens used (input + output). Cost proxy — recorded, not pass/fail.",
+          "value": 2458200,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "job.json → usage.token.total_tokens"
+        },
+        "M7_trace": {
+          "label": "Traceable process",
+          "description": "events.jsonl logs a terminal event so the run is auditable end-to-end.",
+          "value": true,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "completed / failed / evaluation_completed in events.jsonl"
+        }
+      },
+      "system_checklist": [
+        {
+          "id": "job_completed",
+          "label": "Job completed (SR)",
+          "pass": true,
+          "source": "MINT Table 2",
+          "evidence": "reliability.completed == true"
+        },
+        {
+          "id": "final_markdown",
+          "label": "Final markdown deliverable (>2 KB)",
+          "pass": true,
+          "source": "AgentBoard §2",
+          "evidence": "final_report.md size > 2048 bytes"
+        },
+        {
+          "id": "final_pdf",
+          "label": "Final PDF exported",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "final_report.pdf exists"
+        },
+        {
+          "id": "final_write_gate",
+          "label": "Final write gate satisfied",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "review_final_markdown_write or final_report_ready"
+        },
+        {
+          "id": "multi_round",
+          "label": "Multi-round tool loop (≥5 tool calls)",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "tool_calls_total=28"
+        },
+        {
+          "id": "traceable",
+          "label": "Auditable event trace",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "terminal event in events.jsonl"
+        },
+        {
+          "id": "wall_clock_fast",
+          "label": "Wall-clock within fast-mode target (≤45 min)",
+          "pass": true,
+          "source": "AgentBoard Table 1 / design doc",
+          "evidence": "wall_clock_minutes=4.13"
+        }
+      ],
+      "system_verdict": {
+        "verdict": "pass",
+        "critical_pass": true,
+        "checklist_passed": 7,
+        "checklist_total": 7,
+        "tier1_pass": true,
+        "wall_clock_minutes": 4.13,
+        "wall_clock_within_target": true,
+        "note": "System performance only; OQI/review quality excluded from verdict."
+      },
+      "reliability": {
+        "completed": true,
+        "has_final_markdown": true,
+        "has_final_pdf": true,
+        "no_fatal_error": true,
+        "final_write_gate": true,
+        "tier1_pass": true
+      },
+      "efficiency": {
+        "wall_clock_minutes": 4.13,
+        "tokens_total": 2458200,
+        "tokens_input": 2450806,
+        "tokens_output": 7394,
+        "tool_calls_total": 28,
+        "paper_search_calls": 0,
+        "agent_run_incomplete_count": 1,
+        "flags": []
+      },
+      "oqi": {
+        "q1_structure": {
+          "score": 2,
+          "sections_found": [
+            "summary",
+            "strengths",
+            "weaknesses",
+            "suggestions"
+          ],
+          "word_count": 811,
+          "section_ok": true,
+          "length_ok": true
+        },
+        "q2_coverage": {
+          "score": 0,
+          "keyword_hits": {
+            "method": false,
+            "experiments": true,
+            "limitations": false
+          },
+          "hit_count": 1
+        },
+        "q3_specificity": {
+          "score": 2,
+          "annotation_count": 8,
+          "distinct_pages": 7,
+          "avg_comment_length": 232.2,
+          "count_ok": true,
+          "pages_ok": true,
+          "comment_ok": true
+        },
+        "q4_grounding": {
+          "sample_size": 3,
+          "passed": 3,
+          "pass_rate": 1.0,
+          "checks": [
+            {
+              "annotation_id": "0e00b797-1d1d-4c7c-9d99-cc349e4b772d",
+              "page": 9,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "Data contamination. Since LLMs are trained with a vast amount of data scraped from the internet, this might result in da"
+            },
+            {
+              "annotation_id": "f1b44c4a-35ff-41c9-b108-05c63808fe50",
+              "page": 1,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "In-context learning is a popular inference strategy where large language models solve a task using only a few labeled de"
+            },
+            {
+              "annotation_id": "ea5eb7e9-6f39-4a1a-89ee-4e29f7df3820",
+              "page": 15,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "Our codebase is adapted from OpenICL (Wu et al., 2023). We use int8bit model quantization11 for all models except OpenAI"
+            }
+          ],
+          "score": 2
+        },
+        "q5_actionability": {
+          "score": 2,
+          "suggestion_bullets": 5,
+          "placeholder_ratio": 0.0,
+          "bullets_ok": true,
+          "placeholder_ok": true
+        },
+        "total": 8,
+        "max": 10,
+        "tier1_quality_pass": true
+      },
+      "tier2_needed": false,
+      "root_cause_bucket": null,
+      "evaluated_at": "2026-06-09T03:56:54.332031+08:00",
+      "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
+      "artifacts": {
+        "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/39774ebd-7ae7-47c9-bad8-8444c5810c4f/job.json",
+        "final_report_md": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/39774ebd-7ae7-47c9-bad8-8444c5810c4f/final_report.md",
+        "annotations_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/39774ebd-7ae7-47c9-bad8-8444c5810c4f/annotations.json",
+        "mineru_markdown": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/39774ebd-7ae7-47c9-bad8-8444c5810c4f/mineru_full.md"
       }
     },
     {
@@ -3078,7 +4450,7 @@
       },
       "tier2_needed": false,
       "root_cause_bucket": null,
-      "evaluated_at": "2026-06-09T03:25:31.218020+08:00",
+      "evaluated_at": "2026-06-09T03:56:54.334130+08:00",
       "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
       "artifacts": {
         "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/46fa183d-4235-422a-9ae8-56df5d08ef8e/job.json",
@@ -3329,13 +4701,356 @@
       "oqi": null,
       "tier2_needed": true,
       "root_cause_bucket": "R2",
-      "evaluated_at": "2026-06-09T03:25:31.219314+08:00",
+      "evaluated_at": "2026-06-09T03:56:54.334907+08:00",
       "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
       "artifacts": {
         "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/481ab98f-653e-40dc-b897-9bd1e0747c94/job.json",
         "final_report_md": null,
         "annotations_json": null,
         "mineru_markdown": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/481ab98f-653e-40dc-b897-9bd1e0747c94/mineru_full.md"
+      }
+    },
+    {
+      "job_id": "5767507c-20af-4c57-bbbf-b1f3d031f01b",
+      "title": "aaai_2404.01847v3",
+      "source_pdf_name": "aaai_2404.01847v3.pdf",
+      "status": "completed",
+      "error": null,
+      "annotation_count": 8,
+      "demo_checklist": [
+        {
+          "id": "job_completed",
+          "label": "1. Job finished successfully",
+          "pass": true,
+          "value": "completed",
+          "evidence": "job.json → status == completed"
+        },
+        {
+          "id": "report_exists",
+          "label": "2. Report was generated",
+          "pass": true,
+          "value": "Yes",
+          "evidence": "final_report.md exists"
+        },
+        {
+          "id": "annotations_ge_8",
+          "label": "3. Annotations created (≥ 8)",
+          "pass": true,
+          "value": "8",
+          "evidence": "annotations.json exists; annotation_count >= 8"
+        },
+        {
+          "id": "pdf_exists",
+          "label": "4. PDF export worked",
+          "pass": true,
+          "value": "Yes",
+          "evidence": "final_report.pdf exists"
+        },
+        {
+          "id": "runtime_reasonable",
+          "label": "5. Runtime is reasonable",
+          "pass": true,
+          "value": "2.1 min",
+          "evidence": "Flag if > 45 min (record only)",
+          "flag": false
+        },
+        {
+          "id": "tokens_recorded",
+          "label": "6. Token usage",
+          "pass": null,
+          "value": "1105534",
+          "evidence": "job.json → usage.token.total_tokens"
+        },
+        {
+          "id": "grounding_2_of_3",
+          "label": "7. Highlights are real (grounding)",
+          "pass": true,
+          "value": "3/3",
+          "evidence": "At least 2 of 3 sampled annotations appear in mineru_full.md"
+        }
+      ],
+      "demo_grounding": {
+        "passed": 3,
+        "sample_size": 3,
+        "display": "3/3",
+        "pass": true,
+        "rule": "At least 2 of 3 sampled annotations appear in mineru_full.md",
+        "checks": [
+          {
+            "annotation_id": "2d37ebce-f18a-4861-b824-a00ed218c087",
+            "page": 4,
+            "overlap": 1.0,
+            "passed": true,
+            "quoted_preview": "We measure flip rate change for dense training, STE and SR-STE with different λW in Figure 1. For dense training, we com"
+          },
+          {
+            "annotation_id": "d02e0f6e-e236-4ec6-8dab-68608d263d9b",
+            "page": 6,
+            "overlap": 1.0,
+            "passed": true,
+            "quoted_preview": "As described in Equation (5), both a transposable mask itself and its transposition conform to the format of 2:4 sparsit"
+          },
+          {
+            "annotation_id": "457ea6d0-e787-4c83-966a-bf41f7ecb12c",
+            "page": 9,
+            "overlap": 1.0,
+            "passed": true,
+            "quoted_preview": "In this study, we are the first to propose accelerating the pre-training of transformers by 2:4 sparsity. We analyze the"
+          }
+        ]
+      },
+      "demo_verdict": {
+        "verdict": "pass",
+        "checks_passed": 6,
+        "checks_scored": 6,
+        "checks_total": 7,
+        "note": "Demo checklist: pipeline reliability and span grounding only (not review quality)."
+      },
+      "framework": {
+        "name": "MINT–AgentBoard System Performance Evaluation Framework",
+        "scope": "system_performance_only",
+        "design_doc": "docs/2026-06-01-tiered-system-evaluation-design.md",
+        "sources": [
+          {
+            "id": "mint",
+            "paper": "MINT: Evaluating LLMs in Multi-turn Interaction with Tools and Language Feedback",
+            "authors": "Wang et al.",
+            "venue": "ICLR 2024",
+            "pdf_url": "https://openreview.net/pdf?id=jp3gWrMuIZ",
+            "citation": "Table 2 (Success Rate, interaction limit k); §3.2"
+          },
+          {
+            "id": "agentboard",
+            "paper": "AgentBoard: An Analytical Evaluation Board of Multi-turn LLM Agents",
+            "authors": "Ma et al.",
+            "venue": "NeurIPS 2024 (D&B Track)",
+            "pdf_url": "https://proceedings.neurips.cc/paper_files/paper/2024/file/877b40688e330a0e2a3fc24084208dfa-Paper-Datasets_and_Benchmarks_Track.pdf",
+            "citation": "Table 1 (multi-round interaction, fine-grained metrics, traceability)"
+          }
+        ],
+        "go_no_go_thresholds": {
+          "completion_rate_min": 0.85,
+          "deliverable_rate_min": 0.8,
+          "median_wall_clock_max_minutes": 45
+        }
+      },
+      "system_metrics": {
+        "M1_sr": {
+          "label": "Success Rate (SR)",
+          "description": "Did the review job finish with status completed (no fatal pipeline error)?",
+          "value": true,
+          "pass": true,
+          "source": "MINT Table 2",
+          "calculation": "job.json → status == completed"
+        },
+        "M2_k_proxy": {
+          "label": "Interaction depth (k proxy)",
+          "description": "How many tool/LLM rounds the agent ran — proxy for MINT interaction limit k.",
+          "value": 18,
+          "pass": true,
+          "source": "MINT Table 2",
+          "calculation": "job.json → usage.tool.total_calls"
+        },
+        "M3_deliverable": {
+          "label": "Deliverable (tier1 pass)",
+          "description": "Job completed and produced final_report.md (>2 KB) plus final PDF when expected.",
+          "value": true,
+          "pass": true,
+          "source": "AgentBoard §2",
+          "calculation": "completed AND final_report.md > 2048 bytes AND final_report.pdf exists"
+        },
+        "M4_multi_round": {
+          "label": "Multi-round interaction",
+          "description": "Agent used a real tool loop (≥5 calls), not a single-shot or noop run.",
+          "value": true,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "usage.tool.total_calls >= 5"
+        },
+        "M5_wall_clock": {
+          "label": "Wall-clock latency (min)",
+          "description": "Real elapsed minutes from job start to terminal event. Flag if >45 min (fast mode).",
+          "value": 2.1,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "events.jsonl: created → completed/failed timestamp"
+        },
+        "M6_tokens": {
+          "label": "Token cost (total)",
+          "description": "Total LLM tokens used (input + output). Cost proxy — recorded, not pass/fail.",
+          "value": 1105534,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "job.json → usage.token.total_tokens"
+        },
+        "M7_trace": {
+          "label": "Traceable process",
+          "description": "events.jsonl logs a terminal event so the run is auditable end-to-end.",
+          "value": true,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "completed / failed / evaluation_completed in events.jsonl"
+        }
+      },
+      "system_checklist": [
+        {
+          "id": "job_completed",
+          "label": "Job completed (SR)",
+          "pass": true,
+          "source": "MINT Table 2",
+          "evidence": "reliability.completed == true"
+        },
+        {
+          "id": "final_markdown",
+          "label": "Final markdown deliverable (>2 KB)",
+          "pass": true,
+          "source": "AgentBoard §2",
+          "evidence": "final_report.md size > 2048 bytes"
+        },
+        {
+          "id": "final_pdf",
+          "label": "Final PDF exported",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "final_report.pdf exists"
+        },
+        {
+          "id": "final_write_gate",
+          "label": "Final write gate satisfied",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "review_final_markdown_write or final_report_ready"
+        },
+        {
+          "id": "multi_round",
+          "label": "Multi-round tool loop (≥5 tool calls)",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "tool_calls_total=18"
+        },
+        {
+          "id": "traceable",
+          "label": "Auditable event trace",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "terminal event in events.jsonl"
+        },
+        {
+          "id": "wall_clock_fast",
+          "label": "Wall-clock within fast-mode target (≤45 min)",
+          "pass": true,
+          "source": "AgentBoard Table 1 / design doc",
+          "evidence": "wall_clock_minutes=2.1"
+        }
+      ],
+      "system_verdict": {
+        "verdict": "pass",
+        "critical_pass": true,
+        "checklist_passed": 7,
+        "checklist_total": 7,
+        "tier1_pass": true,
+        "wall_clock_minutes": 2.1,
+        "wall_clock_within_target": true,
+        "note": "System performance only; OQI/review quality excluded from verdict."
+      },
+      "reliability": {
+        "completed": true,
+        "has_final_markdown": true,
+        "has_final_pdf": true,
+        "no_fatal_error": true,
+        "final_write_gate": true,
+        "tier1_pass": true
+      },
+      "efficiency": {
+        "wall_clock_minutes": 2.1,
+        "tokens_total": 1105534,
+        "tokens_input": 1101164,
+        "tokens_output": 4370,
+        "tool_calls_total": 18,
+        "paper_search_calls": 0,
+        "agent_run_incomplete_count": 0,
+        "flags": []
+      },
+      "oqi": {
+        "q1_structure": {
+          "score": 2,
+          "sections_found": [
+            "summary",
+            "strengths",
+            "weaknesses",
+            "suggestions"
+          ],
+          "word_count": 974,
+          "section_ok": true,
+          "length_ok": true
+        },
+        "q2_coverage": {
+          "score": 1,
+          "keyword_hits": {
+            "method": true,
+            "experiments": true,
+            "limitations": false
+          },
+          "hit_count": 2
+        },
+        "q3_specificity": {
+          "score": 2,
+          "annotation_count": 8,
+          "distinct_pages": 6,
+          "avg_comment_length": 215.9,
+          "count_ok": true,
+          "pages_ok": true,
+          "comment_ok": true
+        },
+        "q4_grounding": {
+          "sample_size": 3,
+          "passed": 3,
+          "pass_rate": 1.0,
+          "checks": [
+            {
+              "annotation_id": "2d37ebce-f18a-4861-b824-a00ed218c087",
+              "page": 4,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "We measure flip rate change for dense training, STE and SR-STE with different λW in Figure 1. For dense training, we com"
+            },
+            {
+              "annotation_id": "d02e0f6e-e236-4ec6-8dab-68608d263d9b",
+              "page": 6,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "As described in Equation (5), both a transposable mask itself and its transposition conform to the format of 2:4 sparsit"
+            },
+            {
+              "annotation_id": "457ea6d0-e787-4c83-966a-bf41f7ecb12c",
+              "page": 9,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "In this study, we are the first to propose accelerating the pre-training of transformers by 2:4 sparsity. We analyze the"
+            }
+          ],
+          "score": 2
+        },
+        "q5_actionability": {
+          "score": 2,
+          "suggestion_bullets": 5,
+          "placeholder_ratio": 0.0,
+          "bullets_ok": true,
+          "placeholder_ok": true
+        },
+        "total": 9,
+        "max": 10,
+        "tier1_quality_pass": true
+      },
+      "tier2_needed": false,
+      "root_cause_bucket": null,
+      "evaluated_at": "2026-06-09T03:56:54.338324+08:00",
+      "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
+      "artifacts": {
+        "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/5767507c-20af-4c57-bbbf-b1f3d031f01b/job.json",
+        "final_report_md": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/5767507c-20af-4c57-bbbf-b1f3d031f01b/final_report.md",
+        "annotations_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/5767507c-20af-4c57-bbbf-b1f3d031f01b/annotations.json",
+        "mineru_markdown": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/5767507c-20af-4c57-bbbf-b1f3d031f01b/mineru_full.md"
       }
     },
     {
@@ -3672,7 +5387,7 @@
       },
       "tier2_needed": false,
       "root_cause_bucket": null,
-      "evaluated_at": "2026-06-09T03:25:31.222251+08:00",
+      "evaluated_at": "2026-06-09T03:56:54.340776+08:00",
       "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
       "artifacts": {
         "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/611b2abb-bdca-4d66-aba3-afbc33a8cb94/job.json",
@@ -4015,7 +5730,7 @@
       },
       "tier2_needed": false,
       "root_cause_bucket": null,
-      "evaluated_at": "2026-06-09T03:25:31.224938+08:00",
+      "evaluated_at": "2026-06-09T03:56:54.343056+08:00",
       "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
       "artifacts": {
         "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/7c40de63-6fca-4c5d-9701-6ffbb2dc0e14/job.json",
@@ -4288,7 +6003,7 @@
       "oqi": null,
       "tier2_needed": true,
       "root_cause_bucket": "R3",
-      "evaluated_at": "2026-06-09T03:25:31.227177+08:00",
+      "evaluated_at": "2026-06-09T03:56:54.344614+08:00",
       "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
       "artifacts": {
         "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/7cafeefd-a795-4420-8399-6fe2436fd942/job.json",
@@ -4631,13 +6346,356 @@
       },
       "tier2_needed": false,
       "root_cause_bucket": null,
-      "evaluated_at": "2026-06-09T03:25:31.230013+08:00",
+      "evaluated_at": "2026-06-09T03:56:54.346846+08:00",
       "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
       "artifacts": {
         "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/877bc6d3-4b97-41bd-94dc-21f421cae868/job.json",
         "final_report_md": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/877bc6d3-4b97-41bd-94dc-21f421cae868/final_report.md",
         "annotations_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/877bc6d3-4b97-41bd-94dc-21f421cae868/annotations.json",
         "mineru_markdown": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/877bc6d3-4b97-41bd-94dc-21f421cae868/mineru_full.md"
+      }
+    },
+    {
+      "job_id": "96f7dc96-7234-418d-8e6b-704eb10f7fae",
+      "title": "acl_2024.acl-short.8",
+      "source_pdf_name": "acl_2024.acl-short.8.pdf",
+      "status": "completed",
+      "error": null,
+      "annotation_count": 8,
+      "demo_checklist": [
+        {
+          "id": "job_completed",
+          "label": "1. Job finished successfully",
+          "pass": true,
+          "value": "completed",
+          "evidence": "job.json → status == completed"
+        },
+        {
+          "id": "report_exists",
+          "label": "2. Report was generated",
+          "pass": true,
+          "value": "Yes",
+          "evidence": "final_report.md exists"
+        },
+        {
+          "id": "annotations_ge_8",
+          "label": "3. Annotations created (≥ 8)",
+          "pass": true,
+          "value": "8",
+          "evidence": "annotations.json exists; annotation_count >= 8"
+        },
+        {
+          "id": "pdf_exists",
+          "label": "4. PDF export worked",
+          "pass": true,
+          "value": "Yes",
+          "evidence": "final_report.pdf exists"
+        },
+        {
+          "id": "runtime_reasonable",
+          "label": "5. Runtime is reasonable",
+          "pass": true,
+          "value": "1.16 min",
+          "evidence": "Flag if > 45 min (record only)",
+          "flag": false
+        },
+        {
+          "id": "tokens_recorded",
+          "label": "6. Token usage",
+          "pass": null,
+          "value": "487104",
+          "evidence": "job.json → usage.token.total_tokens"
+        },
+        {
+          "id": "grounding_2_of_3",
+          "label": "7. Highlights are real (grounding)",
+          "pass": true,
+          "value": "3/3",
+          "evidence": "At least 2 of 3 sampled annotations appear in mineru_full.md"
+        }
+      ],
+      "demo_grounding": {
+        "passed": 3,
+        "sample_size": 3,
+        "display": "3/3",
+        "pass": true,
+        "rule": "At least 2 of 3 sampled annotations appear in mineru_full.md",
+        "checks": [
+          {
+            "annotation_id": "7eda9330-c774-4030-930d-c68135b20ef3",
+            "page": 3,
+            "overlap": 1.0,
+            "passed": true,
+            "quoted_preview": "Finally, we contrast the experiments given in Figures 1 and 2 with a third experiment, in which the LLM is given all dig"
+          },
+          {
+            "annotation_id": "15c65847-335c-45b6-9187-8edf581b07a0",
+            "page": 2,
+            "overlap": 1.0,
+            "passed": true,
+            "quoted_preview": "In Figure 1 we can see that both Llama 2-7B and Llama 2-13B can confidently and correctly predict the first digit of the"
+          },
+          {
+            "annotation_id": "beb98cc7-7153-4fb2-982e-98892fb16b7b",
+            "page": 2,
+            "overlap": 1.0,
+            "passed": true,
+            "quoted_preview": "Our results when applying MC Dropout to Llama 2 and Mistral in arithmetic tasks were surprising. We found that all model"
+          }
+        ]
+      },
+      "demo_verdict": {
+        "verdict": "pass",
+        "checks_passed": 6,
+        "checks_scored": 6,
+        "checks_total": 7,
+        "note": "Demo checklist: pipeline reliability and span grounding only (not review quality)."
+      },
+      "framework": {
+        "name": "MINT–AgentBoard System Performance Evaluation Framework",
+        "scope": "system_performance_only",
+        "design_doc": "docs/2026-06-01-tiered-system-evaluation-design.md",
+        "sources": [
+          {
+            "id": "mint",
+            "paper": "MINT: Evaluating LLMs in Multi-turn Interaction with Tools and Language Feedback",
+            "authors": "Wang et al.",
+            "venue": "ICLR 2024",
+            "pdf_url": "https://openreview.net/pdf?id=jp3gWrMuIZ",
+            "citation": "Table 2 (Success Rate, interaction limit k); §3.2"
+          },
+          {
+            "id": "agentboard",
+            "paper": "AgentBoard: An Analytical Evaluation Board of Multi-turn LLM Agents",
+            "authors": "Ma et al.",
+            "venue": "NeurIPS 2024 (D&B Track)",
+            "pdf_url": "https://proceedings.neurips.cc/paper_files/paper/2024/file/877b40688e330a0e2a3fc24084208dfa-Paper-Datasets_and_Benchmarks_Track.pdf",
+            "citation": "Table 1 (multi-round interaction, fine-grained metrics, traceability)"
+          }
+        ],
+        "go_no_go_thresholds": {
+          "completion_rate_min": 0.85,
+          "deliverable_rate_min": 0.8,
+          "median_wall_clock_max_minutes": 45
+        }
+      },
+      "system_metrics": {
+        "M1_sr": {
+          "label": "Success Rate (SR)",
+          "description": "Did the review job finish with status completed (no fatal pipeline error)?",
+          "value": true,
+          "pass": true,
+          "source": "MINT Table 2",
+          "calculation": "job.json → status == completed"
+        },
+        "M2_k_proxy": {
+          "label": "Interaction depth (k proxy)",
+          "description": "How many tool/LLM rounds the agent ran — proxy for MINT interaction limit k.",
+          "value": 17,
+          "pass": true,
+          "source": "MINT Table 2",
+          "calculation": "job.json → usage.tool.total_calls"
+        },
+        "M3_deliverable": {
+          "label": "Deliverable (tier1 pass)",
+          "description": "Job completed and produced final_report.md (>2 KB) plus final PDF when expected.",
+          "value": true,
+          "pass": true,
+          "source": "AgentBoard §2",
+          "calculation": "completed AND final_report.md > 2048 bytes AND final_report.pdf exists"
+        },
+        "M4_multi_round": {
+          "label": "Multi-round interaction",
+          "description": "Agent used a real tool loop (≥5 calls), not a single-shot or noop run.",
+          "value": true,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "usage.tool.total_calls >= 5"
+        },
+        "M5_wall_clock": {
+          "label": "Wall-clock latency (min)",
+          "description": "Real elapsed minutes from job start to terminal event. Flag if >45 min (fast mode).",
+          "value": 1.16,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "events.jsonl: created → completed/failed timestamp"
+        },
+        "M6_tokens": {
+          "label": "Token cost (total)",
+          "description": "Total LLM tokens used (input + output). Cost proxy — recorded, not pass/fail.",
+          "value": 487104,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "job.json → usage.token.total_tokens"
+        },
+        "M7_trace": {
+          "label": "Traceable process",
+          "description": "events.jsonl logs a terminal event so the run is auditable end-to-end.",
+          "value": true,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "completed / failed / evaluation_completed in events.jsonl"
+        }
+      },
+      "system_checklist": [
+        {
+          "id": "job_completed",
+          "label": "Job completed (SR)",
+          "pass": true,
+          "source": "MINT Table 2",
+          "evidence": "reliability.completed == true"
+        },
+        {
+          "id": "final_markdown",
+          "label": "Final markdown deliverable (>2 KB)",
+          "pass": true,
+          "source": "AgentBoard §2",
+          "evidence": "final_report.md size > 2048 bytes"
+        },
+        {
+          "id": "final_pdf",
+          "label": "Final PDF exported",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "final_report.pdf exists"
+        },
+        {
+          "id": "final_write_gate",
+          "label": "Final write gate satisfied",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "review_final_markdown_write or final_report_ready"
+        },
+        {
+          "id": "multi_round",
+          "label": "Multi-round tool loop (≥5 tool calls)",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "tool_calls_total=17"
+        },
+        {
+          "id": "traceable",
+          "label": "Auditable event trace",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "terminal event in events.jsonl"
+        },
+        {
+          "id": "wall_clock_fast",
+          "label": "Wall-clock within fast-mode target (≤45 min)",
+          "pass": true,
+          "source": "AgentBoard Table 1 / design doc",
+          "evidence": "wall_clock_minutes=1.16"
+        }
+      ],
+      "system_verdict": {
+        "verdict": "pass",
+        "critical_pass": true,
+        "checklist_passed": 7,
+        "checklist_total": 7,
+        "tier1_pass": true,
+        "wall_clock_minutes": 1.16,
+        "wall_clock_within_target": true,
+        "note": "System performance only; OQI/review quality excluded from verdict."
+      },
+      "reliability": {
+        "completed": true,
+        "has_final_markdown": true,
+        "has_final_pdf": true,
+        "no_fatal_error": true,
+        "final_write_gate": true,
+        "tier1_pass": true
+      },
+      "efficiency": {
+        "wall_clock_minutes": 1.16,
+        "tokens_total": 487104,
+        "tokens_input": 483944,
+        "tokens_output": 3160,
+        "tool_calls_total": 17,
+        "paper_search_calls": 0,
+        "agent_run_incomplete_count": 0,
+        "flags": []
+      },
+      "oqi": {
+        "q1_structure": {
+          "score": 2,
+          "sections_found": [
+            "summary",
+            "strengths",
+            "weaknesses",
+            "suggestions"
+          ],
+          "word_count": 811,
+          "section_ok": true,
+          "length_ok": true
+        },
+        "q2_coverage": {
+          "score": 1,
+          "keyword_hits": {
+            "method": true,
+            "experiments": true,
+            "limitations": false
+          },
+          "hit_count": 2
+        },
+        "q3_specificity": {
+          "score": 2,
+          "annotation_count": 8,
+          "distinct_pages": 4,
+          "avg_comment_length": 339.5,
+          "count_ok": true,
+          "pages_ok": true,
+          "comment_ok": true
+        },
+        "q4_grounding": {
+          "sample_size": 3,
+          "passed": 3,
+          "pass_rate": 1.0,
+          "checks": [
+            {
+              "annotation_id": "7eda9330-c774-4030-930d-c68135b20ef3",
+              "page": 3,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "Finally, we contrast the experiments given in Figures 1 and 2 with a third experiment, in which the LLM is given all dig"
+            },
+            {
+              "annotation_id": "15c65847-335c-45b6-9187-8edf581b07a0",
+              "page": 2,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "In Figure 1 we can see that both Llama 2-7B and Llama 2-13B can confidently and correctly predict the first digit of the"
+            },
+            {
+              "annotation_id": "beb98cc7-7153-4fb2-982e-98892fb16b7b",
+              "page": 2,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "Our results when applying MC Dropout to Llama 2 and Mistral in arithmetic tasks were surprising. We found that all model"
+            }
+          ],
+          "score": 2
+        },
+        "q5_actionability": {
+          "score": 2,
+          "suggestion_bullets": 6,
+          "placeholder_ratio": 0.0,
+          "bullets_ok": true,
+          "placeholder_ok": true
+        },
+        "total": 9,
+        "max": 10,
+        "tier1_quality_pass": true
+      },
+      "tier2_needed": false,
+      "root_cause_bucket": null,
+      "evaluated_at": "2026-06-09T03:56:54.349188+08:00",
+      "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
+      "artifacts": {
+        "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/96f7dc96-7234-418d-8e6b-704eb10f7fae/job.json",
+        "final_report_md": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/96f7dc96-7234-418d-8e6b-704eb10f7fae/final_report.md",
+        "annotations_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/96f7dc96-7234-418d-8e6b-704eb10f7fae/annotations.json",
+        "mineru_markdown": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/96f7dc96-7234-418d-8e6b-704eb10f7fae/mineru_full.md"
       }
     },
     {
@@ -4974,7 +7032,7 @@
       },
       "tier2_needed": false,
       "root_cause_bucket": null,
-      "evaluated_at": "2026-06-09T03:25:31.232842+08:00",
+      "evaluated_at": "2026-06-09T03:56:54.351405+08:00",
       "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
       "artifacts": {
         "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/a52fab83-b229-438b-a3f9-67cf72445e80/job.json",
@@ -5317,7 +7375,7 @@
       },
       "tier2_needed": false,
       "root_cause_bucket": null,
-      "evaluated_at": "2026-06-09T03:25:31.236400+08:00",
+      "evaluated_at": "2026-06-09T03:56:54.354018+08:00",
       "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
       "artifacts": {
         "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/bd9df89f-0d4f-407f-9e51-e43c49b13105/job.json",
@@ -5660,7 +7718,7 @@
       },
       "tier2_needed": false,
       "root_cause_bucket": null,
-      "evaluated_at": "2026-06-09T03:25:31.239419+08:00",
+      "evaluated_at": "2026-06-09T03:56:54.356254+08:00",
       "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
       "artifacts": {
         "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/c4a10afa-c244-45db-bc07-63368d3a6ae1/job.json",
@@ -5668,21 +7726,707 @@
         "annotations_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/c4a10afa-c244-45db-bc07-63368d3a6ae1/annotations.json",
         "mineru_markdown": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/c4a10afa-c244-45db-bc07-63368d3a6ae1/mineru_full.md"
       }
+    },
+    {
+      "job_id": "c7e1556c-6451-47f9-9045-dd2972fd90b4",
+      "title": "computers_and_education_1-s2.0-s0360131524002380-main",
+      "source_pdf_name": "computers_and_education_1-s2.0-s0360131524002380-main.pdf",
+      "status": "completed",
+      "error": null,
+      "annotation_count": 8,
+      "demo_checklist": [
+        {
+          "id": "job_completed",
+          "label": "1. Job finished successfully",
+          "pass": true,
+          "value": "completed",
+          "evidence": "job.json → status == completed"
+        },
+        {
+          "id": "report_exists",
+          "label": "2. Report was generated",
+          "pass": true,
+          "value": "Yes",
+          "evidence": "final_report.md exists"
+        },
+        {
+          "id": "annotations_ge_8",
+          "label": "3. Annotations created (≥ 8)",
+          "pass": true,
+          "value": "8",
+          "evidence": "annotations.json exists; annotation_count >= 8"
+        },
+        {
+          "id": "pdf_exists",
+          "label": "4. PDF export worked",
+          "pass": true,
+          "value": "Yes",
+          "evidence": "final_report.pdf exists"
+        },
+        {
+          "id": "runtime_reasonable",
+          "label": "5. Runtime is reasonable",
+          "pass": true,
+          "value": "4.93 min",
+          "evidence": "Flag if > 45 min (record only)",
+          "flag": false
+        },
+        {
+          "id": "tokens_recorded",
+          "label": "6. Token usage",
+          "pass": null,
+          "value": "2465631",
+          "evidence": "job.json → usage.token.total_tokens"
+        },
+        {
+          "id": "grounding_2_of_3",
+          "label": "7. Highlights are real (grounding)",
+          "pass": true,
+          "value": "3/3",
+          "evidence": "At least 2 of 3 sampled annotations appear in mineru_full.md"
+        }
+      ],
+      "demo_grounding": {
+        "passed": 3,
+        "sample_size": 3,
+        "display": "3/3",
+        "pass": true,
+        "rule": "At least 2 of 3 sampled annotations appear in mineru_full.md",
+        "checks": [
+          {
+            "annotation_id": "de8d17ae-73a3-42ff-b079-ec9b4c82a5c3",
+            "page": 12,
+            "overlap": 1.0,
+            "passed": true,
+            "quoted_preview": "Academic performance 44 out of 51 effect sizes were positive, indicating that most ChatGPT interventions enhanced academ"
+          },
+          {
+            "annotation_id": "4f2fd6ff-b354-4c0c-85bf-69879d8cff19",
+            "page": 8,
+            "overlap": 1.0,
+            "passed": true,
+            "quoted_preview": "The quality score for each publication was calculated by dividing the total score by the maximum possible score of 28. H"
+          },
+          {
+            "annotation_id": "7384cd3e-6583-4801-89e4-77310bd01252",
+            "page": 18,
+            "overlap": 1.0,
+            "passed": true,
+            "quoted_preview": "The moderator analysis showed that subject area, intervention setting, and duration were significant moderators of the e"
+          }
+        ]
+      },
+      "demo_verdict": {
+        "verdict": "pass",
+        "checks_passed": 6,
+        "checks_scored": 6,
+        "checks_total": 7,
+        "note": "Demo checklist: pipeline reliability and span grounding only (not review quality)."
+      },
+      "framework": {
+        "name": "MINT–AgentBoard System Performance Evaluation Framework",
+        "scope": "system_performance_only",
+        "design_doc": "docs/2026-06-01-tiered-system-evaluation-design.md",
+        "sources": [
+          {
+            "id": "mint",
+            "paper": "MINT: Evaluating LLMs in Multi-turn Interaction with Tools and Language Feedback",
+            "authors": "Wang et al.",
+            "venue": "ICLR 2024",
+            "pdf_url": "https://openreview.net/pdf?id=jp3gWrMuIZ",
+            "citation": "Table 2 (Success Rate, interaction limit k); §3.2"
+          },
+          {
+            "id": "agentboard",
+            "paper": "AgentBoard: An Analytical Evaluation Board of Multi-turn LLM Agents",
+            "authors": "Ma et al.",
+            "venue": "NeurIPS 2024 (D&B Track)",
+            "pdf_url": "https://proceedings.neurips.cc/paper_files/paper/2024/file/877b40688e330a0e2a3fc24084208dfa-Paper-Datasets_and_Benchmarks_Track.pdf",
+            "citation": "Table 1 (multi-round interaction, fine-grained metrics, traceability)"
+          }
+        ],
+        "go_no_go_thresholds": {
+          "completion_rate_min": 0.85,
+          "deliverable_rate_min": 0.8,
+          "median_wall_clock_max_minutes": 45
+        }
+      },
+      "system_metrics": {
+        "M1_sr": {
+          "label": "Success Rate (SR)",
+          "description": "Did the review job finish with status completed (no fatal pipeline error)?",
+          "value": true,
+          "pass": true,
+          "source": "MINT Table 2",
+          "calculation": "job.json → status == completed"
+        },
+        "M2_k_proxy": {
+          "label": "Interaction depth (k proxy)",
+          "description": "How many tool/LLM rounds the agent ran — proxy for MINT interaction limit k.",
+          "value": 26,
+          "pass": true,
+          "source": "MINT Table 2",
+          "calculation": "job.json → usage.tool.total_calls"
+        },
+        "M3_deliverable": {
+          "label": "Deliverable (tier1 pass)",
+          "description": "Job completed and produced final_report.md (>2 KB) plus final PDF when expected.",
+          "value": true,
+          "pass": true,
+          "source": "AgentBoard §2",
+          "calculation": "completed AND final_report.md > 2048 bytes AND final_report.pdf exists"
+        },
+        "M4_multi_round": {
+          "label": "Multi-round interaction",
+          "description": "Agent used a real tool loop (≥5 calls), not a single-shot or noop run.",
+          "value": true,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "usage.tool.total_calls >= 5"
+        },
+        "M5_wall_clock": {
+          "label": "Wall-clock latency (min)",
+          "description": "Real elapsed minutes from job start to terminal event. Flag if >45 min (fast mode).",
+          "value": 4.93,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "events.jsonl: created → completed/failed timestamp"
+        },
+        "M6_tokens": {
+          "label": "Token cost (total)",
+          "description": "Total LLM tokens used (input + output). Cost proxy — recorded, not pass/fail.",
+          "value": 2465631,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "job.json → usage.token.total_tokens"
+        },
+        "M7_trace": {
+          "label": "Traceable process",
+          "description": "events.jsonl logs a terminal event so the run is auditable end-to-end.",
+          "value": true,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "completed / failed / evaluation_completed in events.jsonl"
+        }
+      },
+      "system_checklist": [
+        {
+          "id": "job_completed",
+          "label": "Job completed (SR)",
+          "pass": true,
+          "source": "MINT Table 2",
+          "evidence": "reliability.completed == true"
+        },
+        {
+          "id": "final_markdown",
+          "label": "Final markdown deliverable (>2 KB)",
+          "pass": true,
+          "source": "AgentBoard §2",
+          "evidence": "final_report.md size > 2048 bytes"
+        },
+        {
+          "id": "final_pdf",
+          "label": "Final PDF exported",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "final_report.pdf exists"
+        },
+        {
+          "id": "final_write_gate",
+          "label": "Final write gate satisfied",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "review_final_markdown_write or final_report_ready"
+        },
+        {
+          "id": "multi_round",
+          "label": "Multi-round tool loop (≥5 tool calls)",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "tool_calls_total=26"
+        },
+        {
+          "id": "traceable",
+          "label": "Auditable event trace",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "terminal event in events.jsonl"
+        },
+        {
+          "id": "wall_clock_fast",
+          "label": "Wall-clock within fast-mode target (≤45 min)",
+          "pass": true,
+          "source": "AgentBoard Table 1 / design doc",
+          "evidence": "wall_clock_minutes=4.93"
+        }
+      ],
+      "system_verdict": {
+        "verdict": "pass",
+        "critical_pass": true,
+        "checklist_passed": 7,
+        "checklist_total": 7,
+        "tier1_pass": true,
+        "wall_clock_minutes": 4.93,
+        "wall_clock_within_target": true,
+        "note": "System performance only; OQI/review quality excluded from verdict."
+      },
+      "reliability": {
+        "completed": true,
+        "has_final_markdown": true,
+        "has_final_pdf": true,
+        "no_fatal_error": true,
+        "final_write_gate": true,
+        "tier1_pass": true
+      },
+      "efficiency": {
+        "wall_clock_minutes": 4.93,
+        "tokens_total": 2465631,
+        "tokens_input": 2457583,
+        "tokens_output": 8048,
+        "tool_calls_total": 26,
+        "paper_search_calls": 0,
+        "agent_run_incomplete_count": 1,
+        "flags": []
+      },
+      "oqi": {
+        "q1_structure": {
+          "score": 2,
+          "sections_found": [
+            "summary",
+            "strengths",
+            "weaknesses",
+            "suggestions"
+          ],
+          "word_count": 836,
+          "section_ok": true,
+          "length_ok": true
+        },
+        "q2_coverage": {
+          "score": 1,
+          "keyword_hits": {
+            "method": false,
+            "experiments": true,
+            "limitations": true
+          },
+          "hit_count": 2
+        },
+        "q3_specificity": {
+          "score": 2,
+          "annotation_count": 8,
+          "distinct_pages": 7,
+          "avg_comment_length": 207.9,
+          "count_ok": true,
+          "pages_ok": true,
+          "comment_ok": true
+        },
+        "q4_grounding": {
+          "sample_size": 3,
+          "passed": 3,
+          "pass_rate": 1.0,
+          "checks": [
+            {
+              "annotation_id": "de8d17ae-73a3-42ff-b079-ec9b4c82a5c3",
+              "page": 12,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "Academic performance 44 out of 51 effect sizes were positive, indicating that most ChatGPT interventions enhanced academ"
+            },
+            {
+              "annotation_id": "4f2fd6ff-b354-4c0c-85bf-69879d8cff19",
+              "page": 8,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "The quality score for each publication was calculated by dividing the total score by the maximum possible score of 28. H"
+            },
+            {
+              "annotation_id": "7384cd3e-6583-4801-89e4-77310bd01252",
+              "page": 18,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "The moderator analysis showed that subject area, intervention setting, and duration were significant moderators of the e"
+            }
+          ],
+          "score": 2
+        },
+        "q5_actionability": {
+          "score": 2,
+          "suggestion_bullets": 6,
+          "placeholder_ratio": 0.0,
+          "bullets_ok": true,
+          "placeholder_ok": true
+        },
+        "total": 9,
+        "max": 10,
+        "tier1_quality_pass": true
+      },
+      "tier2_needed": false,
+      "root_cause_bucket": null,
+      "evaluated_at": "2026-06-09T03:56:54.359351+08:00",
+      "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
+      "artifacts": {
+        "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/c7e1556c-6451-47f9-9045-dd2972fd90b4/job.json",
+        "final_report_md": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/c7e1556c-6451-47f9-9045-dd2972fd90b4/final_report.md",
+        "annotations_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/c7e1556c-6451-47f9-9045-dd2972fd90b4/annotations.json",
+        "mineru_markdown": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/c7e1556c-6451-47f9-9045-dd2972fd90b4/mineru_full.md"
+      }
+    },
+    {
+      "job_id": "e8acf9e8-4b00-4a92-9bee-fec376bb4680",
+      "title": "ets_liu-usingaibasedobject-2023",
+      "source_pdf_name": "ets_liu-usingaibasedobject-2023.pdf",
+      "status": "completed",
+      "error": null,
+      "annotation_count": 8,
+      "demo_checklist": [
+        {
+          "id": "job_completed",
+          "label": "1. Job finished successfully",
+          "pass": true,
+          "value": "completed",
+          "evidence": "job.json → status == completed"
+        },
+        {
+          "id": "report_exists",
+          "label": "2. Report was generated",
+          "pass": true,
+          "value": "Yes",
+          "evidence": "final_report.md exists"
+        },
+        {
+          "id": "annotations_ge_8",
+          "label": "3. Annotations created (≥ 8)",
+          "pass": true,
+          "value": "8",
+          "evidence": "annotations.json exists; annotation_count >= 8"
+        },
+        {
+          "id": "pdf_exists",
+          "label": "4. PDF export worked",
+          "pass": true,
+          "value": "Yes",
+          "evidence": "final_report.pdf exists"
+        },
+        {
+          "id": "runtime_reasonable",
+          "label": "5. Runtime is reasonable",
+          "pass": true,
+          "value": "2.32 min",
+          "evidence": "Flag if > 45 min (record only)",
+          "flag": false
+        },
+        {
+          "id": "tokens_recorded",
+          "label": "6. Token usage",
+          "pass": null,
+          "value": "950058",
+          "evidence": "job.json → usage.token.total_tokens"
+        },
+        {
+          "id": "grounding_2_of_3",
+          "label": "7. Highlights are real (grounding)",
+          "pass": true,
+          "value": "3/3",
+          "evidence": "At least 2 of 3 sampled annotations appear in mineru_full.md"
+        }
+      ],
+      "demo_grounding": {
+        "passed": 3,
+        "sample_size": 3,
+        "display": "3/3",
+        "pass": true,
+        "rule": "At least 2 of 3 sampled annotations appear in mineru_full.md",
+        "checks": [
+          {
+            "annotation_id": "00f563e5-71a2-47e3-89b9-166e0c4a47f8",
+            "page": 11,
+            "overlap": 1.0,
+            "passed": true,
+            "quoted_preview": "In order to reduce the practice effects, the researchers provided a two-week warm-up story reading exercise before the e"
+          },
+          {
+            "annotation_id": "ef3a58e0-16fb-472b-9368-1771503d0b78",
+            "page": 13,
+            "overlap": 1.0,
+            "passed": true,
+            "quoted_preview": "According to Venkatesh and Davis (2000), if learners find a system to be simple to use and useful, they will use it agai"
+          },
+          {
+            "annotation_id": "37a09ac3-2b82-4878-8b2b-804376d2523d",
+            "page": 2,
+            "overlap": 1.0,
+            "passed": true,
+            "quoted_preview": "This study explored the potential of combining an artificial intelligence (AI) based object detection translation (ODT) "
+          }
+        ]
+      },
+      "demo_verdict": {
+        "verdict": "pass",
+        "checks_passed": 6,
+        "checks_scored": 6,
+        "checks_total": 7,
+        "note": "Demo checklist: pipeline reliability and span grounding only (not review quality)."
+      },
+      "framework": {
+        "name": "MINT–AgentBoard System Performance Evaluation Framework",
+        "scope": "system_performance_only",
+        "design_doc": "docs/2026-06-01-tiered-system-evaluation-design.md",
+        "sources": [
+          {
+            "id": "mint",
+            "paper": "MINT: Evaluating LLMs in Multi-turn Interaction with Tools and Language Feedback",
+            "authors": "Wang et al.",
+            "venue": "ICLR 2024",
+            "pdf_url": "https://openreview.net/pdf?id=jp3gWrMuIZ",
+            "citation": "Table 2 (Success Rate, interaction limit k); §3.2"
+          },
+          {
+            "id": "agentboard",
+            "paper": "AgentBoard: An Analytical Evaluation Board of Multi-turn LLM Agents",
+            "authors": "Ma et al.",
+            "venue": "NeurIPS 2024 (D&B Track)",
+            "pdf_url": "https://proceedings.neurips.cc/paper_files/paper/2024/file/877b40688e330a0e2a3fc24084208dfa-Paper-Datasets_and_Benchmarks_Track.pdf",
+            "citation": "Table 1 (multi-round interaction, fine-grained metrics, traceability)"
+          }
+        ],
+        "go_no_go_thresholds": {
+          "completion_rate_min": 0.85,
+          "deliverable_rate_min": 0.8,
+          "median_wall_clock_max_minutes": 45
+        }
+      },
+      "system_metrics": {
+        "M1_sr": {
+          "label": "Success Rate (SR)",
+          "description": "Did the review job finish with status completed (no fatal pipeline error)?",
+          "value": true,
+          "pass": true,
+          "source": "MINT Table 2",
+          "calculation": "job.json → status == completed"
+        },
+        "M2_k_proxy": {
+          "label": "Interaction depth (k proxy)",
+          "description": "How many tool/LLM rounds the agent ran — proxy for MINT interaction limit k.",
+          "value": 19,
+          "pass": true,
+          "source": "MINT Table 2",
+          "calculation": "job.json → usage.tool.total_calls"
+        },
+        "M3_deliverable": {
+          "label": "Deliverable (tier1 pass)",
+          "description": "Job completed and produced final_report.md (>2 KB) plus final PDF when expected.",
+          "value": true,
+          "pass": true,
+          "source": "AgentBoard §2",
+          "calculation": "completed AND final_report.md > 2048 bytes AND final_report.pdf exists"
+        },
+        "M4_multi_round": {
+          "label": "Multi-round interaction",
+          "description": "Agent used a real tool loop (≥5 calls), not a single-shot or noop run.",
+          "value": true,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "usage.tool.total_calls >= 5"
+        },
+        "M5_wall_clock": {
+          "label": "Wall-clock latency (min)",
+          "description": "Real elapsed minutes from job start to terminal event. Flag if >45 min (fast mode).",
+          "value": 2.32,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "events.jsonl: created → completed/failed timestamp"
+        },
+        "M6_tokens": {
+          "label": "Token cost (total)",
+          "description": "Total LLM tokens used (input + output). Cost proxy — recorded, not pass/fail.",
+          "value": 950058,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "job.json → usage.token.total_tokens"
+        },
+        "M7_trace": {
+          "label": "Traceable process",
+          "description": "events.jsonl logs a terminal event so the run is auditable end-to-end.",
+          "value": true,
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "calculation": "completed / failed / evaluation_completed in events.jsonl"
+        }
+      },
+      "system_checklist": [
+        {
+          "id": "job_completed",
+          "label": "Job completed (SR)",
+          "pass": true,
+          "source": "MINT Table 2",
+          "evidence": "reliability.completed == true"
+        },
+        {
+          "id": "final_markdown",
+          "label": "Final markdown deliverable (>2 KB)",
+          "pass": true,
+          "source": "AgentBoard §2",
+          "evidence": "final_report.md size > 2048 bytes"
+        },
+        {
+          "id": "final_pdf",
+          "label": "Final PDF exported",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "final_report.pdf exists"
+        },
+        {
+          "id": "final_write_gate",
+          "label": "Final write gate satisfied",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "review_final_markdown_write or final_report_ready"
+        },
+        {
+          "id": "multi_round",
+          "label": "Multi-round tool loop (≥5 tool calls)",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "tool_calls_total=19"
+        },
+        {
+          "id": "traceable",
+          "label": "Auditable event trace",
+          "pass": true,
+          "source": "AgentBoard Table 1",
+          "evidence": "terminal event in events.jsonl"
+        },
+        {
+          "id": "wall_clock_fast",
+          "label": "Wall-clock within fast-mode target (≤45 min)",
+          "pass": true,
+          "source": "AgentBoard Table 1 / design doc",
+          "evidence": "wall_clock_minutes=2.32"
+        }
+      ],
+      "system_verdict": {
+        "verdict": "pass",
+        "critical_pass": true,
+        "checklist_passed": 7,
+        "checklist_total": 7,
+        "tier1_pass": true,
+        "wall_clock_minutes": 2.32,
+        "wall_clock_within_target": true,
+        "note": "System performance only; OQI/review quality excluded from verdict."
+      },
+      "reliability": {
+        "completed": true,
+        "has_final_markdown": true,
+        "has_final_pdf": true,
+        "no_fatal_error": true,
+        "final_write_gate": true,
+        "tier1_pass": true
+      },
+      "efficiency": {
+        "wall_clock_minutes": 2.32,
+        "tokens_total": 950058,
+        "tokens_input": 944174,
+        "tokens_output": 5884,
+        "tool_calls_total": 19,
+        "paper_search_calls": 0,
+        "agent_run_incomplete_count": 0,
+        "flags": []
+      },
+      "oqi": {
+        "q1_structure": {
+          "score": 2,
+          "sections_found": [
+            "summary",
+            "strengths",
+            "weaknesses",
+            "suggestions"
+          ],
+          "word_count": 1019,
+          "section_ok": true,
+          "length_ok": true
+        },
+        "q2_coverage": {
+          "score": 2,
+          "keyword_hits": {
+            "method": true,
+            "experiments": true,
+            "limitations": true
+          },
+          "hit_count": 3
+        },
+        "q3_specificity": {
+          "score": 2,
+          "annotation_count": 8,
+          "distinct_pages": 6,
+          "avg_comment_length": 266.4,
+          "count_ok": true,
+          "pages_ok": true,
+          "comment_ok": true
+        },
+        "q4_grounding": {
+          "sample_size": 3,
+          "passed": 3,
+          "pass_rate": 1.0,
+          "checks": [
+            {
+              "annotation_id": "00f563e5-71a2-47e3-89b9-166e0c4a47f8",
+              "page": 11,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "In order to reduce the practice effects, the researchers provided a two-week warm-up story reading exercise before the e"
+            },
+            {
+              "annotation_id": "ef3a58e0-16fb-472b-9368-1771503d0b78",
+              "page": 13,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "According to Venkatesh and Davis (2000), if learners find a system to be simple to use and useful, they will use it agai"
+            },
+            {
+              "annotation_id": "37a09ac3-2b82-4878-8b2b-804376d2523d",
+              "page": 2,
+              "overlap": 1.0,
+              "passed": true,
+              "quoted_preview": "This study explored the potential of combining an artificial intelligence (AI) based object detection translation (ODT) "
+            }
+          ],
+          "score": 2
+        },
+        "q5_actionability": {
+          "score": 2,
+          "suggestion_bullets": 7,
+          "placeholder_ratio": 0.0,
+          "bullets_ok": true,
+          "placeholder_ok": true
+        },
+        "total": 10,
+        "max": 10,
+        "tier1_quality_pass": true
+      },
+      "tier2_needed": false,
+      "root_cause_bucket": null,
+      "evaluated_at": "2026-06-09T03:56:54.361315+08:00",
+      "spec": "docs/2026-06-01-tiered-system-evaluation-design.md Tier 1",
+      "artifacts": {
+        "job_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/e8acf9e8-4b00-4a92-9bee-fec376bb4680/job.json",
+        "final_report_md": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/e8acf9e8-4b00-4a92-9bee-fec376bb4680/final_report.md",
+        "annotations_json": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/e8acf9e8-4b00-4a92-9bee-fec376bb4680/annotations.json",
+        "mineru_markdown": "/Users/xuxiangjie/Desktop/研究所/AgenticAI-Group5/data/jobs/e8acf9e8-4b00-4a92-9bee-fec376bb4680/mineru_full.md"
+      }
     }
   ],
   "aggregate": {
     "framework": "MINT–AgentBoard System Performance Evaluation Framework",
     "scope": "system_performance_only",
-    "job_count": 17,
-    "completed_count": 15,
-    "completion_rate": 0.882,
-    "deliverable_count": 15,
-    "deliverable_rate": 0.882,
-    "demo_pass_count": 15,
-    "demo_pass_rate": 0.882,
-    "avg_annotations": 8.13,
-    "avg_wall_clock_minutes": 2.39,
-    "grounding_pass_jobs": 15,
+    "job_count": 25,
+    "completed_count": 23,
+    "completion_rate": 0.92,
+    "deliverable_count": 23,
+    "deliverable_rate": 0.92,
+    "demo_pass_count": 23,
+    "demo_pass_rate": 0.92,
+    "avg_annotations": 8.09,
+    "avg_wall_clock_minutes": 2.52,
+    "grounding_pass_jobs": 23,
     "grounding_job_pass_rate": 1.0,
     "demo_verdict": "pass",
     "demo_thresholds": {
@@ -5690,10 +8434,10 @@
       "grounding_job_pass_rate_min": 0.8,
       "annotations_min": 8
     },
-    "system_pass_count": 15,
-    "system_pass_rate": 0.882,
-    "median_wall_clock_minutes": 1.79,
-    "median_tokens_total": 395113,
+    "system_pass_count": 23,
+    "system_pass_rate": 0.92,
+    "median_wall_clock_minutes": 2.03,
+    "median_tokens_total": 652848,
     "median_tool_calls_total": 21,
     "root_cause_counts": {
       "R2": 1,
